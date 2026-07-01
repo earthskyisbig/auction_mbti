@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>부동산 투자성향 테스트 · 매매 / 경매</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --dark:#141413; --light:#faf9f5; --light-gray:#e8e6dc; --mid-gray:#b0aea5;
+  --orange:#d97757; --blue:#6a9bcc; --green:#788c5d;
+  --mute:rgba(20,20,19,0.62); --on-dark-mute:rgba(250,249,245,0.6);
+  --line:rgba(20,20,19,0.1);
+  --heading:'Poppins', Arial, sans-serif; --body:'Lora', Georgia, serif; --label:'Poppins', Arial, sans-serif;
+  --maxw:880px; --ease:cubic-bezier(.16,1,.3,1);
+}
+*{ box-sizing:border-box; }
+body{ margin:0; background:var(--light); color:var(--dark); font-family:var(--body); -webkit-font-smoothing:antialiased; line-height:1.6; }
+h1,h2,h3,h4{ margin:0; font-family:var(--heading); font-weight:600; letter-spacing:-0.01em; }
+a{ color:var(--orange); }
+::selection{ background:var(--orange); color:var(--light); }
+:focus-visible{ outline:2px solid var(--orange); outline-offset:3px; }
+.wrap{ max-width:var(--maxw); margin:0 auto; padding:0 24px; }
+
+/* progress */
+.progress{ position:fixed; top:0; left:0; height:3px; width:0%; background:linear-gradient(90deg,var(--orange),var(--blue)); z-index:100; transition:width 0.35s var(--ease); }
+
+/* eyebrow */
+.eyebrow{ font-family:var(--label); font-size:0.72rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--mute); display:inline-flex; align-items:center; gap:0.5em; background:var(--light-gray); padding:6px 14px; border-radius:999px; }
+.eyebrow::before{ content:''; width:6px; height:6px; background:var(--orange); border-radius:50%; display:inline-block; }
+
+/* screens */
+.screen{ display:none; min-height:100vh; padding:64px 0 96px; }
+.screen.active{ display:block; animation:fade 0.5s var(--ease); }
+@keyframes fade{ from{ opacity:0; transform:translateY(12px);} to{ opacity:1; transform:translateY(0);} }
+
+/* ---- start hero ---- */
+.hero{ position:relative; text-align:center; overflow:hidden; }
+.blob{ position:absolute; border-radius:50%; filter:blur(60px); pointer-events:none; opacity:0.5; z-index:0; }
+.blob.b1{ width:340px; height:340px; background:var(--orange); top:-60px; left:8%; animation:driftA 16s var(--ease) infinite; }
+.blob.b2{ width:300px; height:300px; background:var(--blue); top:10px; right:6%; animation:driftB 19s var(--ease) infinite; }
+.blob.b3{ width:240px; height:240px; background:var(--green); top:120px; left:40%; animation:driftC 22s var(--ease) infinite; }
+@keyframes driftA{ 0%,100%{ transform:translate(0,0) scale(1);} 50%{ transform:translate(40px,30px) scale(1.12);} }
+@keyframes driftB{ 0%,100%{ transform:translate(0,0) scale(1);} 50%{ transform:translate(-36px,24px) scale(1.08);} }
+@keyframes driftC{ 0%,100%{ transform:translate(0,0) scale(1);} 50%{ transform:translate(20px,-26px) scale(1.1);} }
+.hero .inner{ position:relative; z-index:1; }
+.hero h1{ font-size:clamp(2.1rem,5vw,3.2rem); line-height:1.12; margin:18px 0 14px; }
+.hero h1 em{ font-style:italic; color:var(--orange); font-family:var(--body); font-weight:600; }
+.lead{ font-size:1.08rem; color:var(--mute); max-width:560px; margin:0 auto 8px; font-style:italic; }
+
+/* track cards */
+.track-grid{ display:grid; grid-template-columns:1fr 1fr; gap:18px; margin:40px 0 26px; }
+@media (max-width:640px){ .track-grid{ grid-template-columns:1fr; } }
+.track-card{ text-align:left; background:var(--light); border:2px solid var(--line); border-radius:20px; padding:26px 24px; cursor:pointer; transition:transform 0.3s var(--ease), box-shadow 0.3s ease, border-color 0.3s ease; }
+.track-card:hover{ transform:translateY(-4px); box-shadow:0 18px 36px -18px rgba(20,20,19,0.22); border-color:rgba(217,119,87,0.4); }
+.track-card.sel{ border-color:var(--orange); box-shadow:0 18px 36px -18px rgba(217,119,87,0.4); }
+.track-card .ico{ font-size:1.7rem; }
+.track-card h3{ font-size:1.25rem; margin:10px 0 6px; }
+.track-card p{ margin:0; color:var(--mute); font-size:0.95rem; }
+.track-card .axes{ margin-top:14px; display:flex; flex-wrap:wrap; gap:6px; }
+.miniaxis{ font-family:var(--label); font-size:0.66rem; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; color:var(--mute); background:var(--light-gray); padding:5px 10px; border-radius:999px; }
+
+/* buttons */
+.btn{ font-family:var(--label); font-weight:600; font-size:0.95rem; border:none; border-radius:999px; padding:14px 30px; cursor:pointer; transition:all 0.25s var(--ease); }
+.btn-primary{ background:var(--dark); color:var(--light); }
+.btn-primary:hover{ background:var(--orange); transform:translateY(-2px); }
+.btn-primary:disabled{ background:var(--mid-gray); cursor:not-allowed; transform:none; opacity:0.6; }
+.btn-ghost{ background:transparent; color:var(--dark); border:1.5px solid var(--line); }
+.btn-ghost:hover{ border-color:var(--orange); color:var(--orange); }
+.btn-row{ display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }
+.note{ font-size:0.84rem; color:var(--mute); margin-top:18px; }
+
+/* ---- quiz ---- */
+.quiz-top{ display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:8px; }
+.qtrack{ font-family:var(--label); font-size:0.74rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--orange); }
+.qcount{ font-family:var(--label); font-size:0.8rem; color:var(--mute); }
+.bar{ height:6px; background:var(--light-gray); border-radius:999px; overflow:hidden; margin-bottom:34px; }
+.bar > span{ display:block; height:100%; width:0; background:linear-gradient(90deg,var(--orange),var(--blue)); border-radius:999px; transition:width 0.4s var(--ease); }
+.qkind{ display:inline-flex; align-items:center; gap:7px; margin-bottom:16px; }
+.qkind .dot{ width:7px; height:7px; border-radius:50%; background:var(--green); }
+.qkind .dot.profile{ background:var(--blue); }
+.qkind span{ font-family:var(--label); font-size:0.7rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--mute); }
+.qtext{ font-family:var(--heading); font-weight:600; font-size:1.5rem; line-height:1.35; margin-bottom:8px; }
+.qsub{ color:var(--mute); font-size:0.95rem; margin-bottom:26px; font-style:italic; }
+.opts{ display:flex; flex-direction:column; gap:12px; }
+.opt{ text-align:left; background:var(--light); border:1.5px solid var(--line); border-radius:14px; padding:18px 20px; cursor:pointer; font-family:var(--body); font-size:1.02rem; color:var(--dark); transition:all 0.22s var(--ease); display:flex; align-items:center; gap:14px; }
+.opt:hover{ border-color:rgba(217,119,87,0.45); transform:translateX(3px); }
+.opt.sel{ border-color:var(--orange); background:#fdf3ee; box-shadow:0 8px 20px -12px rgba(217,119,87,0.45); }
+.opt .mark{ flex:none; width:22px; height:22px; border-radius:50%; border:2px solid var(--mid-gray); transition:all 0.2s; position:relative; }
+.opt.sel .mark{ border-color:var(--orange); background:var(--orange); }
+.opt.sel .mark::after{ content:''; position:absolute; inset:5px; background:var(--light); border-radius:50%; }
+.nav-row{ display:flex; justify-content:space-between; margin-top:34px; gap:12px; }
+
+/* ---- result ---- */
+.rhead{ text-align:center; position:relative; padding:14px 0 8px; }
+.rcode{ font-family:var(--heading); font-weight:700; font-size:clamp(2.4rem,7vw,3.6rem); letter-spacing:0.02em; background:linear-gradient(120deg,var(--orange),var(--green),var(--blue)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.rname{ font-size:1.5rem; margin-top:6px; }
+.rsummary{ color:var(--mute); max-width:600px; margin:14px auto 0; font-style:italic; font-size:1.05rem; }
+.chips{ display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:20px 0 6px; }
+.kchip{ font-family:var(--label); font-size:0.74rem; font-weight:600; letter-spacing:0.04em; background:var(--light-gray); color:var(--dark); padding:7px 14px; border-radius:999px; }
+.rare-pill{ display:inline-block; margin-top:12px; font-family:var(--label); font-size:0.66rem; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; background:var(--orange); color:var(--light); padding:5px 12px; border-radius:999px; }
+
+.axisrow{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:30px 0; }
+@media (max-width:640px){ .axisrow{ grid-template-columns:repeat(2,1fr); } }
+.axisbox{ background:var(--light); border:1px solid var(--line); border-radius:14px; padding:14px 12px; text-align:center; }
+.axisbox .al{ font-family:var(--label); font-size:0.62rem; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--mute); }
+.axisbox .av{ font-family:var(--heading); font-weight:600; font-size:1.02rem; margin-top:6px; }
+.axisbox .ac{ display:inline-block; font-family:var(--heading); font-weight:700; color:var(--orange); margin-right:5px; }
+.axisbox.bl{ border-color:rgba(217,119,87,0.5); background:#fdf3ee; }
+.axisbox .blnote{ font-size:0.62rem; color:var(--orange); margin-top:5px; font-family:var(--label); font-weight:600; }
+
+.sec{ margin:26px 0; }
+.sec-title{ font-family:var(--label); font-size:0.74rem; font-weight:600; letter-spacing:0.09em; text-transform:uppercase; color:var(--mute); margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+.sec-title::before{ content:''; width:18px; height:2px; background:var(--orange); }
+
+.swb{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+@media (max-width:640px){ .swb{ grid-template-columns:1fr; } }
+.panel{ border:1px solid var(--line); border-radius:16px; padding:20px 20px; background:var(--light); }
+.panel h4{ font-size:0.96rem; margin-bottom:10px; display:flex; align-items:center; gap:7px; }
+.panel.strength{ border-top:3px solid var(--green); }
+.panel.weakness{ border-top:3px solid var(--orange); }
+.panel.blind{ grid-column:1/-1; border-top:3px solid #c2543a; background:#fdf3ee; }
+.panel ul{ margin:0; padding-left:18px; }
+.panel li{ margin-bottom:7px; }
+.panel p{ margin:0 0 8px; }
+.panel.identity{ background:var(--dark); color:var(--light); border:none; }
+.panel.identity p{ font-style:italic; font-size:1.04rem; line-height:1.65; margin:0; }
+
+.guide-item{ border:1px solid var(--line); border-radius:16px; padding:18px 20px; margin-bottom:12px; background:var(--light); }
+.guide-item h4{ font-size:0.95rem; margin-bottom:10px; color:var(--orange); }
+.guide-item ul,.guide-item ol{ margin:0; padding-left:20px; }
+.guide-item li{ margin-bottom:6px; }
+.guide-item p{ margin:0 0 8px; }
+.guide-item strong{ color:var(--dark); }
+
+.flag{ border-radius:14px; padding:16px 18px; margin-bottom:12px; border:1px solid; display:flex; gap:12px; align-items:flex-start; }
+.flag .fi{ font-size:1.15rem; flex:none; line-height:1.4; }
+.flag .ft{ font-family:var(--label); font-size:0.64rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; display:inline-block; padding:3px 9px; border-radius:999px; margin-bottom:7px; }
+.flag .fm{ font-size:0.96rem; line-height:1.6; }
+.flag.danger{ background:#fbecec; border-color:#d98a8a; }
+.flag.danger .ft{ background:#c2543a; color:#fff; }
+.flag.warn{ background:#fdf3ee; border-color:rgba(217,119,87,0.5); }
+.flag.warn .ft{ background:var(--orange); color:#fff; }
+.flag.info{ background:#eef3f8; border-color:rgba(106,155,204,0.5); }
+.flag.info .ft{ background:var(--blue); color:#fff; }
+
+.cond-line{ background:var(--light-gray); border-radius:12px; padding:12px 16px; font-size:0.9rem; color:var(--mute); margin-bottom:22px; }
+.cond-line b{ color:var(--dark); font-family:var(--label); font-weight:600; }
+.reg-note{ background:#eef3f8; border:1px solid rgba(106,155,204,0.45); border-radius:12px; padding:11px 15px; font-size:0.88rem; line-height:1.55; color:var(--dark); margin-bottom:14px; }
+.reg-note b{ color:var(--blue); }
+.flag-foot{ font-size:0.8rem; color:var(--mute); line-height:1.55; margin-top:12px; }
+.flag-foot code{ background:var(--light-gray); padding:1px 5px; border-radius:5px; font-size:0.86em; }
+.flag-foot b{ color:#c2543a; }
+details.reg{ background:#fff; border:1px solid var(--line); border-radius:14px; overflow:hidden; }
+details.reg>summary{ cursor:pointer; list-style:none; padding:16px 18px; font-family:var(--label); font-weight:600; font-size:0.92rem; color:var(--dark); background:var(--light-gray); display:flex; align-items:center; gap:8px; }
+details.reg>summary::-webkit-details-marker{ display:none; }
+details.reg>summary::after{ content:'▸'; margin-left:auto; color:var(--mute); transition:transform .2s; }
+details.reg[open]>summary::after{ transform:rotate(90deg); }
+.reg-body{ padding:18px 20px 22px; }
+.reg-body h5{ font-family:var(--label); font-size:0.82rem; letter-spacing:0.03em; color:var(--orange); margin:20px 0 8px; padding-top:14px; border-top:1px dashed var(--line); }
+.reg-body h5:first-of-type{ border-top:none; padding-top:0; }
+.reg-body ul{ margin:6px 0 6px 2px; padding-left:18px; }
+.reg-body li{ font-size:0.88rem; line-height:1.62; margin-bottom:7px; }
+.reg-body .rt{ font-size:0.86rem; line-height:1.55; color:var(--mute); margin:4px 0 8px; }
+.reg-body .reg-src{ font-size:0.84rem; line-height:1.6; color:var(--mute); background:var(--light-gray); border-radius:10px; padding:11px 14px; margin-bottom:6px; }
+.reg-body code{ background:var(--light-gray); padding:1px 5px; border-radius:5px; font-size:0.86em; }
+.reg-body .reg-disc{ font-size:0.85rem; line-height:1.6; color:var(--dark); background:#fdf3ee; border:1px solid rgba(217,119,87,0.4); border-radius:11px; padding:12px 15px; margin-top:12px; }
+.rtbl{ overflow-x:auto; margin:8px 0; }
+.rtbl table{ width:100%; border-collapse:collapse; font-size:0.82rem; }
+.rtbl th,.rtbl td{ border:1px solid var(--line); padding:7px 9px; text-align:left; line-height:1.45; vertical-align:top; }
+.rtbl th{ background:var(--light-gray); font-family:var(--label); font-weight:600; }
+.rb{ display:inline-block; font-size:0.7rem; font-weight:600; padding:1px 6px; border-radius:6px; vertical-align:middle; white-space:nowrap; }
+.rb.ok{ background:#e7f1ea; color:#3f7d55; }
+.rb.unsure{ background:#fbecec; color:#c2543a; }
+.rb.gazette{ background:#e4eef7; color:#2f6296; border:1px solid rgba(47,98,150,0.35); }
+
+footer{ text-align:center; color:var(--mute); font-size:0.82rem; padding:30px 0 50px; }
+.disclaimer{ max-width:620px; margin:36px auto 0; font-size:0.84rem; color:var(--mute); text-align:center; line-height:1.6; border-top:1px solid var(--line); padding-top:22px; }
+.toast{ position:fixed; bottom:26px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--dark); color:var(--light); padding:13px 22px; border-radius:999px; font-family:var(--label); font-size:0.85rem; font-weight:500; opacity:0; pointer-events:none; transition:all 0.35s var(--ease); z-index:200; }
+.toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ---- 추천 경매 검색조건 카드 (경매 트랙 전용) ---- */
+.sc-card{ border:1px solid var(--line); border-radius:18px; background:#fff; padding:24px 22px; }
+.sc-head{ display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+.sc-head h4{ font-size:1.12rem; }
+.sc-intro{ color:var(--mute); font-size:0.9rem; margin:0 0 18px; line-height:1.55; }
+.sc-intro b{ color:var(--dark); }
+.sc-region-input{ background:var(--light-gray); border-radius:12px; padding:14px 16px; margin-bottom:18px; }
+.sc-region-input label{ font-family:var(--label); font-size:0.7rem; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; color:var(--mute); display:block; margin-bottom:9px; }
+.sc-region-input .row{ display:flex; gap:10px; flex-wrap:wrap; }
+.sc-region-input select,.sc-region-input input{ font-family:var(--body); font-size:0.95rem; padding:10px 12px; border:1.5px solid var(--line); border-radius:10px; background:#fff; color:var(--dark); }
+.sc-region-input select{ min-width:150px; }
+.sc-region-input input{ flex:1; min-width:170px; }
+.sc-region-input .hint{ font-size:0.79rem; color:var(--mute); margin-top:9px; line-height:1.5; }
+.sc-dims{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+@media (max-width:640px){ .sc-dims{ grid-template-columns:1fr; } }
+.sc-dim{ border:1px solid var(--line); border-radius:13px; padding:13px 15px; background:var(--light); }
+.sc-dim.full{ grid-column:1/-1; }
+.sc-dim .dk{ font-family:var(--label); font-size:0.63rem; font-weight:600; letter-spacing:0.05em; text-transform:uppercase; color:var(--mute); display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+.sc-dim .dk .site{ font-size:0.58rem; padding:1px 7px; border-radius:6px; background:#e7f1ea; color:#3f7d55; letter-spacing:0; text-transform:none; font-weight:600; }
+.sc-dim .dk .site.nosite{ background:#eef3f8; color:#2f6296; }
+.sc-dim .dv{ font-family:var(--heading); font-weight:600; font-size:1.0rem; margin-top:7px; line-height:1.4; }
+.sc-dim .dsub{ font-size:0.8rem; color:var(--mute); margin-top:5px; line-height:1.5; }
+.sc-tag{ display:inline-block; font-family:var(--label); font-size:0.74rem; font-weight:600; background:var(--light-gray); color:var(--dark); padding:5px 11px; border-radius:999px; margin:2px 4px 2px 0; }
+.sc-notes{ margin:14px 0 0; }
+.sc-notes ul{ margin:8px 0 0; padding-left:18px; }
+.sc-notes li{ font-size:0.86rem; line-height:1.6; margin-bottom:7px; color:var(--dark); }
+.sc-export{ margin-top:20px; border-top:1px dashed var(--line); padding-top:18px; }
+.sc-export .btn-row{ justify-content:flex-start; }
+.sc-json{ width:100%; margin-top:14px; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:0.76rem; line-height:1.5; background:var(--dark); color:#e8e6dc; border:none; border-radius:12px; padding:16px; min-height:210px; resize:vertical; white-space:pre; overflow:auto; }
+.sc-foot{ font-size:0.79rem; color:var(--mute); margin-top:12px; line-height:1.55; }
+.sc-foot code{ background:var(--light-gray); padding:1px 5px; border-radius:5px; font-size:0.92em; }
+.sc-foot b{ color:#c2543a; }
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+
+<!-- ===== START ===== -->
+<section class="screen active hero" id="screen-start">
+  <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+  <div class="wrap inner">
+    <span class="eyebrow">부동산 투자성향 진단 · MBTI</span>
+    <h1>나의 부동산 투자 <em>성향 유형</em>은?</h1>
+    <p class="lead">매매와 경매, 두 트랙의 4가지 대립축으로 당신의 투자 DNA를 16유형으로 진단합니다. 강점만큼 약점과 맹점까지 직시하는, 본인 판단용 도구입니다.</p>
+    <div class="track-grid" id="track-grid"></div>
+    <div class="btn-row">
+      <button class="btn btn-primary" id="start-btn" disabled>트랙을 선택하세요</button>
+    </div>
+    <p class="note">소요 시간 약 2~4분 · 모든 문항 1개씩 선택 · 결과는 저장·공유 가능</p>
+  </div>
+</section>
+
+<!-- ===== QUIZ ===== -->
+<section class="screen" id="screen-quiz">
+  <div class="wrap">
+    <div class="quiz-top">
+      <span class="qtrack" id="q-track"></span>
+      <span class="qcount" id="q-count"></span>
+    </div>
+    <div class="bar"><span id="q-bar"></span></div>
+    <div id="q-body"></div>
+    <div class="nav-row">
+      <button class="btn btn-ghost" id="prev-btn">← 이전</button>
+      <button class="btn btn-primary" id="next-btn" disabled>다음 →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===== RESULT ===== -->
+<section class="screen" id="screen-result">
+  <div class="wrap" id="result-body"></div>
+</section>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const DATA = {"maemae":{"version":"1.1","track":"maemae","track_label":"매매 투자성향","code_prefix":"M-","axis_order":["RISK","HORIZON","BASIS","CAPITAL"],"axes":[{"id":"RISK","label":"리스크 성향","pole_a":{"code":"S","label":"안정형","desc":"검증된 입지·실수요 탄탄한 물건, 빠지지 않는 자산 우선"},"pole_b":{"code":"A","label":"공격형","desc":"저평가·개발호재 등 불확실하지만 상승여력 큰 자산 베팅"},"default_pole":"S"},{"id":"HORIZON","label":"투자 기간","pole_a":{"code":"H","label":"장기보유형","desc":"5년+ 보유, 복리·임대·비과세를 누림"},"pole_b":{"code":"T","label":"단기회전형","desc":"2~3년 내 차익 실현, 자본 회전"},"default_pole":"H"},{"id":"BASIS","label":"투자 목적","pole_a":{"code":"R","label":"실거주겸용형","desc":"내 생활권·생활편의·학군이 의사결정에 개입"},"pole_b":{"code":"P","label":"순수투자형","desc":"거주는 무관, 오직 수익률·세팅 용이성으로 판단"},"default_pole":"R"},{"id":"CAPITAL","label":"자금 운용","pole_a":{"code":"G","label":"레버리지형","desc":"주담대·갭(전세 레버리지) 적극, 수익 증폭"},"pole_b":{"code":"E","label":"자기자본형","desc":"차입 최소화, 현금 비중 높게 보수적 운용"},"default_pole":"G"}],"questions":[{"id":"q1","axis":"RISK","text":"관심 지역에 '재건축 추진위가 곧 꾸려진다'는 소문이 돕니다. 아직 확정된 건 없습니다. 당신은?","options":[{"label":"확정 안 됐어도 소문 단계에 미리 들어간다","score":{"A":2}},{"label":"사업시행인가 같은 확정 신호가 나온 뒤 들어간다","score":{"S":2}}]},{"id":"q2","axis":"RISK","text":"같은 예산으로 고를 수 있는 두 물건이 있다면?","options":[{"label":"누구나 아는 검증된 동네의 평범한 시세 물건","score":{"S":2}},{"label":"아직 저평가됐지만 개발 기대가 있는 동네 물건","score":{"A":2}}]},{"id":"q3","axis":"RISK","text":"매수 직후 하락장이 와서 한동안 못 오를 수도 있습니다. 당신의 마음은?","options":[{"label":"기대수익이 크면 한동안 물려도 감수한다","score":{"A":2}},{"label":"빠지지 않고 버텨주는 자산이 우선이다","score":{"S":2}}]},{"id":"q4","axis":"RISK","text":"투자 결정에서 더 신경 쓰는 쪽은?","options":[{"label":"손실 가능성을 최대한 줄이는 것","score":{"S":2}},{"label":"큰 상승 기회를 놓치지 않는 것","score":{"A":2}}]},{"id":"q5","axis":"HORIZON","text":"한 채를 사면 보통 얼마나 보유할 계획인가요?","options":[{"label":"5년 이상, 길게 들고 간다","score":{"H":2}},{"label":"2~3년 안에 차익을 실현하고 싶다","score":{"T":2}}]},{"id":"q6","axis":"HORIZON","text":"산 집이 단기간에 기대만큼 올랐습니다. 어떻게 하나요?","options":[{"label":"목표가에 닿으면 팔아 현금을 회전한다","score":{"T":2}},{"label":"더 오를 여지를 보고 계속 보유한다","score":{"H":2}}]},{"id":"q7","axis":"HORIZON","text":"비과세·장기보유특별공제 같은 장기 세제 혜택에 대해?","options":[{"label":"요건을 채워 적극 활용할 생각이다","score":{"H":2}},{"label":"그보다 회전 속도와 타이밍이 더 중요하다","score":{"T":2}}]},{"id":"q8","axis":"HORIZON","text":"매도를 결심하는 기준에 더 가까운 것은?","options":[{"label":"목표 가격에 닿았을 때 (가격 트리거)","score":{"T":2}},{"label":"충분히 보유했다 싶을 때 (시간·생애주기)","score":{"H":2}}]},{"id":"q9","axis":"BASIS","text":"수익률은 아주 좋은데, 내가 살 일은 평생 없을 동네의 물건입니다. 살까요?","options":[{"label":"거주와 무관해도 수익만 좋으면 산다","score":{"P":2}},{"label":"내가 살 수 있는 곳이어야 마음이 편하다","score":{"R":2}}]},{"id":"q10","axis":"BASIS","text":"물건을 고를 때 학군·통근·생활편의의 비중은?","options":[{"label":"내 생활조건이 중요한 판단 기준이다","score":{"R":2}},{"label":"임차수요만 받쳐주면 내 생활과는 무관하다","score":{"P":2}}]},{"id":"q11","axis":"BASIS","text":"앞으로의 보유 방향에 더 가까운 것은?","options":[{"label":"좋은 한 채(실거주)를 잘 지키고 갈아타는 쪽","score":{"R":2}},{"label":"여러 채로 자산을 늘려가는 쪽","score":{"P":2}}]},{"id":"q12","axis":"BASIS","text":"산 집에 전월세를 놓아 임차인을 들이는 것에 대해?","options":[{"label":"수익을 위해 당연히 임대 세팅한다","score":{"P":2}},{"label":"내가 들어가 사는 그림이 우선이라 거부감이 있다","score":{"R":2}}]},{"id":"q13","axis":"CAPITAL","text":"쓸 수 있는 현금이 어느 정도 있을 때, 당신의 선택은?","options":[{"label":"현금을 다 쓰지 않고 레버리지로 두 채 간다","score":{"G":2}},{"label":"차입을 줄이고 한 채를 안전하게 산다","score":{"E":2}}]},{"id":"q14","axis":"CAPITAL","text":"전세를 끼고 매수하는 갭투자에 대해?","options":[{"label":"자기자본을 아껴주는 좋은 수단이라 적극 쓴다","score":{"G":2}},{"label":"역전세가 부담돼 가급적 피한다","score":{"E":2}}]},{"id":"q15","axis":"CAPITAL","text":"'기준금리 인상' 뉴스를 보면 드는 생각은?","options":[{"label":"대출 비중이 커서 신경이 많이 쓰인다","score":{"G":2}},{"label":"빚이 적어 별로 흔들리지 않는다","score":{"E":2}}]},{"id":"q16","axis":"CAPITAL","text":"감당 가능한 대출 수준에 더 가까운 것은?","options":[{"label":"LTV·DSR 한도를 적극 끌어 쓴다","score":{"G":2}},{"label":"보수적으로, 현금 비중을 높게 가져간다","score":{"E":2}}]}],"profile_inputs":[{"id":"ownership","label":"주택보유상황","text":"현재 주택 보유 상황은? (대출·세금 규제 판정용, 유형 점수에는 영향 없음)","options":[{"label":"무주택","value":"none"},{"label":"1주택","value":"one"},{"label":"다주택","value":"multi"}]},{"id":"region_regulated","label":"규제지역 여부","text":"매수하려는 지역이 규제지역(조정대상지역·투기과열지구·토지거래허가구역)인가요? (대출·세금 규제 판정용, 유형 점수에는 영향 없음)","options":[{"label":"규제지역 (서울 전역·경기 일부·신규 지정지 등)","value":"regulated"},{"label":"비규제지역","value":"normal"},{"label":"잘 모르겠다","value":"unknown"}]}],"flags":[{"when":{"ownership":"none","region_regulated":"regulated"},"level":"info","message":"규제지역 무주택 주택구입 주담대는 LTV 40% 수준 + 6개월 내 전입(실거주) 의무가 적용됩니다(생애최초는 LTV 70%로 우대). 모든 차주에 DSR 40%도 함께 걸리니 소득 기준 한도를 미리 확인하세요."},{"when":{"ownership":"one","region_regulated":"regulated"},"level":"warn","message":"1주택자가 규제지역 주택을 추가 구입할 때 기존 주택을 처분하지 않으면 주담대가 전면 금지(LTV 0%)될 수 있습니다. 6개월 내 처분 약정(처분조건부)이면 완화되지만 적용 LTV(40%/50% 여부)는 출처상 표현이 갈려 금융기관에 직접 확인이 필요합니다."},{"when":{"ownership":"multi","region_regulated":"regulated"},"level":"danger","message":"다주택자가 규제지역 주택을 추가 구입하면 주담대가 전면 금지(LTV 0%)됩니다. 사실상 전액 자기자본이 필요하니 자금계획을 원점에서 재검토하세요."},{"when":{"ownership":"multi","region_regulated":"regulated"},"level":"warn","message":"다주택자가 조정대상지역 주택을 취득하면 취득세가 8~12%로 중과되고, 향후 양도 시 양도세 +20~30%p 중과 대상이 될 수 있습니다. 단 다주택 양도세 중과 한시배제(~2026-05-09)의 종료/연장 여부는 시점 확인이 필요하니 세무사와 세후 수익률을 다시 계산하세요."},{"when":{"region_regulated":"regulated"},"level":"warn","message":"규제지역(조정+투기과열+토지거래허가) 일반매매는 2년 실거주 의무·갭투자(전세 끼고 매수) 차단·자금조달계획서 의무가 적용됩니다. 전세 레버리지나 임대 세팅 계획이 막힐 수 있으니 매수 전략을 확인하세요."},{"when":{"axis_CAPITAL":"G","region_regulated":"regulated"},"level":"info","message":"레버리지를 선호하는 성향인데 규제지역은 LTV 40%·주담대 한도 최대 6억(15억 초과 4억/25억 초과 2억)·DSR 40%로 차입이 크게 제한됩니다. 기대했던 레버리지가 안 나올 수 있으니 자금계획을 보수적으로 점검하세요."},{"when":{"region_regulated":"unknown"},"level":"info","message":"대상 지역의 규제 여부에 따라 대출 한도·세금·실거주 의무가 크게 달라집니다. 국토부 「조정대상지역 및 투기과열지구 지정」 페이지에서 규제지역 여부를 먼저 확인하세요."}],"types":[{"code":"M-SHRG","axes":{"RISK":"S","HORIZON":"H","BASIS":"R","CAPITAL":"G"},"name":"내집마련 안착러","keywords":["안정","장기보유","실거주겸용","레버리지"],"summary":"좋은 입지 실거주 한 채를 대출 끼고 장기 보유하며 우상향을 노림"},{"code":"M-SHRE","axes":{"RISK":"S","HORIZON":"H","BASIS":"R","CAPITAL":"E"},"name":"현금 실속 거주형","keywords":["안정","장기보유","실거주겸용","자기자본"],"summary":"빚 없이 우량 실거주 한 채, 마음 편한 장기 보유"},{"code":"M-SHPG","axes":{"RISK":"S","HORIZON":"H","BASIS":"P","CAPITAL":"G"},"name":"우량지 갭 장기러","keywords":["안정","장기보유","순수투자","레버리지"],"summary":"검증된 입지에 전세 레버리지로 묻어두는 장기 투자"},{"code":"M-SHPE","axes":{"RISK":"S","HORIZON":"H","BASIS":"P","CAPITAL":"E"},"name":"거북이 실속 투자자","keywords":["안정","장기보유","순수투자","자기자본"],"summary":"자기자본으로 우량 물건 장기 보유, 느리지만 단단함"},{"code":"M-STRG","axes":{"RISK":"S","HORIZON":"T","BASIS":"R","CAPITAL":"G"},"name":"갈아타기 실거주자","keywords":["안정","단기회전","실거주겸용","레버리지"],"summary":"실거주하며 비과세 타이밍에 안전하게 상급지로 환승(레버리지)"},{"code":"M-STRE","axes":{"RISK":"S","HORIZON":"T","BASIS":"R","CAPITAL":"E"},"name":"신중한 환승러","keywords":["안정","단기회전","실거주겸용","자기자본"],"summary":"빚 최소화하며 보수적으로 실거주 갈아타기"},{"code":"M-STPG","axes":{"RISK":"S","HORIZON":"T","BASIS":"P","CAPITAL":"G"},"name":"안전 단타 갭러","keywords":["안정","단기회전","순수투자","레버리지"],"summary":"검증된 물건만 전세 레버리지로 단기 회전"},{"code":"M-STPE","axes":{"RISK":"S","HORIZON":"T","BASIS":"P","CAPITAL":"E"},"name":"몸사리는 차익러","keywords":["안정","단기회전","순수투자","자기자본"],"summary":"자기자본으로 안전 물건만 짧게 차익","rare":true},{"code":"M-AHRG","axes":{"RISK":"A","HORIZON":"H","BASIS":"R","CAPITAL":"G"},"name":"호재 베팅 실거주자","keywords":["공격","장기보유","실거주겸용","레버리지"],"summary":"개발 기대 지역에 실거주하며 대출 끼고 장기 시세차익 노림"},{"code":"M-AHRE","axes":{"RISK":"A","HORIZON":"H","BASIS":"R","CAPITAL":"E"},"name":"뚝심 실거주 베터","keywords":["공격","장기보유","실거주겸용","자기자본"],"summary":"현금으로 저평가 실거주지를 장기 베팅"},{"code":"M-AHPG","axes":{"RISK":"A","HORIZON":"H","BASIS":"P","CAPITAL":"G"},"name":"개발호재 장기 베터","keywords":["공격","장기보유","순수투자","레버리지"],"summary":"재건축·정비사업 기대 저평가지에 레버리지로 장기 투자"},{"code":"M-AHPE","axes":{"RISK":"A","HORIZON":"H","BASIS":"P","CAPITAL":"E"},"name":"저평가 장기 사냥꾼","keywords":["공격","장기보유","순수투자","자기자본"],"summary":"자기자본으로 저평가 물건을 인내하며 장기 보유(역발상)"},{"code":"M-ATRG","axes":{"RISK":"A","HORIZON":"T","BASIS":"R","CAPITAL":"G"},"name":"공격 갈아타기러","keywords":["공격","단기회전","실거주겸용","레버리지"],"summary":"호재 지역으로 실거주를 빠르게 환승, 레버리지 활용"},{"code":"M-ATRE","axes":{"RISK":"A","HORIZON":"T","BASIS":"R","CAPITAL":"E"},"name":"현금 환승 베터","keywords":["공격","단기회전","실거주겸용","자기자본"],"summary":"현금으로 공격적 실거주 단기 환승","rare":true},{"code":"M-ATPG","axes":{"RISK":"A","HORIZON":"T","BASIS":"P","CAPITAL":"G"},"name":"고위험 회전 트레이더","keywords":["공격","단기회전","순수투자","레버리지"],"summary":"저평가·호재 물건을 풀레버리지로 단기 회전(최고 위험·수익)"},{"code":"M-ATPE","axes":{"RISK":"A","HORIZON":"T","BASIS":"P","CAPITAL":"E"},"name":"현금 단타 사냥꾼","keywords":["공격","단기회전","순수투자","자기자본"],"summary":"자기자본으로 저평가 물건을 짧게 차익","rare":true}]},"gyeongmae":{"version":"1.1","track":"gyeongmae","track_label":"경매 투자성향","code_prefix":"A-","axis_order":["FUND","DIFFICULTY","REGION","PURPOSE"],"axes":[{"id":"FUND","label":"자금 전략","pole_a":{"code":"s","label":"소액분산형","desc":"소액·다건·대출 활용, 리스크 분산"},"pole_b":{"code":"b","label":"대액집중형","desc":"큰 자금을 소수 핵심 물건에 집중"},"default_pole":"s"},{"id":"DIFFICULTY","label":"물건 난이도","pole_a":{"code":"c","label":"안전입찰형","desc":"권리 단순·명도 수월, 경쟁 많아 낙찰가율↑"},"pole_b":{"code":"x","label":"특수물건형","desc":"유치권·지상권·지분 등 고난도, 싸게 낙찰·소송/명도 역량 필요"},"default_pole":"c"},{"id":"REGION","label":"지역 전략","pole_a":{"code":"n","label":"연고지집중형","desc":"익숙한 생활권·연고지의 시세·임차수요 우위"},"pole_b":{"code":"w","label":"전국추적형","desc":"수익률을 따라 전국 어디든 추적"},"default_pole":"n"},{"id":"PURPOSE","label":"용도 지향","pole_a":{"code":"r","label":"실수요·보유형","desc":"낙찰 후 실거주·장기임대로 보유"},"pole_b":{"code":"f","label":"단기매각형","desc":"명도·수리 후 빠르게 되팔아 차익 실현"},"default_pole":"r"}],"questions":[{"id":"g1","axis":"FUND","text":"경매 자금 운용 스타일에 더 가까운 것은?","options":[{"label":"소액으로 여러 건에 나눠 담는다","score":{"s":2}},{"label":"큰 자금을 소수 우량 물건에 집중한다","score":{"b":2}}]},{"id":"g2","axis":"FUND","text":"한 건이 잘못됐을 때를 떠올리면, 당신은?","options":[{"label":"분산해서 한 건 실패의 타격을 줄이고 싶다","score":{"s":2}},{"label":"집중해서 건당 임팩트·협상력을 키우고 싶다","score":{"b":2}}]},{"id":"g3","axis":"DIFFICULTY","text":"두 물건 중 더 끌리는 쪽은?","options":[{"label":"경쟁이 붙어도 권리 깨끗하고 명도 쉬운 물건","score":{"c":2}},{"label":"아무도 안 들어와 싸게 받는 복잡한(유치권·지분 등) 물건","score":{"x":2}}]},{"id":"g4","axis":"DIFFICULTY","text":"유치권·법정지상권·지분 같은 특수물건 입찰에 대해?","options":[{"label":"분석·소송 부담이 커서 피한다","score":{"c":2}},{"label":"마진이 크니 적극 도전한다","score":{"x":2}}]},{"id":"g5","axis":"DIFFICULTY","text":"낙찰 후 점유자와 명도 분쟁이 생긴다면?","options":[{"label":"그런 분쟁은 최대한 피하고 싶다","score":{"c":2}},{"label":"어느 정도의 분쟁·협상은 감수할 수 있다","score":{"x":2}}]},{"id":"g6","axis":"REGION","text":"잘 모르는 지방에 수익률 좋은 물건이 나왔습니다. 당신은?","options":[{"label":"수익이 좋으면 멀어도 추적해 간다","score":{"w":2}},{"label":"잘 아는 동네의 평타 물건이 마음 편하다","score":{"n":2}}]},{"id":"g7","axis":"REGION","text":"임장(현장조사)·명도·관리에 드는 거리/시간을 생각하면?","options":[{"label":"익숙한 지역이라 발품·관리가 수월한 게 좋다","score":{"n":2}},{"label":"원격이라도 기회 풀이 넓은 게 좋다","score":{"w":2}}]},{"id":"g8","axis":"PURPOSE","text":"낙찰받은 물건, 기본 그림은?","options":[{"label":"들어가 살거나 세놓아 길게 보유한다","score":{"r":2}},{"label":"수리·명도 끝내고 빠르게 되판다","score":{"f":2}}]},{"id":"g9","axis":"PURPOSE","text":"낙찰 후 목표 보유기간에 더 가까운 것은?","options":[{"label":"길게 보유하며 현금흐름·시세를 누린다","score":{"r":2}},{"label":"단기에 차익 실현하고 자본을 회전한다","score":{"f":2}}]},{"id":"g10","axis":"PURPOSE","text":"명도·수리를 마친 뒤 출구 계획은?","options":[{"label":"임대 운영으로 안정적 수익을 가져간다","score":{"r":2}},{"label":"매각으로 차익을 실현한다","score":{"f":2}}]}],"profile_inputs":[{"id":"fund_size","label":"투자자금","axis":"FUND","text":"경매에 투입할 수 있는 가용 자금 규모는?","options":[{"label":"~5천만원","value":"u50","score":{"s":2}},{"label":"5천만~1.5억","value":"u150","score":{"s":1}},{"label":"1.5억~3억","value":"u300","score":{"b":1}},{"label":"3억 이상","value":"o300","score":{"b":2}}]},{"id":"purpose","label":"투자용도","axis":"PURPOSE","text":"경매로 취득한 물건의 주된 용도는?","options":[{"label":"실거주","value":"reside","score":{"r":2}},{"label":"임대수익(장기 보유)","value":"rent","score":{"r":1}},{"label":"단기매각(되팔기)","value":"flip","score":{"f":2}}]},{"id":"region_pref","label":"투자지역","axis":"REGION","text":"주로 입찰하려는 지역 범위는?","options":[{"label":"연고지·내 생활권 위주","value":"home","score":{"n":2}},{"label":"수도권 정도까지","value":"metro","score":{"w":1}},{"label":"전국 어디든","value":"nation","score":{"w":2}}]},{"id":"ownership","label":"주택보유상황","text":"현재 주택 보유 상황은?","options":[{"label":"무주택","value":"none"},{"label":"1주택","value":"one"},{"label":"다주택","value":"multi"}]},{"id":"experience","label":"경매경험","axis":"DIFFICULTY","text":"지금까지 입찰/낙찰 경험은?","options":[{"label":"0~1회 (초보)","value":"novice","score":{"c":1}},{"label":"2~5회 (중급)","value":"inter","score":{}},{"label":"6회+ (숙련)","value":"expert","score":{"x":1}}]},{"id":"region_regulated","label":"규제지역 여부","text":"낙찰받으려는 물건 소재지가 규제지역(조정대상지역·투기과열지구·토지거래허가구역)인가요? (대출·세금 규제 판정용, 유형 점수에는 영향 없음)","options":[{"label":"규제지역 (서울 전역·경기 일부·신규 지정지 등)","value":"regulated"},{"label":"비규제지역","value":"normal"},{"label":"잘 모르겠다","value":"unknown"}]}],"flags":[{"when":{"ownership":"multi","purpose":"flip"},"level":"warn","message":"다주택자의 단기매각은 양도세 중과 대상입니다. 보유기간별 세율(1년 미만 70%·2년 미만 60% 등)과 중과 여부를 입찰 전 반드시 검토하세요."},{"when":{"ownership":"multi","purpose":"rent"},"level":"warn","message":"다주택자가 추가 보유 시 취득세 중과(조정지역 8~12%)와 종부세 부담이 커집니다. 세후 수익률을 다시 계산하세요."},{"when":{"ownership":"multi","purpose":"reside"},"level":"warn","message":"다주택 상태에서의 실거주 취득도 취득세 중과·종부세 영향을 받습니다. 기존 주택 처분 계획과 함께 세무 검토가 필요합니다."},{"when":{"ownership":"none","purpose":"reside"},"level":"info","message":"무주택 실거주 취득은 생애최초 취득세 감면·대출 우대 대상일 수 있습니다. 단, 규제지역은 실거주 의무·전입 요건을 확인하세요."},{"when":{"experience":"novice","axis_DIFFICULTY":"x"},"level":"danger","message":"경매 초보가 특수물건(유치권·법정지상권·지분 등)에 들어가는 것은 권리분석 실패·명도 분쟁·장기화 위험이 매우 큽니다. 첫 5건은 안전물건으로 경험을 쌓길 강력히 권합니다."},{"when":{"axis_FUND":"s","axis_DIFFICULTY":"x"},"level":"warn","message":"소액 자금으로 특수물건을 노리는 조합입니다. 특수물건은 소송·명도에 추가 자금·기간 버퍼가 필요해 자금-난이도가 충돌할 수 있으니 예비비를 확보하세요."},{"when":{"type_code":"A-sxwf"},"level":"danger","message":"소액·특수·전국·단타는 초보 과욕의 전형적 패턴입니다. 자금·난이도·거리·출구가 모두 어려운 쪽으로 몰려 있어 한 번의 실수가 치명적입니다. 범위를 좁혀 시작하세요."},{"when":{"type_code":"A-bcwf"},"level":"info","message":"큰 자본을 마진 박한 안전물건 단타에 굴리는 조합입니다. 대액이라면 집중·특수 또는 장기 보유가 자본 효율 면에서 더 합리적일 수 있습니다."},{"when":{"region_regulated":"regulated"},"level":"warn","message":"경매 낙찰이라도 대출규제는 동일하게 적용됩니다. 경락잔금대출에도 규제지역 LTV(무주택 40% 수준)·다주택 주담대 금지·DSR 40%가 그대로 걸리니, 낙찰가 대비 실제 가용 대출을 보수적으로 잡고 자금계획을 점검하세요. (금융사별 경락대출 취급기준 차이는 확인 필요)"},{"when":{"region_regulated":"regulated"},"level":"info","message":"경매는 토지거래허가 대상 거래가 아니어서 토허구역의 2년 실거주 의무·갭투자 차단·자금조달계획서 제출 의무가 면제됩니다(일반매매 대비 규제 회피 가능). 다만 이 때문에 규제지역 경매에 수요가 몰려 낙찰가율이 높아지는 쏠림이 나타날 수 있으니 고가낙찰을 경계하세요. (자금출처 소명 등 세무 리스크는 별개)"},{"when":{"ownership":"multi","region_regulated":"regulated"},"level":"danger","message":"다주택자가 규제지역 물건을 추가 낙찰하면 경락잔금대출에도 다주택 추가구입 주담대 금지(LTV 0%)가 적용될 수 있습니다. 전액 자기자본 조달을 전제로 입찰가를 잡으세요. (개별 금융사 취급기준은 확인 필요)"},{"when":{"ownership":"none","region_regulated":"regulated"},"level":"info","message":"규제지역 무주택 경락대출은 LTV 40% 수준 + 6개월 전입의무가 적용될 수 있습니다. 다만 경매는 토허 실거주 의무 자체는 면제되니, 대출 조건과 실거주 요건을 분리해 확인하세요."},{"when":{"region_regulated":"unknown"},"level":"info","message":"물건 소재지의 규제지역 여부에 따라 대출 한도가 크게 달라집니다. 입찰 전 국토부 「조정대상지역 및 투기과열지구 지정」 페이지에서 규제 여부를 먼저 확인하세요."}],"types":[{"code":"A-scnr","axes":{"FUND":"s","DIFFICULTY":"c","REGION":"n","PURPOSE":"r"},"name":"동네 안전 낙찰러","keywords":["소액분산","안전입찰","연고지","실수요보유"],"summary":"소액으로 익숙한 동네 권리 깨끗한 물건, 내집마련·실수요"},{"code":"A-scnf","axes":{"FUND":"s","DIFFICULTY":"c","REGION":"n","PURPOSE":"f"},"name":"동네 소액 단타러","keywords":["소액분산","안전입찰","연고지","단기매각"],"summary":"연고지 안전물건을 소액 낙찰해 빠르게 매각차익"},{"code":"A-scwr","axes":{"FUND":"s","DIFFICULTY":"c","REGION":"w","PURPOSE":"r"},"name":"전국 안전 실수요러","keywords":["소액분산","안전입찰","전국","실수요보유"],"summary":"소액 안전물건을 전국에서 찾아 임대·보유"},{"code":"A-scwf","axes":{"FUND":"s","DIFFICULTY":"c","REGION":"w","PURPOSE":"f"},"name":"수익률 추적 원정러","keywords":["소액분산","안전입찰","전국","단기매각"],"summary":"소액 안전물건을 전국 추적해 단기 매각차익"},{"code":"A-sxnr","axes":{"FUND":"s","DIFFICULTY":"x","REGION":"n","PURPOSE":"r"},"name":"동네 특수물건 도전자","keywords":["소액분산","특수물건","연고지","실수요보유"],"summary":"소액으로 연고지 특수물건을 실수요·보유로 공략","rare":true},{"code":"A-sxnf","axes":{"FUND":"s","DIFFICULTY":"x","REGION":"n","PURPOSE":"f"},"name":"소액 특수 단타러","keywords":["소액분산","특수물건","연고지","단기매각"],"summary":"연고지 특수물건을 소액으로 공략해 단기 차익"},{"code":"A-sxwr","axes":{"FUND":"s","DIFFICULTY":"x","REGION":"w","PURPOSE":"r"},"name":"원정 특수 실수요러","keywords":["소액분산","특수물건","전국","실수요보유"],"summary":"소액·특수·전국·보유","rare":true},{"code":"A-sxwf","axes":{"FUND":"s","DIFFICULTY":"x","REGION":"w","PURPOSE":"f"},"name":"무리한 원정 특수러","keywords":["소액분산","특수물건","전국","단기매각"],"summary":"소액으로 전국 특수물건 단타","rare":true},{"code":"A-bcnr","axes":{"FUND":"b","DIFFICULTY":"c","REGION":"n","PURPOSE":"r"},"name":"우량 실거주 낙찰러","keywords":["대액집중","안전입찰","연고지","실수요보유"],"summary":"대액 자기자본으로 연고지 우량 안전물건, 내집·장기보유"},{"code":"A-bcnf","axes":{"FUND":"b","DIFFICULTY":"c","REGION":"n","PURPOSE":"f"},"name":"우량 안전 회전러","keywords":["대액집중","안전입찰","연고지","단기매각"],"summary":"대액으로 연고지 안전 우량물건을 단기 매각(자본 회전)"},{"code":"A-bcwr","axes":{"FUND":"b","DIFFICULTY":"c","REGION":"w","PURPOSE":"r"},"name":"전국 우량 보유가","keywords":["대액집중","안전입찰","전국","실수요보유"],"summary":"대액 안전물건을 전국에서 골라 임대·보유"},{"code":"A-bcwf","axes":{"FUND":"b","DIFFICULTY":"c","REGION":"w","PURPOSE":"f"},"name":"우량 원정 회전러","keywords":["대액집중","안전입찰","전국","단기매각"],"summary":"대액 안전물건 전국 단기매각"},{"code":"A-bxnr","axes":{"FUND":"b","DIFFICULTY":"x","REGION":"n","PURPOSE":"r"},"name":"지역 특수 자산가","keywords":["대액집중","특수물건","연고지","실수요보유"],"summary":"대액으로 연고지 특수물건을 장기 보유·임대"},{"code":"A-bxnf","axes":{"FUND":"b","DIFFICULTY":"x","REGION":"n","PURPOSE":"f"},"name":"지역 특수 수익가","keywords":["대액집중","특수물건","연고지","단기매각"],"summary":"대액 연고지 특수물건을 단기 수익 실현"},{"code":"A-bxwr","axes":{"FUND":"b","DIFFICULTY":"x","REGION":"w","PURPOSE":"r"},"name":"전국 특수 보유가","keywords":["대액집중","특수물건","전국","실수요보유"],"summary":"대액으로 전국 특수물건을 장기 보유(전업 자산가)"},{"code":"A-bxwf","axes":{"FUND":"b","DIFFICULTY":"x","REGION":"w","PURPOSE":"f"},"name":"전업 특수물건 전문가","keywords":["대액집중","특수물건","전국","단기매각"],"summary":"대액·전국·특수물건 단기 수익, 권리분석 고수 영역"}]}};
+const PROFILES = {"M-SHRG":{"identity":"좋은 입지의 실거주 한 채를 대출 끼고 장기 보유하며 우상향을 노리는, 대한민국 실수요자의 표준.","strength":"- 검증된 입지(역세권·학군·일자리)를 고르므로 하락장에서도 덜 빠지고 회복이 빠르다.\n- 실거주 1주택이라 비과세·장특공제 등 세제 혜택을 온전히 누린다.\n- 주거 안정과 자산 증식을 한 채로 동시에 해결 — 의사결정이 단순하고 흔들림이 적다.","weakness":"- \"내가 살 수 있는 곳\"이라는 제약 때문에 더 수익 좋은 물건을 놓친다.\n- 한 채에 자산이 집중돼 분산이 없다. 그 지역이 정체되면 내 자산 전체가 정체된다.\n- 레버리지를 썼기에 금리 상승·소득 변동에 가계 현금흐름이 직접 노출된다.","blindspot":"당신은 \"실거주니까 가격이 빠져도 상관없다\"고 자기합리화하기 쉽다. 그러나 갈아타기를 염두에 둔다면 매도 시점의 시세와 상급지와의 갭은 당신의 미래 선택지를 직접 결정한다. 실거주라는 명분 뒤에 숨어 입지·환금성 검증을 게을리하면, 정작 더 좋은 곳으로 옮겨야 할 때 발이 묶인다. 또 DSR 한도까지 대출을 당겨놓고 \"버티면 된다\"고 믿는데, 버티는 동안의 이자·기회비용은 수익률에서 조용히 차감된다.","market":"상승장·회복장 초입에서 가장 강하다. 횡보장은 무난, 급락장에선 레버리지 부담을 견디는 인내가 시험대.","partner":"M-SHPE(자기자본·순수투자 — 분산과 레버리지 절제 감각), M-ATPG(공격·회전 — 시장 타이밍과 환금성 감각을 빌릴 것)."},"M-SHRE":{"identity":"빚 없이 우량 실거주 한 채를 마련해 마음 편히 오래 사는, 안정의 끝판왕.","strength":"- 무차입이라 금리·역전세·경기 충격에 거의 면역. 어떤 하락장도 버틴다.\n- 현금흐름에 여유가 있어 생활의 질과 심리적 안정이 높다.\n- 1주택 비과세를 그대로 누리며, 급매·기회가 왔을 때 즉시 동원할 신용 여력이 있다.","weakness":"- 레버리지를 안 쓰니 자산 증식 속도가 느리다. 상승장에서 남들보다 덜 번다.\n- 현금을 한 채에 묶어두는 기회비용이 크다 — 같은 돈으로 두 채를 굴릴 수 있었다.\n- 지나친 안전 추구로 \"더 좋은 입지로의 갈아타기\" 같은 합리적 모험도 회피하기 쉽다.","blindspot":"당신은 \"빚이 없으니 안전하다\"를 절대 명제로 믿지만, 무차입의 진짜 비용은 보이지 않는 기회비용이다. 인플레이션 시기에 현금·저레버리지는 실질 구매력을 갉아먹고, 우량 자산 상승분을 통째로 놓친다. 안전을 자산 방어로만 정의하면, 자산이 물가를 못 따라가는 '느린 손실'을 못 본다. 레버리지 자체가 악이 아니라 감당 못 할 레버리지가 악임을 구분하라.","market":"하락장·고금리 국면에서 압도적으로 강하다(현금이 왕). 상승장에선 상대적으로 소외.","partner":"M-SHRG·M-SHPG(적정 레버리지로 증식 속도를 빌릴 것)."},"M-SHPG":{"identity":"검증된 입지에 전세 레버리지로 묻어두고 시간을 내 편으로 만드는, 갭투자의 정석.","strength":"- 우량지 + 전세 레버리지 조합으로 적은 자기자본으로 우상향 자산을 선점한다.\n- 실거주 제약이 없어 오직 입지·수익률 기준으로 최적 물건을 고른다.\n- 장기 보유라 단기 변동을 무시하고 복리·시세 상승을 온전히 가져간다.","weakness":"- 전세가가 곧 레버리지이므로 역전세(전세가 하락) 시 보증금 반환 압박에 직격탄.\n- 다주택 경로로 가면 취득세·종부세·양도세 중과가 수익을 잠식한다.\n- 무주택자라면 실거주 한 채 마련을 미루다 정작 본인 주거가 불안정해질 수 있다.","blindspot":"당신은 \"우량지니까 전세는 늘 잘 나간다\"고 가정하지만, 전세 레버리지는 만기마다 재설정되는 단기 부채다. 입주 물량 폭탄이나 금리 급등으로 전세가가 빠지면, 보유한 장기 시나리오와 무관하게 당장 수천만 원을 토해내야 한다. '장기 보유'라는 말이 '아무것도 안 해도 된다'는 뜻이 아니다 — 전세 만기 캘린더와 역전세 대비 현금 버퍼를 항상 들고 있어야 한다. 또 무주택 상태로 남의 집만 사다가 청약·실거주 비과세 기회를 통째로 날리는 경우가 흔하다.","market":"상승장·전세가 상승기에 최강. 입주 폭탄·역전세 국면이 최대 약점.","partner":"M-SHRE(무차입 버퍼 감각), M-SHPE(자기자본 비중을 높여 역전세 방어)."},"M-SHPE":{"identity":"자기자본으로 우량 물건을 사서 느리지만 단단하게 불려가는, 리스크 없는 복리주의자.","strength":"- 무차입·우량 조합이라 역전세·금리에 흔들리지 않고 어떤 국면도 버틴다.\n- 순수투자 관점이라 감정 없이 수익률로만 판단, 물건 선택의 자유도가 높다.\n- 하락장에 현금 동원력으로 우량 급매를 줍는 역발상 매수가 가능하다.","weakness":"- 자본 회전·확장 속도가 느려 상승장 수익 극대화를 놓친다.\n- 좋은 기회 앞에서도 레버리지를 거부해 규모의 경제를 못 만든다.\n- 신중함이 지나쳐 매수 실행이 늦어 타이밍을 놓치는 경우가 있다.","blindspot":"\"단단함\"에 대한 자부심이 행동을 마비시킨다. 분석은 완벽한데 방아쇠를 못 당겨, 결국 검토만 하다 끝나는 분석마비에 빠지기 쉽다. 또 무차입을 고집하다 보면 자본 효율이 떨어져, 같은 안목으로 레버리지를 적정 사용한 사람 대비 장기 누적 수익이 크게 벌어진다. 안전한 게 아니라 '느린' 것일 수 있다는 점을 직시하라.","market":"하락장·횡보장에서 빛난다(현금·인내가 무기). 급등장에선 소외.","partner":"M-SHPG·M-ATPG(레버리지·실행 속도를 빌릴 것)."},"M-STRG":{"identity":"실거주하며 비과세 타이밍에 맞춰 상급지로 안전하게 환승하는 사다리 등반가.","strength":"비과세 요건을 활용한 절세 환승, 거주 안정과 자산 상승의 균형, 검증된 입지만 노려 리스크 통제.","weakness":"잦은 환승의 거래비용(취득세·중개비·이사), 갈아타기 타이밍에 시장이 역행하면 손실, 일시적 2주택 처분기한 압박.","blindspot":"갈아타기를 '항상 한 단계 위로' 가는 일방통행으로 가정하지만, 매도와 매수가 같은 시장에서 동시에 일어난다 — 상급지가 더 빨리 오르면 격차가 벌어져 영영 못 따라잡는다. 처분기한과 자금 조달의 타이밍 리스크를 과소평가하기 쉽다.","market":"횡보·완만한 상승장(상급지 갭이 안 벌어질 때).","partner":"M-SHRE(무리한 환승 절제), M-AHPG(상급지 선점 안목)."},"M-STRE":{"identity":"빚을 최소화하며 보수적으로 실거주를 갈아타는 돌다리 두드림형.","strength":"무리 없는 자금계획, 하락장 방어력, 거주 안정.","weakness":"환승 속도가 느려 기회 상실, 무차입 제약으로 상급지 진입 지연, 과도한 신중함.","blindspot":"신중함이 곧 안전이라 믿지만, 실거주 갈아타기는 미룰수록 상급지와의 격차가 복리로 벌어진다. '준비되면 옮기겠다'는 무한 연기로 끝나기 쉽다.","market":"하락·횡보장.","partner":"M-STRG, M-AHRG."},"M-STPG":{"identity":"검증된 물건만 골라 전세 레버리지로 짧게 회전하는 안전지향 단타러.","strength":"리스크 낮은 물건만 단기 회전해 자본 회전율↑, 입지 검증으로 환금성 확보.","weakness":"단기 양도세 중과로 세후 수익 급감, 거래비용 누적, 안전물건은 마진이 박함.","blindspot":"\"안전한 물건이니 잘 팔린다\"고 보지만 단타의 진짜 적은 양도세율(2년 미만 중과)과 거래비용이다. 세전 수익에 취해 세후 실수령을 계산 안 하면 헛심만 쓴다.","market":"거래 활발한 상승장.","partner":"M-SHPG(장기 전환 판단), M-SHPE."},"M-STPE":{"identity":"자기자본으로 안전한 물건만 짧게 차익 보려는, 다소 동기가 약한 보수적 단타러.","strength":"무차입 단타라 리스크 최소, 손실 회피 강함.","weakness":"보수+단기는 동기 충돌 — 안전물건 단기차익은 세후 남는 게 적다. 자본 비효율.","blindspot":"안전과 단기차익을 동시에 원하지만 이 둘은 본질적으로 상충한다. 어느 쪽도 제대로 못 챙기는 어중간한 포지션이 되기 쉽다. 장기보유나 적정 레버리지 중 하나로 정체성을 정하라.","market":"상승장 한정(그 외엔 매력 약함).","partner":"M-SHPE(장기 전환), M-ATPG."},"M-AHRG":{"identity":"개발 기대 지역에 실제로 살면서 대출 끼고 장기 시세차익을 노리는 실거주 베터.","strength":"거주하며 호재 실현을 기다려 주거비+투자 일석이조, 실거주 비과세 가능, 호재 적중 시 큰 차익.","weakness":"호재 지연·무산 리스크를 거주지에 그대로 안음, 정비사업 장기화 시 생활 불편, 레버리지+불확실성 이중 부담.","blindspot":"\"내가 사는 곳이 개발된다\"는 기대에 감정이 실려 호재의 실현 확률·시점을 낙관 편향한다. 정비사업은 평균 10년+, 무산도 흔하다. 실거주 만족도와 투자 기대를 분리해 냉정히 보라.","market":"상승장·개발 사이클 초입.","partner":"M-SHRG(검증입지 균형), M-AHPE."},"M-AHRE":{"identity":"현금으로 저평가 실거주지를 사서 묵묵히 장기 베팅하는 뚝심형.","strength":"무차입이라 호재 지연을 버틸 체력, 역발상 저가 매수, 거주 안정.","weakness":"자본 묶임, 호재 무산 시 기회비용, 무차입으로 확장 불가.","blindspot":"\"버틸 수 있으니 언젠간 오른다\"는 무한 인내가 함정. 호재가 영영 안 올 수도 있고, 그 사이 다른 우량지는 먼저 오른다. 시간도 비용이다.","market":"하락·횡보장 진입.","partner":"M-SHRE, M-AHPG."},"M-AHPG":{"identity":"재건축·재개발·정비사업 기대가 있는 저평가지에 전세·대출 레버리지를 태워 장기 보유하는, 호재 투자의 전형.","strength":"- 저평가 진입 + 호재 실현이 맞물리면 일반 우량지를 압도하는 수익(멀티배거)을 낸다.\n- 순수투자 관점이라 거주 제약 없이 사업성 좋은 구역만 골라 담는다.\n- 장기 보유 전제라 정비사업의 긴 호흡(조합 설립~이주~준공)을 견딜 구조를 짠다.","weakness":"- 정비사업은 지연·무산·분담금 폭탄 등 변수가 많아 시나리오가 자주 깨진다.\n- 레버리지 + 호재 불확실성의 이중 리스크 — 둘 다 어긋나면 손실이 증폭된다.\n- 사업 단계 중 환금성이 극히 낮아 급전이 필요할 때 못 판다.","blindspot":"당신은 호재의 '상승 시나리오'는 정교하게 그리지만, 시간 비용과 무산 리스크는 습관적으로 할인한다. 정비사업은 구역지정부터 입주까지 평균 10년이 넘고, 조합 내분·분담금 급등·경기 침체로 멈추는 경우가 절반에 가깝다. \"결국 된다\"는 믿음으로 분담금 추가 납입과 장기 자금 동결을 견디는 동안, 같은 돈을 우량지에 넣었다면 얻었을 수익(기회비용)이 당신의 실질 수익률을 갉아먹는다. 사업단계(조합설립인가·사업시행인가·관리처분인가)별 리스크가 천차만별인데 이를 뭉뚱그려 '호재'로 퉁치는 것도 위험하다. 진입 단계가 빠를수록 수익은 크지만 무산 확률도 크다.","market":"상승장·유동성 확장기(사업 추진력↑). 고금리·침체기엔 사업 지연 직격탄.","partner":"M-SHPG(검증입지로 포트폴리오 안정), M-SHPE(현금 버퍼로 분담금 대비)."},"M-AHPE":{"identity":"자기자본으로 저평가 물건을 사두고 시장이 알아줄 때까지 인내하는 역발상가.","strength":"무차입이라 무한정 버티는 체력, 남들 외면할 때 줍는 역발상, 호재 적중 시 무레버리지로도 큰 차익.","weakness":"자본이 오래 묶임, 저평가가 '저평가인 채로' 정체될 위험, 확장 불가.","blindspot":"\"싸니까 안전하다\"는 가치투자 신념이 함정 — 싼 데는 이유가 있을 수 있고, 카탈리스트(상승 촉매) 없는 저평가는 영원히 저평가다. 가격이 아니라 '무엇이 가격을 올릴 것인가'를 봐야 한다.","market":"하락장 바닥·횡보장.","partner":"M-AHPG(호재 안목), M-ATPG(타이밍·실행)."},"M-ATRG":{"identity":"호재 지역으로 실거주를 빠르게 환승하며 레버리지를 적극 활용하는 공격적 사다리꾼.","strength":"빠른 환승으로 상승 흐름 갈아타기, 레버리지로 진입장벽 돌파, 호재 선점.","weakness":"잦은 거래비용+단기 양도세, 레버리지+공격+단기 삼중 리스크, 타이밍 실패 시 큰 손실.","blindspot":"실거주라는 명분으로 사실상 고위험 단타를 하면서 위험을 과소평가한다. 갈아탈 때마다 시장·세금·자금이 동시에 맞아떨어져야 하는데, 한 박자만 어긋나도 사다리에서 미끄러진다.","market":"강한 상승장.","partner":"M-STRG(절제), M-SHRG."},"M-ATRE":{"identity":"현금으로 공격적 실거주 단기 환승을 하는 드문 현금부자 역발상가.","strength":"무차입이라 공격 베팅도 버팀, 빠른 의사결정, 현금 협상력.","weakness":"공격+무차입+단기는 부자연한 조합(보통 공격은 레버리지 동반), 자본 비효율, 거래비용.","blindspot":"현금 동원력을 과신해 단기 공격 베팅의 변동성을 가볍게 본다. 무차입이어도 단타 양도세와 잘못된 타이밍은 그대로 손실이다. 희귀 조합인 만큼 본인 성향이 정말 이쪽인지 재점검하라.","market":"변동성 큰 상승장.","partner":"M-SHRE, M-ATPG."},"M-ATPG":{"identity":"저평가·호재 물건을 풀레버리지로 단기 회전시키는, 매매 트랙 최고 위험·최고 수익의 승부사.","strength":"- 레버리지를 극대화해 적은 자기자본으로 큰 포지션을 잡고, 적중 시 수익률이 폭발적이다.\n- 시장 타이밍·호재 흐름에 민감해 기회 포착과 진입·청산이 빠르다.\n- 자본 회전이 빨라 한 사이클의 수익을 곧장 다음 기회에 재투입, 복리 가속.","weakness":"- 풀레버리지 + 단기 + 공격물건 = 삼중 위험. 하나만 어긋나도 손실이 증폭된다.\n- 단기 양도세 중과로 세전 수익의 상당분이 증발한다.\n- 금리·역전세·거래 위축에 가장 먼저, 가장 크게 노출된다.","blindspot":"당신은 몇 번의 성공으로 '내가 시장을 읽는다'는 과신에 빠지기 가장 쉬운 유형이다. 풀레버리지 단타는 상승장에선 천재처럼 보이지만, 그건 실력이 아니라 시장이 받쳐준 결과일 수 있다. 유동성이 마르고 거래가 멈추는 순간 — 팔아서 빠져나와야 할 때 못 파는 환금성 함정 — 에 풀레버리지는 마진콜로 돌변한다. 출구가 막힌 단타는 강제 장기보유가 되고, 그땐 이자가 당신을 갉아먹는다. 수익 시나리오만큼 '못 팔았을 때'의 자금 시나리오를 똑같이 정교하게 짜라. 그리고 세후 수익으로만 성과를 측정하라.","market":"거래량 폭발하는 강한 상승장에서만 강하다. 횡보·하락장에선 가장 위험.","partner":"M-SHPE(현금 버퍼·역전세 방어), M-SHRE(브레이크 역할)."},"M-ATPE":{"identity":"자기자본으로 저평가 물건을 짧게 차익 실현하는 드문 현금형 공격 단타러.","strength":"무차입이라 레버리지 리스크 없이 공격 베팅, 빠른 청산, 하락 버퍼.","weakness":"공격+무차입+단기는 동기 약한 희귀 조합, 자본 비효율, 단기 양도세.","blindspot":"무차입이라 안전하다 여기지만 단타의 진짜 비용은 세금과 타이밍이다. 공격 물건을 짧게 굴리면서 레버리지를 안 쓰는 건 수익 잠재력을 스스로 깎는 셈 — 정체성을 장기보유(M-AHPE)나 레버리지 회전(M-ATPG) 중 하나로 명확히 하라.","market":"변동성 상승장.","partner":"M-AHPE, M-ATPG.\n\n---\n\n# 경매(競賣) 트랙 16유형\n\n> 개인화 변수(경매경험·주택보유상황)는 가이드에서 경고로 반영. 프로필은 성향 골격."},"A-scnr":{"identity":"소액으로 익숙한 동네의 권리 깨끗한 물건을 낙찰받아 실거주·실수요로 쓰는, 경매 입문의 표준이자 최빈 유형.","strength":"- 잘 아는 동네라 시세·임차수요·학군을 꿰고 있어 적정 입찰가 산정이 정확하다.\n- 권리 단순(말소기준 이하 모두 소멸)한 물건만 골라 권리분석 실패 리스크가 거의 없다.\n- 소액·실거주라 자금 부담이 작고, 명도도 점유자 협의로 비교적 수월하다.","weakness":"- 안전·연고지라 경쟁자가 많아 낙찰가율이 높다 — 시세 대비 메리트가 줄어든다.\n- 소액·동네 한정이라 기회 풀이 좁고 수익 규모가 작다.\n- 초보가 많아 '경매로 샀다'는 사실에 취해 시세보다 비싸게 낙찰(고가낙찰)하기 쉽다.","blindspot":"당신의 가장 큰 위험은 권리분석이 아니라 '입찰가'다. 안전한 물건일수록 사람이 몰려, 감정에 휩쓸려 시세에 근접하거나 오히려 비싸게 써내는 고가낙찰이 흔하다. 경매의 본질은 '싸게 사는 것'인데, 경쟁에 이기는 데 몰두하다 정작 마진을 날린다. 또 \"동네라 잘 안다\"는 자신감이 시세 조사를 대충하게 만든다 — 호가와 실거래가, 급매가는 다르다. 입찰 전 반드시 최근 실거래·급매 시세에서 '거꾸로' 입찰 상한선을 정하고, 그 선을 넘으면 미련 없이 포기하라. 명도도 '협의되겠지' 낙관하다 인도명령·강제집행까지 가는 경우가 있으니 점유자 현황을 미리 파악하라.","market":"어느 국면에서도 무난(실거주 기반). 하락장에 낙찰가율이 떨어져 메리트↑.","partner":"A-bxnf(특수물건·협상 감각), A-scnf(출구·매각 감각)."},"A-scnf":{"identity":"연고지의 안전한 물건을 소액으로 낙찰받아 수리·명도 후 빠르게 되팔아 차익을 남기는 동네 단타러.","strength":"- 동네 시세를 잘 알아 매입~매각 스프레드 계산이 정확하고 출구가 빠르다.\n- 권리 깨끗한 물건만 다뤄 명도·소송 리스크를 최소화하며 회전한다.\n- 소액 다건 회전으로 경험과 현금흐름을 빠르게 쌓는다.","weakness":"- 단기 매각은 양도세(보유기간 짧을수록 중과)와 거래비용이 수익을 크게 깎는다.\n- 안전물건은 경쟁으로 낙찰가가 높아 차익 폭이 얇다.\n- 수리·명도 기간이 예상보다 길어지면 회전 전제가 깨진다.","blindspot":"당신은 '싸게 낙찰 → 비싸게 매각' 스프레드만 보지만, 진짜 수익은 세후·비용후 기준이다. 단기 양도세, 명도 비용, 수리비, 중개비, 보유 기간 이자를 다 빼면 '남는 줄 알았는데 본전'인 경우가 흔하다. 특히 다주택자라면 단기 양도세율이 살벌하다. 또 매각이 예상대로 빨리 안 되면 단타가 강제 보유로 바뀌고 자금이 묶인다 — 출구(매수 대기 수요)를 낙찰 전에 검증하라.","market":"거래 활발한 상승장(빠른 매각 가능). 거래 위축기엔 출구 막힘.","partner":"A-scnr(보유 안정 감각), A-bxnf(고마진 특수물건 안목)."},"A-scwr":{"identity":"소액 안전물건을 전국에서 찾아 임대·보유하는 원정 임대형(원격 거주는 비현실 → 사실상 전국 임대보유).","strength":"전국 기회 풀로 고수익 임대물건 발굴, 안전물건이라 권리 리스크 낮음, 임대 현금흐름.","weakness":"원격 임장·관리 부담, 지역 시세 정보 비대칭, 공실·관리 리스크.","blindspot":"수익률 숫자(표면 이율)에 끌려 원격 관리·공실·환금성 비용을 과소평가한다. 모르는 지역의 '싼 임대물'은 싼 이유(수요 부족)가 있을 수 있다. 현지 관리 체계 없이 전국에 깔면 관리 부재로 수익이 새어나간다.","market":"임대수요 견고한 횡보·상승장.","partner":"A-scnr(연고지 관리 강점), A-bxwr."},"A-scwf":{"identity":"소액 안전물건을 전국에서 추적해 낙찰 후 빠르게 매각차익을 실현하는, 발품형 수익률 사냥꾼.","strength":"- 지역에 얽매이지 않고 전국에서 가장 저평가된 안전물건을 골라 마진을 극대화한다.\n- 권리 단순 물건만 다뤄 낯선 지역에서도 권리 리스크는 통제된다.\n- 소액 다건·빠른 회전으로 자본 효율을 높이고 데이터·네트워크를 축적한다.","weakness":"- 원격지 시세·매각 수요 파악이 어려워 출구 리스크가 크다.\n- 단기 양도세 + 원정 비용(교통·임장·명도)이 마진을 잠식한다.\n- 명도·매각이 지연되면 원격지라 대응이 느리고 비용이 눈덩이.","blindspot":"당신은 '낙찰가 대비 시세'라는 진입 스프레드는 잘 보지만, 낯선 지역의 '출구'를 과신한다. 낙찰은 쉬워도 그 지역에서 내가 원하는 가격에 사줄 매수자가 있는지는 별개다 — 지방·소도시는 매수 대기 수요가 얇아 매각이 몇 달씩 걸리고, 그동안 단타 전제가 무너진다. 또 여러 지역에 동시에 벌여놓다 명도·매각이 겹치면 관리 capacity를 초과해 모두 어정쩡해진다. 진입 전에 '그 지역 최근 매각 소요기간'과 '실수요 매수층'을 반드시 확인하고, 동시 진행 건수를 본인이 감당할 수준으로 제한하라.","market":"지역별 순환매가 도는 상승장. 거래 위축기엔 원격 출구가 가장 먼저 막힘.","partner":"A-scnr(연고지 시세 우위), A-bcnr(집중·보유 안정)."},"A-sxnr":{"identity":"소액으로 연고지 특수물건(지분·유치권 등)을 실수요·보유로 공략하는 도전자.","strength":"연고지라 정보 우위, 특수물건이라 경쟁↓·저가 낙찰, 보유로 안정.","weakness":"※자금-난이도 불일치 — 특수물건은 소송·명도에 추가 자금·기간 버퍼 필요한데 소액과 충돌. 분석 실패 시 자금 묶임.","blindspot":"소액으로 특수물건을 다루려다 정작 소송·명도에 들어갈 예비비를 마련 못 한다. 특수물건은 낙찰가가 싸도 해결 비용이 본체보다 클 수 있다. 연고지 정보 우위가 권리분석 역량을 대체하진 못한다 — 권리 자체가 안 풀리면 동네라도 소용없다.","market":"국면 무관(개별 물건 해결 역량이 좌우).","partner":"A-bxnr(자금 버퍼), A-scnr."},"A-sxnf":{"identity":"연고지 특수물건을 소액으로 공략해 권리 해결 후 단기 차익을 노리는 고위험 단타러.","strength":"특수물건 저가 낙찰 + 연고지 정보 + 빠른 회전 의지.","weakness":"고위험(권리분석·명도·소송), 소액으로 특수물건 단타는 자금·시간 버퍼 부족, 경험 필수.","blindspot":"특수물건의 '권리 해결 기간'을 단기로 가정하지만 유치권·지분 분쟁은 협상·소송으로 수개월~수년 간다. 단타 전제가 깨지면 소액 자금이 장기간 묶여 다음 기회를 못 잡는다. 경험이 부족하면 해결 자체가 불가능할 수도 있다.","market":"국면 무관, 단 본인 역량이 절대 변수.","partner":"A-bxnf, A-scnf."},"A-sxwr":{"identity":"소액으로 전국 특수물건을 보유 목적으로 공략하는, 자금-난이도-거리 삼중 부담의 희귀형.","strength":"전국 특수물건 풀에서 초저가 발굴 가능.","weakness":"자금·난이도·거리 삼중고. 원격에서 특수물건 권리 해결은 현실적으로 매우 어려움.","blindspot":"세 가지 어려운 조건을 동시에 떠안으면서 각각을 과소평가한다. 원격지 특수물건은 임장·소송·명도 모두 원거리에서 처리해야 해 비용·시간이 폭증한다. 본인이 정말 이 조합을 감당할 자원이 있는지 냉정히 재검토하라.","market":"사실상 권장 안 함(전문 역량+현지 네트워크 전제).","partner":"A-bxwr(자금·전국 역량), A-bxnf(특수물건 역량)."},"A-sxwf":{"identity":"소액으로 전국 특수물건을 단타하려는, 초보 과욕의 전형 — 가장 강한 경고 대상.","strength":"(이론상) 최저가 낙찰 잠재력. 실전에선 강점보다 위험이 압도.","weakness":"소액·특수·전국·단기 — 네 가지 고난도 조건의 최악 조합. 자금·시간·거리·난이도 전부 불리.","blindspot":"\"싸게 낙찰받아 빨리 팔면 된다\"는 환상이 가장 위험하다. 특수물건은 빨리 못 팔고, 원격이라 대응 못 하고, 소액이라 소송비가 없다. 네 악조건이 동시에 터지면 자금 전체가 묶이고 손실이 확정된다. 초보라면 절대 들어가지 마라. 이 성향이 나왔다면 자금 규모를 키우거나(b), 난이도를 낮추거나(c), 연고지로 좁히거나(n) 최소 한 축은 조정하라.","market":"없음(권장 불가).","partner":"A-bxwf(전업 특수 전문가의 멘토링 필수), A-scnr(기본으로 회귀)."},"A-bcnr":{"identity":"큰 자기자본으로 연고지의 우량 안전물건을 낙찰받아 내집마련·장기 보유하는, 자산가형 실수요자.","strength":"- 대액·자기자본이라 자금·금리 리스크가 거의 없고, 우량물건을 시세보다 싸게 확보한다.\n- 연고지 우량물건이라 환금성·임차수요가 탄탄하고 장기 보유 안정성이 높다.\n- 권리 단순 물건만 골라 경매 리스크를 최소화하면서 시장가보다 싸게 내집을 마련한다.","weakness":"- 우량·안전·연고지는 경쟁이 치열해 낙찰가율이 높아 '경매 메리트'가 줄어든다.\n- 큰 자본을 한 물건에 집중해 분산이 없다.\n- 보수적이라 더 높은 수익(특수물건·전국)을 의도적으로 포기한다.","blindspot":"당신은 자금력이 충분해 '안전하게 좋은 물건'을 노리지만, 바로 그 물건에 사람이 가장 많이 몰린다. 자금 여유가 오히려 독이 되어 \"이 정도면 써도 된다\"며 낙찰가를 끌어올려, 결국 일반 매매와 다를 바 없는 가격에 사고도 '경매로 싸게 샀다'고 착각한다. 대액 집중이라 한 번의 고가낙찰이 큰 손실로 직결된다. 또 자금이 충분하다는 이유로 권리분석·시세조사를 남에게 맡기고 안일해지기 쉽다. 입찰가 상한선을 시세 기반으로 못 박고, 경쟁이 과열되면 다음 물건을 기다리는 절제가 핵심이다.","market":"하락장(낙찰가율 하락 + 현금 동원력으로 우량 급매 흡수)에서 최강.","partner":"A-bxnf(특수물건으로 메리트 확보), A-scwf(분산·기회탐색 감각)."},"A-bcnf":{"identity":"대액으로 연고지 우량 안전물건을 낙찰받아 단기 매각으로 자본을 회전시키는 회전러.","strength":"우량물건 빠른 매각, 큰 자본으로 임팩트 있는 차익, 연고지 출구 확보.","weakness":"단기 양도세 부담 큼(대액일수록 절대액↑), 안전물건 경쟁으로 진입 마진 박함, 자본 회전을 안전물건에 쓰는 비효율.","blindspot":"큰 자본을 마진 박한 안전물건 단타에 굴리는 자본 비효율을 못 본다. 대액이면 집중·특수나 장기 보유가 합리적인 경우가 많다. 단기 양도세 절대액이 크다는 점도 과소평가하기 쉽다.","market":"거래 활발한 상승장.","partner":"A-bcnr(보유 전환), A-bxnf(고마진 특수)."},"A-bcwr":{"identity":"대액 안전물건을 전국에서 골라 임대·보유하는 분산 임대 자산가.","strength":"전국 우량물건 분산 포트폴리오, 안정적 임대 현금흐름, 권리 리스크 낮음.","weakness":"원격 관리 부담, 대액 분산이라 관리 복잡, 안전물건 수익률 한계.","blindspot":"전국 분산을 리스크 분산으로 여기지만 관리 역량 분산이기도 하다. 현지 관리 인프라 없이 전국에 깔면 공실·관리 부실로 수익이 샌다. 우량·안전에 안주해 수익률이 평범해진다.","market":"임대수요 견고한 횡보·상승장.","partner":"A-bcnr(연고지 집중), A-bxwr."},"A-bcwf":{"identity":"대액 안전물건을 전국에서 단기 매각으로 회전시키는, 자본 효율이 의심되는 유형.","strength":"전국 기회 풀, 큰 자본의 회전력.","weakness":"※대액인데 소액형(박리다매) 전략 — 자본 비효율. 원격 출구 리스크 + 단기 양도세 + 원정 비용.","blindspot":"큰 자본을 마진 박한 안전물건 원정 단타에 굴리는 건 자본 효율 최악 조합 중 하나다. 대액이면 집중·특수 또는 보유로 가는 게 합리적이다. 원격 출구와 세금을 동시에 과소평가하기 쉽다.","market":"강한 상승장 한정.","partner":"A-bxwf(특수로 마진 확보), A-bcnr."},"A-bxnr":{"identity":"대액으로 연고지 특수물건을 장기 보유·임대하는 지역 기반 자산가.","strength":"자금 버퍼로 특수물건 권리 해결 여유, 연고지 정보 우위, 저가 매입 후 보유로 안정.","weakness":"권리분석·소송 역량 필수, 자본 장기 묶임, 특수물건 보유 전환의 명도·정상화 기간.","blindspot":"자금이 충분해 특수물건을 '해결할 수 있다'고 보지만, 돈으로 시간을 다 사지는 못한다 — 지분·유치권 분쟁은 상대가 있어 협상·소송 기간을 통제하기 어렵다. 보유 전환 전까지의 기회비용을 과소평가하기 쉽다.","market":"국면 무관(개별 해결력이 좌우).","partner":"A-bxnf(출구·수익 실현), A-bcnr."},"A-bxnf":{"identity":"큰 자본으로 연고지 특수물건을 공략해 권리를 풀고 단기 수익을 실현하는, 지역 경매 고수.","strength":"- 자금 버퍼가 충분해 유치권·지분·법정지상권 등 고난도 물건의 소송·명도·합의금을 감당하며 경쟁 없는 저가 낙찰의 큰 마진을 가져간다.\n- 연고지라 시세·임차수요·매각 출구를 정확히 알아 권리 해결 후 빠르게 수익화한다.\n- 권리분석 역량 + 자본력 + 지역 정보의 삼박자로 진입장벽 높은 시장을 독점적으로 공략한다.","weakness":"- 권리분석 한 번의 오판이 큰 손실 — 대액이라 타격이 크다.\n- 명도·소송 기간이 길어지면 단기 수익 전제가 흔들리고 자본이 묶인다.\n- 고난도 영역이라 실력 없이 흉내 내면 가장 위험한 유형이 된다.","blindspot":"당신은 권리분석과 협상에 자신이 있어 '해결 가능하다'고 빠르게 판단하지만, 특수물건의 변수는 법리보다 '사람'이다 — 유치권자·지분 공유자·점유자가 비합리적으로 버티면 협상은 교착되고 소송은 예상의 두 배로 길어진다. 자본력이 조급함을 부추겨 '빨리 끝내려' 과한 합의금을 주거나, 반대로 자신감이 과해 해결 난도를 낮춰 보는 두 극단을 오간다. 한 건의 마진이 크다는 데 취해 동시에 여러 건을 벌이면 분쟁 관리 capacity를 초과한다. 진입 전 '최악의 경우 해결에 걸리는 기간·비용'을 보수적으로 잡고, 그래도 수익이 나는지로 입찰가를 정하라.","market":"국면 의존도 낮음(개별 물건 해결력이 수익을 만든다). 침체기엔 경쟁이 더 줄어 기회↑.","partner":"A-bcnr(안전 보유로 포트폴리오 안정), A-bxwf(전국 특수 네트워크 확장)."},"A-bxwr":{"identity":"대액으로 전국 특수물건을 장기 보유하는 전업 자산가형.","strength":"전국 특수물건 풀에서 초저가 발굴, 자금 버퍼로 해결, 보유로 장기 수익화.","weakness":"원격 특수물건 해결의 고비용·고난도, 자본 장기 묶임, 전업 수준 역량·인프라 필요.","blindspot":"전국+특수의 결합은 임장·소송·명도를 모두 원거리에서 처리해야 해, 자금이 있어도 시간과 관리 한계가 병목이 된다. 보유 전환까지의 긴 정상화 기간과 원격 관리 비용을 과소평가하기 쉽다.","market":"국면 무관(전업 역량 전제).","partner":"A-bxnf(연고지 집중력), A-bcwr."},"A-bxwf":{"identity":"큰 자본으로 전국의 특수물건을 추적해 권리를 풀고 단기 수익을 실현하는, 경매 트랙 최고 난도의 전업 전문가.","strength":"- 전국 + 특수 + 대액 + 단기의 결합으로, 아무도 못 들어가는 고난도 물건에서 최고 마진을 독점한다.\n- 권리분석·소송·명도·협상의 전 과정을 시스템화해 빠르게 해결하고 회전시킨다.\n- 지역에 얽매이지 않아 전국에서 가장 수익성 높은 특수물건만 선별, 자본 효율이 극대화된다.","weakness":"- 최고 난도 조합 — 권리분석 오판, 원격 명도 지연, 소송 장기화가 동시에 터지면 손실이 막대하다.\n- 전국 원정 + 다건 분쟁 관리로 capacity 초과 위험이 상존한다.\n- 전업 수준의 법률·세무·현지 네트워크 없이는 불가능 — 진입장벽이 가장 높다.","blindspot":"당신은 이 트랙의 정점이지만, 바로 그 자신감이 가장 큰 리스크다. 과거 성공 패턴을 새 물건에 그대로 대입하다 지역별 관행·법원별 운영·점유자 변수의 차이를 놓친다. 전국 다건을 동시에 굴리면 한 건의 소송 교착이 전체 현금흐름을 막는 연쇄 위험이 있는데, 회전 속도에 취해 이를 과소평가한다. 또 '특수물건 전문가'라는 정체성이 일반·안전물건의 쉬운 수익을 무시하게 만들어, 굳이 어려운 길만 고집하는 비효율에 빠지기도 한다. 동시 진행 건수에 상한을 두고, 각 건의 최악 시나리오(소송 패소·명도 장기화) 자금을 따로 적립한 상태에서만 새 입찰에 들어가라. 단기 수익이라도 다건·대액이면 단기 양도세 부담이 거대하니 세후로 설계하라.","market":"국면 의존도 가장 낮음(실력이 곧 수익). 경쟁 적은 침체기에 오히려 기회 확대.","partner":"A-bxnr(연고지 깊이로 안정), A-bcwr(보유 전환으로 현금흐름 균형)."}};
+const GUIDES = {"M-SHRG":[{"label":"적합 물건","body":"역세권·학군·일자리 접근성 좋은 검증 입지의 국민평형(전용 59~84). 신축~준신축 선호. 본인 소득 대비 DSR 감당되는 가격대의 '갈아타기 사다리 중간 칸'."},{"label":"피해야 할 함정","body":"\"실거주니까 시세는 신경 안 써도 된다\"는 자기합리화. 대출 한도 끝까지 당겨 현금 버퍼 제로로 매수. 분양가·호가에 끌려 환금성 검증 생략."},{"label":"매수 전 체크리스트","body":"1. 금리 +2%p 스트레스 시에도 원리금이 가계 가처분의 일정선(통상 30~40%) 이내인가.\n2. 최근 3개월 실거래가·급매가 기준으로 호가 거품 여부 확인.\n3. 5년 내 갈아탈 상급지와의 현재 가격 갭, 그 갭이 벌어지는 추세인지.\n4. 학군·교통 등 '실거주 프리미엄'이 환금성으로도 연결되는 입지인가.\n5. 최소 6개월치 원리금 + 예비비 현금 버퍼 확보 여부."},{"label":"보유/매도 전략","body":"1주택 비과세(2년 보유, 조정지역은 2년 거주) 요건을 채워 매도. 갈아타기는 상급지 갭이 좁혀진 횡보·조정장을 노려라. 한 채 집중이므로 매도 타이밍이 곧 다음 사다리 칸을 결정 — 매년 상급지 갭을 점검하라."}],"M-SHRE":[{"label":"적합 물건","body":"무차입으로 매수 가능한 우량 입지의 실거주 한 채. 관리 편한 신축~준신축, 환금성 높은 평형."},{"label":"피해야 할 함정","body":"무차입 고집으로 우량 자산 상승분을 통째로 놓치는 '느린 손실'. 과도한 안전 추구로 합리적 갈아타기까지 회피. 현금을 비생산적으로 방치."},{"label":"매수 전 체크리스트","body":"1. 무차입 매수가 기회비용(같은 돈으로 적정 레버리지 시 추가 수익) 대비 합리적인가.\n2. 인플레이션 하에서 이 자산이 물가 상승률을 따라갈 우량 입지인가.\n3. 비상 현금은 남기되, 과도한 현금 방치(실질 구매력 손실)는 아닌가."},{"label":"보유/매도 전략","body":"장기 보유가 기본. 하락·고금리장에 현금 동원력으로 우량 급매를 줍는 역발상 매수를 준비. 갈아타기가 합리적인 국면에선 '적정' 레버리지를 거부하지 말 것."}],"M-SHPG":[{"label":"적합 물건","body":"전세가율 높고 전세수요 탄탄한 검증 입지(직주근접·학군). 갭(매매가-전세가)이 작고, 입주 물량 리스크 적은 지역."},{"label":"피해야 할 함정","body":"\"우량지니 전세는 늘 나간다\" 가정. 입주 폭탄·금리 급등기 역전세 무대비. 다주택 확장 중 취득세·종부세·양도세 중과 간과. 무주택자가 본인 실거주를 무한정 미룸."},{"label":"매수 전 체크리스트","body":"1. 향후 2~3년 해당 권역 입주(공급) 물량 — 역전세 가능성 점검.\n2. 전세가 10~20% 하락 시 반환 가능한 현금 버퍼 보유 여부.\n3. 전세 만기 캘린더와 재계약 시나리오.\n4. (다주택 진입 시) 취득세 중과·종부세 합산·양도세 중과 시뮬레이션.\n5. (무주택) 청약·실거주 비과세 기회를 포기할 만한 수익 우위가 있는가."},{"label":"보유/매도 전략","body":"장기 보유로 시세 상승 향유하되, 전세 만기마다 역전세 점검은 필수. 매도는 보유 2년+ 비과세/일반세율 구간에서. 역전세 국면이 닥치면 보증금 일부 반환을 위한 추가 대출 한도를 미리 확보."}],"M-SHPE":[{"label":"적합 물건","body":"자기자본으로 확보 가능한 우량 입지 물건. 현금흐름·환금성 안정적인 검증 자산."},{"label":"피해야 할 함정","body":"분석마비(검토만 하다 실행 못 함). 무차입 고집에 따른 자본 비효율로 장기 누적 수익 격차. 좋은 기회 앞에서도 매수 지연."},{"label":"매수 전 체크리스트","body":"1. 분석을 끝냈으면 정한 기준 충족 시 '실행'할 트리거를 미리 정했는가.\n2. 무차입의 안정 vs 적정 레버리지의 수익, 둘을 정량 비교했는가.\n3. 매수 지연으로 놓친 직전 기회들을 복기했는가."},{"label":"보유/매도 전략","body":"장기 보유·복리가 강점. 하락장 현금 동원으로 우량 급매 매수. 단, 좋은 물건엔 적정 레버리지를 검토해 실행 속도를 높여라."}],"M-STRG":[{"label":"적합 물건","body":"비과세 요건 채우기 좋은 검증 입지 실거주 물건, 상급지 환승 사다리."},{"label":"피해야 할 함정","body":"환승 거래비용(취득세·중개·이사) 누적, 처분기한 압박, 상급지가 더 빨리 올라 격차 확대."},{"label":"매수 전 체크리스트","body":"1) 일시적 2주택 비과세 처분기한·요건 확인 2) 매도·매수 동시 진행 자금 갭 3) 상급지와의 가격 격차 추세."},{"label":"보유/매도 전략","body":"비과세 타이밍에 환승, 상급지 갭이 좁아진 조정장을 노려라."}],"M-STRE":[{"label":"적합 물건","body":"무리 없는 자금의 검증 입지 실거주 물건."},{"label":"피해야 할 함정","body":"무한 연기로 상급지 격차 복리 확대, 과도한 신중함."},{"label":"매수 전 체크리스트","body":"1) 환승 미루는 동안의 기회비용 2) 무차입 제약으로 진입 못 하는 상급지 여부 3) 자금계획 보수성 점검."},{"label":"보유/매도 전략","body":"보수적 환승. 단, '준비되면'을 핑계로 한 무한 연기는 경계."}],"M-STPG":[{"label":"적합 물건","body":"환금성 높은 검증 물건, 단기 매각 수요 탄탄한 입지."},{"label":"피해야 할 함정","body":"단기 양도세(2년 미만 중과) 과소평가, 거래비용 누적, 안전물건의 박한 마진."},{"label":"매수 전 체크리스트","body":"1) 보유기간별 양도세율 적용한 세후 수익 2) 매각 출구 수요 검증 3) 전세 레버리지 역전세 리스크."},{"label":"보유/매도 전략","body":"세후 수익이 충분치 않으면 2년 보유로 전환해 일반세율/비과세 활용."}],"M-STPE":[{"label":"적합 물건","body":"무차입 가능한 안전 물건(단, 정체성 재점검 권장)."},{"label":"피해야 할 함정","body":"안전+단기차익의 본질적 상충 — 어느 쪽도 못 챙김. 자본 비효율."},{"label":"매수 전 체크리스트","body":"1) 세후 단기차익이 정말 남는가 2) 장기보유/레버리지 중 어느 정체성이 본인에 맞는가."},{"label":"보유/매도 전략","body":"단타 매력이 약하면 장기보유로 전환 검토."}],"M-AHRG":[{"label":"적합 물건","body":"정비사업·교통 개발 기대가 있는 실거주 가능 지역. 사업 단계가 가시화된 곳."},{"label":"피해야 할 함정","body":"거주지에 대한 감정 이입으로 호재 실현 확률·시점 낙관, 정비사업 장기화 중 생활 불편, 레버리지+불확실성 이중 부담."},{"label":"매수 전 체크리스트","body":"1) 정비사업 단계(조합설립/사업시행/관리처분)와 예상 기간 2) 호재 무산 시에도 거주 만족도가 유지되는가 3) 사업 지연 중 원리금 감당력."},{"label":"보유/매도 전략","body":"실거주 만족과 투자 기대를 분리. 호재 실현 단계마다 보유/매도 재판단."}],"M-AHRE":[{"label":"적합 물건","body":"저평가 실거주지, 무차입 매수 가능 가격대."},{"label":"피해야 할 함정","body":"무한 인내(호재가 안 올 수도), 자본 묶임, 다른 우량지 선상승 소외."},{"label":"매수 전 체크리스트","body":"1) 저평가를 해소할 카탈리스트 존재 2) 버티는 기간의 기회비용 3) 무차입 제약 점검."},{"label":"보유/매도 전략","body":"카탈리스트 점검하며 장기 보유. 촉매 없으면 출구 재검토."}],"M-AHPG":[{"label":"적합 물건","body":"사업성 검증된 정비사업 구역(재건축·재개발), 단계별로 리스크-수익 프로파일이 다름 — 본인 리스크 수용도에 맞는 단계 선택. 전세·대출 레버리지 가능 가격대."},{"label":"피해야 할 함정","body":"상승 시나리오만 정교하게 그리고 시간비용·무산리스크 할인. '호재'를 단계 구분 없이 뭉뚱그림. 분담금 추가 납입 무대비. 사업단계 중 환금성 제로 간과."},{"label":"매수 전 체크리스트","body":"1. 사업 단계 확인: 구역지정 → 조합설립인가 → 사업시행인가 → 관리처분인가. 빠른 단계일수록 수익↑·무산 확률↑.\n2. 추정 분담금과 추가 분담금 발생 시 감당 가능 현금.\n3. 조합 내분·소송 이력, 비대위 유무 등 사업 추진 안정성.\n4. 같은 자금을 검증 우량지에 넣었을 때의 기회비용 대비 기대수익.\n5. 사업 기간(평균 10년+) 동안 자금 동결을 감당할 수 있는가."},{"label":"보유/매도 전략","body":"단계 진행에 따라 가치가 점프(인가 시점마다 상승)하므로, 인가 이벤트 전 매집·후 차익 실현 전략 가능. 무산 시그널(조합 해산·장기 정체) 포착 시 손절 기준을 미리 정하라. 다주택 진입 시 정비사업 조합원 양도 제한·세금 확인."}],"M-AHPE":[{"label":"적합 물건","body":"카탈리스트 있는 저평가 물건, 무차입 매수 가능 가격대."},{"label":"피해야 할 함정","body":"\"싸니까 안전\" — 싼 이유 간과, 촉매 없는 영구 저평가, 자본 묶임."},{"label":"매수 전 체크리스트","body":"1) 가격을 올릴 구체적 촉매 2) 저평가 지속 시 버티는 기간 3) 무차입 기회비용."},{"label":"보유/매도 전략","body":"촉매 실현 시 매도. 촉매 부재면 진입 자체를 보류."}],"M-ATRG":[{"label":"적합 물건","body":"호재 지역의 실거주 환승 대상, 빠른 상승 흐름 물건."},{"label":"피해야 할 함정","body":"실거주 명분 뒤의 고위험 단타, 거래비용+단기 양도세, 타이밍 실패 시 큰 손실."},{"label":"매수 전 체크리스트","body":"1) 환승 시 시장·세금·자금 동시 정렬 여부 2) 단기 양도세 세후 수익 3) 타이밍 역행 시 버티기 시나리오."},{"label":"보유/매도 전략","body":"강한 상승장 한정. 한 박자 어긋나면 보수 모드로 전환."}],"M-ATRE":[{"label":"적합 물건","body":"무차입 가능한 공격 실거주 환승 물건(정체성 재점검 권장)."},{"label":"피해야 할 함정","body":"현금 동원력 과신으로 변동성 경시, 단타 양도세, 자본 비효율."},{"label":"매수 전 체크리스트","body":"1) 무차입인데 굳이 단기 공격하는 이유 2) 세후 수익 3) 본인 성향 재확인."},{"label":"보유/매도 전략","body":"변동성 큰 상승장 한정. 장기보유 전환도 검토."}],"M-ATPG":[{"label":"적합 물건","body":"저평가·호재 물건 중 단기 모멘텀이 강한 것. 전세·대출 풀레버리지 가능 + 환금성(거래 활발) 검증된 물건. 거래량 받쳐주는 상승장 한정."},{"label":"피해야 할 함정","body":"몇 번 성공 후 '시장을 읽는다'는 과신. 환금성 함정(팔아야 할 때 못 팖)에서 풀레버리지가 마진콜로 돌변. 세전 수익에 취해 단기 양도세 무시."},{"label":"매수 전 체크리스트","body":"1. 청산(매도) 시나리오: 누구에게, 얼마에, 며칠 안에 파는가 — 출구가 먼저다.\n2. 거래가 멈춰 '못 팔았을 때'의 자금/이자 시나리오(강제 장기보유 대비).\n3. 단기 양도세율 적용한 세후 수익 — 세전 수익은 의미 없다.\n4. 금리·역전세 동시 충격 시 레버리지 감당 한계.\n5. 풀레버리지 비중 상한선을 본인 자본 대비 못 박았는가."},{"label":"보유/매도 전략","body":"진입 시 청산 조건(목표가·손절가·기한)을 동시에 확정. 거래량·심리 둔화 시그널에 즉시 청산. 세후로만 성과 측정. 한 사이클 실패가 다음 사이클을 막지 않도록 레버리지에 상한을 둘 것."}],"M-ATPE":[{"label":"적합 물건","body":"무차입 가능 저평가 물건(정체성 재점검 권장)."},{"label":"피해야 할 함정","body":"무차입=안전 착각(진짜 비용은 세금·타이밍), 자본 비효율."},{"label":"매수 전 체크리스트","body":"1) 세후 단기차익 2) 무차입으로 수익 잠재력 깎는 게 맞는가 3) 장기보유/레버리지 회전 중 정체성 확정."},{"label":"보유/매도 전략","body":"정체성을 M-AHPE(장기) 또는 M-ATPG(레버리지 회전)로 명확히.\n\n---\n\n# 경매(競賣) 트랙 활용 가이드\n\n> **개인화 경고 공통 골격** (모든 경매 유형에 적용, 유형별로 강조점 다름):\n> - **주택보유상황** — 다주택: 낙찰도 취득이므로 취득세 중과(조정지역 2주택~ 8~12%)·종부세 합산·단기 매각 시 양도세 중과. / 1주택: 일시적 2주택 비과세 처분기한 활용. / 무주택: 실거주 의무·대출 우대(생애최초·디딤돌)·청약 기회와 저울질.\n> - **경매경험** — 초보: 특수물건(유치권·지분·법정지상권) 금지에 가깝게, 고가낙찰(경쟁에 휩쓸려 시세 이상 입찰) 경고. / 중급: 권리분석 1~2개 쟁점 물건까지. / 숙련: 특수물건 도전 가능."}],"A-scnr":[{"label":"적합 물건 · 권리분석 난이도","body":"연고지 권리 단순 물건(말소기준권리 이하 전부 소멸, 인수 권리 없음)만. **안전입찰 위주** — 권리분석 난이도 최저로 유지. 실거주·실수요용 아파트·빌라."},{"label":"명도 리스크 수용","body":"낮게. 점유자 협의 명도가 기본이되, 인도명령 가능 물건(대항력 없는 점유)으로 한정."},{"label":"입찰 전 체크리스트","body":"1. 등기부·매각물건명세서·현황조사서 3종으로 인수 권리 0 확인.\n2. 최근 실거래·급매가에서 '거꾸로' 입찰 상한선 산정 → 넘으면 포기.\n3. 점유자 현황(소유자/임차인/대항력)과 인도명령 가능 여부.\n4. 명도비·이사비·체납관리비 등 부대비용 반영한 총취득원가."},{"label":"개인화 경고","body":"- **초보(최빈):** 당신의 위험은 권리가 아니라 **고가낙찰**이다. \"경매로 샀다\"에 취하지 말고 시세 기반 상한선을 절대 넘지 마라. 안전물건이라 경쟁 심함 — 패찰을 두려워 말 것.\n- **무주택:** 실거주 시 대출 우대(생애최초·디딤돌)·비과세 활용. 실거주 의무·기간 확인.\n- **다주택:** 취득세 중과로 '싸게 낙찰'의 메리트가 상쇄될 수 있음 — 세후 취득원가로 재계산."}],"A-scnf":[{"label":"적합 물건 · 권리분석 난이도","body":"연고지 권리 단순 물건. **안전입찰 위주.** 수리 후 가치 상승 여지 있는 구축·급매성 물건."},{"label":"명도 리스크 수용","body":"낮게. 빠른 명도(인도명령 가능)가 회전의 전제 — 명도 분쟁 소지 물건 회피."},{"label":"입찰 전 체크리스트","body":"1. 매입가 + 수리비 + 명도비 + 세금 + 중개비 → '세후·비용후' 매각 차익 계산.\n2. 매각 출구: 그 지역 실수요 매수층과 최근 매각 소요기간 검증.\n3. 보유기간별 양도세율 — 단기일수록 중과, 세후 수익 확정.\n4. 명도·수리 지연 시 회전 전제가 깨질 자금 시나리오."},{"label":"개인화 경고","body":"- **다주택:** **단기 양도세 중과**가 핵심 — 보유 1년 미만 70%, 2년 미만 60%(+지방세). 세후 남는 게 거의 없을 수 있다. 취득세 중과까지 겹침.\n- **무주택/1주택:** 단타라도 비과세 요건(2년 보유) 채우면 세금 급감 — 회전 속도와 세금 절감을 저울질.\n- **초보:** 스프레드만 보지 말고 비용 전부를 빼고도 남는지 보수적으로 확인."}],"A-scwr":[{"label":"적합 물건 · 권리분석 난이도","body":"전국 안전(권리 단순) 임대수익형. **안전입찰 위주.**"},{"label":"명도 리스크 수용","body":"낮게(원격이라 분쟁 시 대응 어려움)."},{"label":"입찰 전 체크리스트","body":"1) 현지 임차수요·공실률·표면이율의 실질 검증 2) 원격 관리 체계(관리업체·현지 인맥) 3) 권리 단순 확인 4) 환금성(매각 출구)."},{"label":"개인화 경고","body":"다주택 시 종부세 합산·취득세 중과 누적 점검. 원격 관리 비용을 수익률에서 차감. 초보는 연고지부터 시작 권장."}],"A-scwf":[{"label":"적합 물건 · 권리분석 난이도","body":"전국에서 발굴한 권리 단순 저평가 물건. **안전입찰 위주**(난이도는 낮게 유지하되 지역만 넓힘)."},{"label":"명도 리스크 수용","body":"낮~중. 원격이라 명도 분쟁은 비용·시간 폭증 — 인도명령 가능 물건 한정."},{"label":"입찰 전 체크리스트","body":"1. **출구 검증이 최우선:** 그 지역 최근 매각 소요기간·실수요 매수층 확인. 낙찰 쉬워도 매각 어려우면 단타 붕괴.\n2. 원정 비용(교통·임장·명도 출장)을 마진에서 차감한 실수익.\n3. 단기 양도세율 반영한 세후 수익.\n4. 동시 진행 건수 상한 — 명도·매각 겹침 capacity 초과 방지."},{"label":"개인화 경고","body":"- **다주택:** 단기 양도세 중과 + 취득세 중과로 원정·세금 이중 비용 — 세후로 냉정히.\n- **초보:** 낯선 지역 + 단기는 출구 리스크가 가장 큼. 연고지(A-scnf)로 경험 쌓은 뒤 확장 권장. 고가낙찰 + 출구 막힘 동시 발생 주의."}],"A-sxnr":[{"label":"적합 물건 · 권리분석 난이도","body":"연고지 특수물건(지분·소액 유치권 등) 보유 목적. **특수물건 — 중급 이상 권장.** 단, 소액과 특수의 자금 충돌 주의."},{"label":"명도 리스크 수용","body":"중~높음. 소송·협상 동반 가능."},{"label":"입찰 전 체크리스트","body":"1) 권리 해결 시나리오·기간·비용(소송비·합의금) 예비비 2) 소액으로 버퍼 충분한지 3) 연고지 정보 우위가 권리분석을 대체 못함 — 권리 자체 분석."},{"label":"개인화 경고","body":"초보는 진입 금지에 가깝게. 특수물건 해결 예비비 없이 소액 진입 위험. 다주택 보유 전환 시 세금 확인."}],"A-sxnf":[{"label":"적합 물건 · 권리분석 난이도","body":"연고지 특수물건 단기 차익. **특수물건 — 중급~숙련.** 고위험."},{"label":"명도 리스크 수용","body":"높음."},{"label":"입찰 전 체크리스트","body":"1) 권리 해결 기간이 '단기'로 끝날 근거 2) 협상·소송 장기화 시 소액 자금 묶임 대비 3) 경험·역량 자기평가."},{"label":"개인화 경고","body":"초보 금지. 특수물건 + 단기 전제는 자주 깨짐 — 강제 장기화 대비. 다주택 단기 양도세 중과."}],"A-sxwr":[{"label":"적합 물건 · 권리분석 난이도","body":"전국 특수물건 보유. **특수물건 — 숙련 + 현지 네트워크 전제.** 권장도 낮음."},{"label":"명도 리스크 수용","body":"높음(원격이라 더 어려움)."},{"label":"입찰 전 체크리스트","body":"1) 자금·난이도·거리 삼중 부담 감당 자원 2) 원격 소송·명도 처리 체계 3) 최악 시나리오 비용."},{"label":"개인화 경고","body":"초보·중급 비권장. 한 축(자금·난이도·거리) 조정 권고. 다주택 세금."}],"A-sxwf":[{"label":"적합 물건 · 권리분석 난이도","body":"(권장 불가) 소액·전국·특수·단기 — 네 악조건 최악 조합."},{"label":"명도 리스크 수용","body":"(감당 불가에 가까움)"},{"label":"입찰 전 체크리스트","body":"진입 전 **최소 한 축을 조정하라** — 자금 키우기(b)·난이도 낮추기(c)·연고지로 좁히기(n) 중 하나."},{"label":"개인화 경고","body":"**초보 절대 금지.** 이 성향이 나왔다면 과욕 신호다. 특수물건은 빨리 못 팔고, 원격이라 대응 못 하고, 소액이라 소송비가 없다 — 네 위험이 동시에 터지면 자금 전체 손실. A-bxwf 전문가의 멘토링 없이는 진입 불가."}],"A-bcnr":[{"label":"적합 물건 · 권리분석 난이도","body":"연고지 우량 안전물건(권리 단순), 실거주·장기보유. **안전입찰 위주** — 대액이지만 난이도는 낮게."},{"label":"명도 리스크 수용","body":"낮게. 인도명령 가능·점유 단순 물건."},{"label":"입찰 전 체크리스트","body":"1. 시세 기반 입찰 상한선 — 자금 여유로 '이 정도면 써도 된다'며 끌어올리지 말 것.\n2. 우량·안전은 경쟁 치열 → 낙찰가율 점검, 메리트 없으면 일반 매매와 비교.\n3. 대액 집중이므로 한 번의 고가낙찰 = 큰 손실. 권리분석·시세조사를 본인이 직접.\n4. 명도 시나리오·부대비용."},{"label":"개인화 경고","body":"- **무주택:** 실거주 대출 우대·비과세 활용, 실거주 의무 확인.\n- **1주택:** 일시적 2주택 비과세 처분기한.\n- **다주택:** 취득세 중과(대액일수록 절대액 큼)·종부세 합산 — 세후 취득원가 재계산."}],"A-bcnf":[{"label":"적합 물건 · 권리분석 난이도","body":"연고지 우량 안전물건 단기 매각. **안전입찰 위주.**"},{"label":"명도 리스크 수용","body":"낮~중(빠른 명도 필요)."},{"label":"입찰 전 체크리스트","body":"1) 대액을 마진 박한 안전 단타에 쓰는 자본효율 점검(집중·특수·보유가 나을 수도) 2) 단기 양도세 절대액 3) 매각 출구."},{"label":"개인화 경고","body":"다주택 단기 양도세 중과로 대액일수록 세부담 거대. 보유 전환 검토."}],"A-bcwr":[{"label":"적합 물건 · 권리분석 난이도","body":"전국 우량 안전 임대물건 분산 보유. **안전입찰 위주.**"},{"label":"명도 리스크 수용","body":"낮게."},{"label":"입찰 전 체크리스트","body":"1) 현지 관리 인프라 2) 분산 관리 capacity 3) 권리 단순 확인 4) 표면이율의 실질 검증."},{"label":"개인화 경고","body":"다주택 종부세 합산이 분산 보유에서 누적 — 보유세 시뮬레이션. 원격 관리 비용 차감."}],"A-bcwf":[{"label":"적합 물건 · 권리분석 난이도","body":"전국 우량 안전 단기매각. **안전입찰 위주.** (자본효율 의심)"},{"label":"명도 리스크 수용","body":"낮~중."},{"label":"입찰 전 체크리스트","body":"1) **대액인데 박리다매 전략 — 집중·특수·보유로 전환이 합리적이지 않은지 재검토** 2) 원격 출구 3) 단기 양도세."},{"label":"개인화 경고","body":"다주택 단기 양도세 + 원정 비용 이중고. 자본효율 우선 재설계 권고."}],"A-bxnr":[{"label":"적합 물건 · 권리분석 난이도","body":"연고지 특수물건 장기 보유·임대. **특수물건 — 중급~숙련.**"},{"label":"명도 리스크 수용","body":"중~높음."},{"label":"입찰 전 체크리스트","body":"1) 권리 해결 시나리오·기간·비용(자금 버퍼 충분) 2) 보유 전환까지 명도·정상화 기간 3) 상대(공유자·유치권자) 비합리 대응 시 교착 대비."},{"label":"개인화 경고","body":"다주택 보유세·취득세. 중급 이상 권장, 초보는 안전물건부터."}],"A-bxnf":[{"label":"적합 물건 · 권리분석 난이도","body":"연고지 특수물건(유치권·지분·법정지상권 등) 단기 수익. **특수물건 — 숙련 권장.** 권리분석·소송·명도 역량 필수."},{"label":"명도 리스크 수용","body":"높음. 자금 버퍼로 합의금·소송 감당 가능한 범위."},{"label":"입찰 전 체크리스트","body":"1. **최악 시나리오 기준 입찰가:** 상대가 비합리적으로 버텨 소송이 예상의 2배 길어져도 수익이 나는가.\n2. 권리 해결 총비용(소송비·합의금·명도비) + 기간 → 자본 묶임 비용.\n3. 연고지 매각 출구(권리 정상화 후 실수요·매수층).\n4. 동시 진행 건수 제한 — 분쟁 관리 capacity 초과 방지."},{"label":"개인화 경고","body":"- **숙련 전제 유형** — 중급 이하는 1~2쟁점 물건으로 제한, 초보는 비권장.\n- **다주택:** 단기 수익 시 양도세 중과 + 취득세 중과 — 세후 마진으로 입찰가 설계.\n- 자본력이 조급함을 부추겨 과한 합의금/과소 난이도 평가 양극단 주의."}],"A-bxwr":[{"label":"적합 물건 · 권리분석 난이도","body":"전국 특수물건 장기 보유. **특수물건 — 숙련/전업 + 현지 네트워크.**"},{"label":"명도 리스크 수용","body":"높음(원격)."},{"label":"입찰 전 체크리스트","body":"1) 원격 소송·명도·임장 처리 체계 2) 보유 정상화까지 기간·비용 3) 자금 장기 동결 감당."},{"label":"개인화 경고","body":"다주택 보유세 누적. 전업 수준 역량 전제 — 그 이하 비권장."}],"A-bxwf":[{"label":"적합 물건 · 권리분석 난이도","body":"전국 특수물건(최고 난도) 단기 수익. **특수물건 — 전업/숙련 전용.** 권리분석·소송·명도·세무·현지 네트워크 시스템 필수."},{"label":"명도 리스크 수용","body":"최고. 단, 시스템·예비비로 통제 가능한 범위."},{"label":"입찰 전 체크리스트","body":"1. 지역·법원별 관행 차이 확인 — 과거 성공 패턴을 그대로 대입하지 말 것.\n2. 각 건의 최악 시나리오(소송 패소·명도 장기화) 자금을 **따로 적립**한 상태에서만 신규 입찰.\n3. 동시 진행 건수 상한 — 한 건의 교착이 전체 현금흐름을 막는 연쇄 위험 차단.\n4. 다건·대액 단기 수익의 **단기 양도세 부담**을 세후로 설계."},{"label":"개인화 경고","body":"- **전업·숙련 전용** — 초보·중급 진입 시 가장 위험한 영역.\n- **다주택(거의 필연):** 단기 양도세 중과 절대액이 거대 — 법인 활용·보유기간 조정 등 세무 설계 동반 필수.\n- '특수만 고집'하는 비효율 경계 — 쉬운 수익(안전물건)도 선택지에 둘 것."}]};
+const SCORE_FN = function scoreTrack(data, answers, profileAnswers) {
+  var tally = {};
+  function add(scoreObj) {
+    if (!scoreObj) return;
+    for (var k in scoreObj) tally[k] = (tally[k] || 0) + scoreObj[k];
+  }
+  // general questions
+  for (var i = 0; i < data.questions.length; i++) {
+    var q = data.questions[i];
+    var opt = answers[q.id];
+    if (opt) add(opt.score);
+  }
+  // profile inputs (axis-bearing add score; all store value)
+  var profileValues = {};
+  var pin = data.profile_inputs || [];
+  for (var j = 0; j < pin.length; j++) {
+    var inp = pin[j];
+    var sel = profileAnswers ? profileAnswers[inp.id] : null;
+    if (sel) {
+      profileValues[inp.id] = sel.value;
+      if (sel.score) add(sel.score);
+    }
+  }
+  // resolve poles per axis_order
+  var poles = {};
+  var borderline = [];
+  for (var a = 0; a < data.axis_order.length; a++) {
+    var axisId = data.axis_order[a];
+    var ax = null;
+    for (var z = 0; z < data.axes.length; z++) if (data.axes[z].id === axisId) ax = data.axes[z];
+    var sa = tally[ax.pole_a.code] || 0;
+    var sb = tally[ax.pole_b.code] || 0;
+    if (sa > sb) poles[axisId] = ax.pole_a.code;
+    else if (sb > sa) poles[axisId] = ax.pole_b.code;
+    else { poles[axisId] = ax.default_pole; borderline.push(axisId); }
+  }
+  // assemble code
+  var code = data.code_prefix;
+  for (var b = 0; b < data.axis_order.length; b++) code += poles[data.axis_order[b]];
+  // flags
+  var flags = [];
+  var rules = data.flags || [];
+  for (var r = 0; r < rules.length; r++) {
+    var rule = rules[r], when = rule.when, ok = true;
+    for (var key in when) {
+      var want = when[key], got;
+      if (key.indexOf('axis_') === 0) got = poles[key.slice(5)];
+      else if (key === 'type_code') got = code;
+      else got = profileValues[key];
+      if (got !== want) { ok = false; break; }
+    }
+    if (ok) flags.push({ level: rule.level, message: rule.message });
+  }
+  var lvOrder = { danger: 0, warn: 1, info: 2 };
+  flags.sort(function (x, y) { return lvOrder[x.level] - lvOrder[y.level]; });
+  return { code: code, poles: poles, borderline: borderline, flags: flags, profileValues: profileValues, tally: tally };
+};
+const scoreTrack = SCORE_FN;
+
+/* ---------- mini markdown formatter ---------- */
+function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function inlineFmt(s){ return esc(s).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>'); }
+function fmt(raw){
+  if(!raw) return '';
+  // split inline enumerations "1) .. 2) .." into separate lines
+  let lines = raw.split('\n');
+  let expanded = [];
+  for(let line of lines){
+    let trimmed = line.trim();
+    let parens = (trimmed.match(/\d+\)\s/g)||[]).length;
+    if(parens>=2 && trimmed.indexOf('- ')!==0){
+      trimmed.split(/\s*(?=\d+\)\s)/).forEach(p=>{ if(p.trim()) expanded.push(p.trim()); });
+    } else if(trimmed) expanded.push(trimmed);
+  }
+  let html='', i=0;
+  while(i<expanded.length){
+    let l=expanded[i];
+    if(/^-\s/.test(l)){
+      html+='<ul>';
+      while(i<expanded.length && /^-\s/.test(expanded[i])){ html+='<li>'+inlineFmt(expanded[i].replace(/^-\s/,''))+'</li>'; i++; }
+      html+='</ul>';
+    } else if(/^\d+[\.\)]\s/.test(l)){
+      html+='<ol>';
+      while(i<expanded.length && /^\d+[\.\)]\s/.test(expanded[i])){ html+='<li>'+inlineFmt(expanded[i].replace(/^\d+[\.\)]\s/,''))+'</li>'; i++; }
+      html+='</ol>';
+    } else { html+='<p>'+inlineFmt(l)+'</p>'; i++; }
+  }
+  return html;
+}
+
+/* ---------- state ---------- */
+let state = { track:null, steps:[], stepIndex:0, answers:{}, profile:{} };
+
+const $ = id => document.getElementById(id);
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); $(id).classList.add('active'); window.scrollTo(0,0); }
+
+/* ---------- start screen ---------- */
+const TRACK_META = {
+  maemae:{ ico:'🏢', title:'매매 트랙', desc:'일반 매매로 자산을 굴리는 성향. 리스크·기간·목적·자금 4축으로 진단합니다.',
+           axes:['리스크 S/A','기간 H/T','목적 R/P','자금 G/E'] },
+  gyeongmae:{ ico:'⚖️', title:'경매 트랙', desc:'법원 경매로 물건을 취득하는 성향. 자금·난이도·지역·용도 4축 + 개인화 진단.',
+           axes:['자금 s/b','난이도 c/x','지역 n/w','용도 r/f'] }
+};
+function renderStart(){
+  const g = $('track-grid'); g.innerHTML='';
+  ['maemae','gyeongmae'].forEach(tk=>{
+    const m=TRACK_META[tk];
+    const div=document.createElement('div'); div.className='track-card'; div.dataset.track=tk;
+    div.innerHTML='<div class="ico">'+m.ico+'</div><h3>'+m.title+'</h3><p>'+m.desc+'</p>'+
+      '<div class="axes">'+m.axes.map(a=>'<span class="miniaxis">'+a+'</span>').join('')+'</div>';
+    div.onclick=()=>{
+      document.querySelectorAll('.track-card').forEach(c=>c.classList.remove('sel'));
+      div.classList.add('sel'); state.track=tk;
+      $('start-btn').disabled=false; $('start-btn').textContent=(tk==='maemae'?'매매':'경매')+' 테스트 시작 →';
+    };
+    g.appendChild(div);
+  });
+}
+$('start-btn').onclick=()=>{ if(state.track) beginQuiz(); };
+
+/* ---------- quiz ---------- */
+function beginQuiz(){
+  const data=DATA[state.track];
+  let steps=[];
+  // v1.1: 매매·경매 양 트랙 모두 profile_inputs(주택보유·규제지역 등)를 먼저 입력
+  (data.profile_inputs||[]).forEach(p=>steps.push({kind:'profile',item:p}));
+  data.questions.forEach(q=>steps.push({kind:'question',item:q}));
+  state.steps=steps; state.stepIndex=0; state.answers={}; state.profile={};
+  show('screen-quiz'); renderStep();
+}
+function renderStep(){
+  const data=DATA[state.track];
+  const step=state.steps[state.stepIndex];
+  const total=state.steps.length;
+  $('q-track').textContent=data.track_label;
+  $('q-count').textContent=(state.stepIndex+1)+' / '+total;
+  $('q-bar').style.width=(((state.stepIndex)/(total))*100)+'%';
+  const body=$('q-body');
+  const it=step.item;
+  const isProfile=step.kind==='profile';
+  const selected = isProfile ? state.profile[it.id] : state.answers[it.id];
+  let h='<div class="qkind"><span class="dot'+(isProfile?' profile':'')+'"></span><span>'+
+        (isProfile?('개인화 입력 · '+it.label):('성향 문항 · '+axisLabel(data,it.axis)))+'</span></div>';
+  h+='<div class="qtext">'+esc(it.text)+'</div>';
+  if(isProfile) h+='<div class="qsub">투자 조건을 알려주시면 결과에 세금·리스크 경고를 더해 드려요.</div>';
+  h+='<div class="opts">';
+  it.options.forEach((o,idx)=>{
+    const sel = selected && selected.__i===idx;
+    h+='<button class="opt'+(sel?' sel':'')+'" data-idx="'+idx+'"><span class="mark"></span><span>'+esc(o.label)+'</span></button>';
+  });
+  h+='</div>';
+  body.innerHTML=h;
+  body.querySelectorAll('.opt').forEach(btn=>{
+    btn.onclick=()=>{
+      const idx=+btn.dataset.idx;
+      const opt=Object.assign({__i:idx}, it.options[idx]);
+      if(isProfile) state.profile[it.id]=opt; else state.answers[it.id]=opt;
+      body.querySelectorAll('.opt').forEach(b=>b.classList.remove('sel'));
+      btn.classList.add('sel');
+      $('next-btn').disabled=false;
+    };
+  });
+  $('prev-btn').style.visibility = state.stepIndex===0 ? 'hidden':'visible';
+  const isLast = state.stepIndex===total-1;
+  $('next-btn').textContent = isLast ? '결과 보기 ✦' : '다음 →';
+  $('next-btn').disabled = !selected;
+}
+function axisLabel(data,axisId){ const a=data.axes.find(x=>x.id===axisId); return a?a.label:axisId; }
+$('prev-btn').onclick=()=>{ if(state.stepIndex>0){ state.stepIndex--; renderStep(); } };
+$('next-btn').onclick=()=>{
+  if(state.stepIndex<state.steps.length-1){ state.stepIndex++; renderStep(); $('q-bar').style.width=((state.stepIndex/state.steps.length)*100)+'%'; }
+  else finishQuiz();
+};
+function finishQuiz(){
+  const data=DATA[state.track];
+  const profileAns={};
+  for(const k in state.profile) profileAns[k]=state.profile[k];
+  const r=scoreTrack(data, state.answers, profileAns);
+  renderResult(state.track, r);
+  saveToURL(state.track, r);
+  show('screen-result');
+}
+
+/* ---------- 규제 요약 체크리스트 (03_strategy_guide.md R-0~R-4, 03 grounding 보존) ---------- */
+const OK='<span class="rb ok">[확인됨]</span>';
+const UN='<span class="rb unsure">[불확실-확인필요]</span>';
+const GZ='<span class="rb gazette">[확인됨 — 관보 원문]</span>';
+const REG_SUMMARY = '<div class="sec"><details class="reg">'
++ '<summary>📋 현행 규제 요약 체크리스트 (R-0~R-4) · 펼쳐보기</summary>'
++ '<div class="reg-body">'
++ '<p class="reg-src">근거 출처: <code>00_regulations.md</code> (작성 기준일 <b>2026-07-01</b>, 현행 누적 규제). 모든 수치는 이 grounding 문서에서만 인용하며 신뢰도 표기 '+OK+'/'+UN+'를 그대로 보존합니다. <b>이 섹션은 규제 안내일 뿐 세무·법률 자문이 아닙니다.</b></p>'
+
++ '<h5>R-0. 대책 타임라인 한눈에</h5><ul>'
++ '<li><b>6·27 대책(2025)</b> 수도권·규제지역 주담대 최대 6억 한도, 다주택·1주택 미처분 추가구입 주담대 금지(LTV 0%), 6개월 전입의무, 갭투자(소유권이전조건부 전세대출) 차단. '+OK+'</li>'
++ '<li><b>9·7 대책(2025)</b> 규제지역 무주택 LTV 50%→40% 하향(비규제 70% 유지), 1주택 전세대출 한도 2억 일원화. '+OK+'</li>'
++ '<li><b>10·15 대책(2025)</b> 서울 전역 25개구 + 경기 12곳을 조정+투과+토허 "3중 규제" 지정, 15억 초과 한도 4억·25억 초과 2억, 갭투자 전면 금지, 토허구역 2년 실거주 의무. '+OK+'</li>'
++ '<li><b>6·30 신규지정(2026)</b> <b>화성시 동탄구·용인시 기흥구·구리시</b>를 규제지역 추가 지정(3중 규제). 조정대상지역(국토부공고 2026-882호)·투기과열지구(2026-883호) 효력 <b>2026-07-01</b>, 토지거래허가구역(경기도공고 2026-1792호)은 <b>토허 2026-07-05~2027-12-31·대상 아파트</b>. 투기과열지구는 분양권 전매제한 + 재개발·재건축 조합원 지위양도 제한(도정법 §39) 포함. (행정구역 명칭 "화성시 동탄구"로 확정) '+GZ+'</li></ul>'
+
++ '<h5>R-1. 보유주택수 × 규제지역 자가점검</h5>'
++ '<p class="rt">DSR <b>40%</b>(은행권, 차주단위)는 보유수·LTV와 별개로 모든 차주에 적용 — 한도가 남아도 소득에서 막힐 수 있음. '+OK+'</p>'
++ '<div class="rtbl"><table><thead><tr><th>내 상황</th><th>규제지역</th><th>비규제(수도권)</th></tr></thead><tbody>'
++ '<tr><td>무주택</td><td>LTV 40%, 주담대 최대 6억(15억초과 4억/25억초과 2억), 6개월 전입의무 / 생애최초 LTV 70%</td><td>LTV 70%(수도권 6억 한도)</td></tr>'
++ '<tr><td>1주택(6개월 내 처분약정)</td><td>무주택 준용 — 처분조건부 LTV 50%/40% 출처 혼재 '+UN+', "사실상 매우 제한적"으로 보고 금융기관 확인</td><td>LTV 70%</td></tr>'
++ '<tr><td>1주택(미처분 추가구입)</td><td><b>주담대 금지(LTV 0%)</b> '+OK+'</td><td>추가구입 제약 가능</td></tr>'
++ '<tr><td>다주택(2주택+)</td><td><b>주담대 금지(LTV 0%)</b> '+OK+'</td><td>추가구입 제약</td></tr></tbody></table></div>'
++ '<ul>'
++ '<li><b>취득세</b> 조정지역 2주택 8%/3주택 12%/4주택+ 12% 중과(비조정 3주택 8%·4주택 12%). '+OK+' 취득세 중과 완화 검토 보도 있어 시점 확인 '+UN+'</li>'
++ '<li><b>양도세</b> 1세대1주택 12억 이하 비과세(2년 보유, 취득 당시 조정지역이면 2년 거주 추가). 조정지역 내 양도 2주택 +20%p / 3주택+ +30%p 중과. '+OK+' ⚠️ 다주택 양도세 중과 한시배제(~2026-05-09)는 2026-07-01 현재 종료 상태일 가능성 — 연장 여부 시점 확인 필수. '+UN+'</li>'
++ '<li><b>전입·실거주·갭·자금조달계획서</b> 규제지역 주담대 매수=6개월 내 전입의무 '+OK+'. 토허구역(서울 전역+경기 12곳+신규)=2년 실거주 + 갭투자 불가 + 자금조달계획서 + 토지거래 허가. '+OK+'</li></ul>'
+
++ '<h5>R-2. 경매 트랙 규제 핵심 (양면)</h5>'
++ '<p class="rt">핵심: <b>금융(대출) 규제는 경매도 동일 적용, 토지거래허가(실거주·갭·허가) 규제는 경매가 예외.</b> (00_regulations.md D절)</p><ul>'
++ '<li><b>동일 적용:</b> 경락잔금대출도 규제지역 LTV·6억 한도·다주택 금지(0%)·DSR 40% 동일. "경매라 대출 더 나온다"는 착각 금지. '+OK+' 단 금융사별 경락대출 취급기준 차이 '+UN+'</li>'
++ '<li><b>면제:</b> 공경매는 토지거래허가 대상 아님 → 토허구역 2년 실거주·자금조달계획서 면제, 낙찰 후 임대(갭) 실무상 가능. '+OK+'</li>'
++ '<li><b>함정:</b> 실거주 의무 없는 경매로 수요 쏠려 고가낙찰 빈발 → 시세 기반 입찰 상한선 엄수. '+OK+' 자금조달계획서 면제돼도 자금출처 소명·증여추정 등 세무 리스크는 별개. '+UN+'</li></ul>'
+
++ '<h5>R-3. 유형 계열별 규제 주의</h5><ul>'
++ '<li><b>다주택·투자 성향</b>(매매 P계열·갭 G계열, 경매 f계열) 규제지역 추가구입 주담대 금지(LTV 0%) + 취득세 8~12% 중과 + 조정지역 양도세 +20~30%p 중과(유예 종료 여부 확인). 갭 G계열은 규제지역 갭투자 전면 차단 직격. '+OK+'/유예 '+UN+'</li>'
++ '<li><b>무주택·실수요 성향</b>(매매 R계열, 경매 r계열) 규제지역 무주택 LTV 40% + 6개월 전입의무 전제. 생애최초 LTV 70%·디딤돌/보금자리 우대 활용, 토허구역이면 2년 실거주 의무까지. '+OK+'</li>'
++ '<li><b>경매 안전 c계열</b> 대출규제 동일·토허 면제의 양면(R-2) — 고가낙찰 쏠림 경계 최우선.</li></ul>'
+
++ '<h5>R-4. 신뢰도 · 면책</h5>'
++ '<p class="rt"><b>해결됨(관보 원문 확정):</b> 6·30 신규지정 범위·행정구역 명칭·효력일 — <b>화성시 동탄구·용인시 기흥구·구리시</b>, 조정·투과 효력 <b>2026-07-01</b>(국토부공고 2026-882/883호), 토허 <b>2026-07-05~2027-12-31·아파트 대상</b>(경기도공고 2026-1792호)으로 확정. '+GZ+'</p>'
++ '<p class="rt"><b>시점·원문 확인 필요</b> 항목(미해결): ① 다주택 양도세 중과 한시배제 종료(~2026-05-09)/연장 여부, ② 처분조건부 1주택 규제지역 LTV(50% vs 40%), ③ 취득세 중과 완화 입법 여부, ④ 경락잔금대출 금융사별 취급기준, ⑤ 9·7 보증료 차등·임대사업자 세부. → 실제 적용 전 해당 시점 원문·금융기관으로 반드시 재확인.</p>'
++ '<p class="reg-disc"><b>면책:</b> 부동산 정책은 수시로 변경되고 예외·경과조치·지역별 차이가 많습니다. 본 도구는 규제 안내일 뿐 세무·법률 자문이 아닙니다. 실제 거래·대출·세금 적용 전 반드시 <b>금융기관·세무사·법무사</b> 등 전문가와 해당 시점 규정을 직접 확인하세요.</p>'
++ '</div></details></div>';
+
+/* ---------- result ---------- */
+function findType(track,code){ return DATA[track].types.find(t=>t.code===code); }
+function renderResult(track, r){
+  const data=DATA[track];
+  const t=findType(track,r.code)||{name:r.code,keywords:[],summary:''};
+  const p=PROFILES[r.code]||{};
+  const g=GUIDES[r.code]||[];
+  let h='';
+  h+='<div class="rhead">';
+  h+='<div class="rcode">'+r.code+'</div>';
+  h+='<div class="rname">'+esc(t.name)+'</div>';
+  h+='<div class="chips">'+(t.keywords||[]).map(k=>'<span class="kchip">'+esc(k)+'</span>').join('')+'</div>';
+  h+='<p class="rsummary">'+esc(t.summary||'')+'</p>';
+  if(t.rare) h+='<div><span class="rare-pill">희귀 · 동기 충돌 조합</span></div>';
+  h+='</div>';
+
+  // axis breakdown
+  h+='<div class="axisrow">';
+  data.axis_order.forEach(axisId=>{
+    const ax=data.axes.find(a=>a.id===axisId);
+    const code=r.poles[axisId];
+    const pole = ax.pole_a.code===code?ax.pole_a:ax.pole_b;
+    const bl=r.borderline.indexOf(axisId)!==-1;
+    h+='<div class="axisbox'+(bl?' bl':'')+'"><div class="al">'+esc(ax.label)+'</div>'+
+       '<div class="av"><span class="ac">'+code+'</span>'+esc(pole.label)+'</div>'+
+       (bl?'<div class="blnote">⚖ 거의 반반</div>':'')+'</div>';
+  });
+  h+='</div>';
+
+  // condition line (both tracks have profile inputs in v1.1)
+  if(r.profileValues && Object.keys(r.profileValues).length){
+    h+='<div class="cond-line">'+conditionText(data,r.profileValues)+'</div>';
+  }
+
+  // identity
+  if(p.identity){ h+='<div class="sec"><div class="panel identity"><p>'+inlineFmt(p.identity)+'</p></div></div>'; }
+
+  // strength / weakness / blindspot
+  h+='<div class="sec"><div class="sec-title">강점 · 약점 · 맹점</div><div class="swb">';
+  if(p.strength) h+='<div class="panel strength"><h4>💪 강점</h4>'+fmt(p.strength)+'</div>';
+  if(p.weakness) h+='<div class="panel weakness"><h4>🔻 약점</h4>'+fmt(p.weakness)+'</div>';
+  if(p.blindspot) h+='<div class="panel blind"><h4>⚠️ 맹점</h4>'+fmt(p.blindspot)+'</div>';
+  h+='</div></div>';
+
+  if(p.market||p.partner){
+    h+='<div class="sec"><div class="swb">';
+    if(p.market) h+='<div class="panel"><h4>📈 잘 맞는 시장 국면</h4>'+fmt(p.market)+'</div>';
+    if(p.partner) h+='<div class="panel"><h4>🤝 보완 파트너 유형</h4>'+fmt(p.partner)+'</div>';
+    h+='</div></div>';
+  }
+
+  // personalization + regulation flags (both tracks, v1.1)
+  if(r.flags && r.flags.length){
+    h+='<div class="sec"><div class="sec-title">규제 · 개인화 경고 · 당신의 조건 기준</div>';
+    // 경매: 규제지역이면 (a)대출 동일적용 / (b)토허 면제 두 갈래를 분리 안내함을 명시
+    if(track==='gyeongmae' && r.profileValues && r.profileValues.region_regulated==='regulated'){
+      h+='<div class="reg-note">⚖ 경매 규제는 <b>(a) 대출규제 동일 적용</b> ↔ <b>(b) 토지거래허가(실거주·갭·자금조달계획서) 의무 면제</b> — 상반된 두 갈래로 나눠 아래에 함께 표시합니다.</div>';
+    }
+    r.flags.forEach(f=>{
+      const ico=f.level==='danger'?'🚨':(f.level==='warn'?'⚠️':'ℹ️');
+      const lab=f.level==='danger'?'강경고':(f.level==='warn'?'주의':'안내');
+      h+='<div class="flag '+f.level+'"><span class="fi">'+ico+'</span><div><span class="ft">'+lab+'</span><div class="fm">'+esc(f.message)+'</div></div></div>';
+    });
+    h+='<p class="flag-foot">※ 위 규제 경고의 수치는 <code>00_regulations.md</code>(2026-07-01 기준) 근거이며, <b>[불확실-확인필요]</b> 항목은 시점·금융기관·관보 원문으로 직접 재확인이 필요합니다. 본 도구는 안내일 뿐 세무·법률 자문이 아닙니다.</p>';
+    h+='</div>';
+    // 규제 요약 체크리스트(R-0~R-4) 접이식 노출
+    h+=REG_SUMMARY;
+  }
+
+  // guide
+  if(g.length){
+    h+='<div class="sec"><div class="sec-title">'+(track==='maemae'?'매매 활용 가이드':'경매 활용 가이드')+'</div>';
+    g.forEach(item=>{ h+='<div class="guide-item"><h4>'+esc(item.label)+'</h4>'+fmt(item.body)+'</div>'; });
+    h+='</div>';
+  }
+
+  // 추천 경매 검색조건 카드 (경매 트랙 전용)
+  if(track==='gyeongmae'){
+    h+='<div class="sec"><div class="sec-title">추천 경매 검색조건 · courtauction 필터</div>'+searchCardShell()+'</div>';
+  }
+
+  // actions
+  h+='<div class="btn-row" style="margin-top:34px;">'+
+     '<button class="btn btn-primary" id="restart-btn">↻ 다시하기</button>'+
+     '<button class="btn btn-ghost" id="save-btn">🔗 결과 저장·공유</button>'+
+     '<button class="btn btn-ghost" id="print-btn">🖨 인쇄</button>'+
+     '</div>';
+  h+='<p class="disclaimer">이 진단은 투자 권유가 아니라 본인의 성향을 비추는 거울입니다. 실제 매수·입찰 전에는 세무사·전문가 상담과 개별 물건 검증을 반드시 거치세요. 세율·규제는 시점에 따라 달라질 수 있습니다.</p>';
+  h+='<footer>부동산 투자성향 MBTI · 매매 16유형 + 경매 16유형 · 본인 판단용</footer>';
+
+  $('result-body').innerHTML=h;
+  $('progress').style.width='100%';
+  $('restart-btn').onclick=restart;
+  $('save-btn').onclick=()=>{ copyShare(); };
+  $('print-btn').onclick=()=>window.print();
+  if(track==='gyeongmae'){ initSearchCard(r); }
+}
+
+/* ============================================================
+   추천 경매 검색조건 — 04_search_criteria.json (v1.0) 규칙의 JS 재현
+   검색조건 = f(유형 축, profile 입력값). 결정적 매핑.
+   ============================================================ */
+function scFmtKRW(won){
+  if(won==null) return '하한 없음';
+  var eok=Math.floor(won/100000000);
+  var man=Math.round((won%100000000)/10000);
+  var s='';
+  if(eok>0) s+=eok+'억';
+  if(man>0) s+=(eok>0?' ':'')+man.toLocaleString()+'만';
+  if(!s) s='0';
+  return s+'원';
+}
+var SC_SIDO=['','서울특별시','부산광역시','대구광역시','인천광역시','광주광역시','대전광역시','울산광역시','세종특별자치시','경기도','강원특별자치도','충청북도','충청남도','전북특별자치도','전라남도','경상북도','경상남도','제주특별자치도'];
+
+function computeSearchCriteria(r, sido, sigungu){
+  var poles=r.poles||{}, pv=r.profileValues||{};
+  var fund=pv.fund_size, own=pv.ownership||'none', reg=pv.region_regulated||'normal';
+  var purpose=pv.purpose, exp=pv.experience, pref=pv.region_pref;
+  var FUND=poles.FUND, DIFF=poles.DIFFICULTY, REGION=poles.REGION, PURP=poles.PURPOSE;
+  var isFlip=(PURP==='f')||(purpose==='flip');
+  var isSmall=fund?(fund==='u50'||fund==='u150'):(FUND==='s');
+  var isBig=fund?(fund==='u300'||fund==='o300'):(FUND==='b');
+
+  // --- price: equity_top × LTV배수 × 보수계수 (00_regulations.md 근거) ---
+  var EQ={u50:50000000,u150:150000000,u300:300000000,o300:400000000};
+  var equity=(fund&&EQ[fund]!=null)?EQ[fund]:(FUND==='b'?300000000:50000000);
+  function ltvMult(regKey){ // 1/(1-LTV)
+    if(regKey==='regulated') return (own==='none')?1.67:1.0; // 무주택 LTV40 / 1주택·다주택 LTV0
+    return 3.33; // 비규제 LTV70
+  }
+  var fundSafety=(FUND==='b')?1.0:0.9;
+  var multiNormalSafety=(own==='multi'&&reg==='normal')?0.7:1.0;
+  function pmax(regKey){ return Math.round(equity*ltvMult(regKey)*fundSafety*multiNormalSafety/1000000)*1000000; }
+  var priceMax, priceMaxAlt=null, priceMaxAltLabel='';
+  if(reg==='unknown'){
+    var low=pmax('regulated'), high=pmax('normal');
+    priceMax=high; priceMaxAlt=low; priceMaxAltLabel='규제지역이면 보수적으로 '+scFmtKRW(low)+'까지 낮춰 산정';
+  } else {
+    priceMax=pmax(reg);
+    if(reg==='regulated'&&own==='none'){ // 생애최초 LTV70 분기
+      priceMaxAlt=Math.round(equity*3.33*fundSafety/1000000)*1000000;
+      priceMaxAltLabel='생애최초 LTV 70% 인정 시 ~'+scFmtKRW(priceMaxAlt)+'까지 확대 가능';
+    }
+  }
+  var priceMin=isSmall?30000000:null;
+
+  // --- property_type: base_by_purpose → fund_modifier ---
+  var base=(purpose==='rent')?['아파트','오피스텔','다세대주택']:(purpose==='flip')?['아파트','오피스텔']:['아파트'];
+  var ptypes;
+  if(isBig){ ptypes=['아파트']; if(purpose==='rent') ptypes.push('오피스텔'); }
+  else { ptypes=base.slice(); if(isSmall) ['다세대주택','연립주택','오피스텔','도시형생활주택'].forEach(function(t){ if(ptypes.indexOf(t)<0) ptypes.push(t); }); }
+
+  // --- regulated_preference ---
+  var regPref;
+  if(own==='multi') regPref='비규제선호(강)';
+  else if(own==='one') regPref='비규제권장';
+  else regPref=(purpose==='flip')?'비규제선호':(purpose==='rent')?'규제무관~비규제선호':'규제무관(실수요면 규제지역도 적합·기회)';
+
+  // --- min_fail_count ---
+  var mf=(DIFF==='x')?2:1;
+  if(isFlip) mf+=1;
+  if(reg==='regulated') mf+=1;
+  if(FUND==='b'&&DIFF==='c') mf-=1;
+  if(mf<0) mf=0;
+
+  // --- rights_difficulty (experience override) ---
+  var rights=(DIFF==='x')?'special_ok':'safe', rightsNote='', specialConds=[];
+  if(rights==='safe'){ rightsNote='말소기준권리 이하 전부 소멸·인수권리 0·대항력 없는 점유(인도명령 가능). 특수조건 미체크.'; }
+  else {
+    specialConds=['유치권','법정지상권','분묘기지권','지분매각','대지권미등기','선순위(대항력)임차인'];
+    rightsNote='유치권·법정지상권·지분·선순위임차인 등 허용. courtauction 특수조건 체크.';
+    if(exp==='novice'){ rights='safe'; specialConds=[]; rightsNote='⚠ 초보+특수물건은 위험 → 안전(safe)으로 강등 권고. 첫 5건은 권리 단순 물건으로. (원 성향: special_ok)'; }
+    else if(exp==='inter'){ rightsNote='쟁점 1~2개 물건까지 제한 권고. '+rightsNote; }
+  }
+
+  // --- area_pyeong ---
+  var area, areaMin=null, areaMax=null;
+  if(purpose==='rent'){ area='소형 임대형(전용 ~59㎡)·오피스텔'; areaMax=59; }
+  else if(isSmall){ area='전용 ~59㎡ 소형'; areaMax=59; }
+  else { area='국민평형(전용 59~84㎡)'; areaMin=59; areaMax=84; }
+
+  // --- region ---
+  var rscope, rsite, raxis;
+  if(pref==='nation'){ rscope='전국 (수익률 상위 복수 시·군·구 순회)'; rsite='시도 무제한'; raxis=(REGION==='w')?'w':'n'; }
+  else if(pref==='metro'){ rscope='수도권 (서울·경기·인천)'; rsite='시도=서울/경기/인천'; raxis='w(약)'; }
+  else { rscope='연고 시·군·구 1~2곳'; rsite='시도+시군구 직접 지정'; raxis='n'; }
+  var regionStr;
+  if(sido&&sigungu) regionStr=sido+' '+sigungu;
+  else if(sido) regionStr=sido+' (시·군·구 미지정)';
+  else regionStr=rscope;
+  var regSuffix='';
+  if(own==='multi'||own==='one') regSuffix=' · 비규제 지역 우선';
+  else if(isSmall&&reg!=='regulated') regSuffix=' · 자금 고려 시 비규제 현실적';
+
+  // --- notes (flags 메시지 골격 + price/세금/명도/면책) ---
+  var notes=[];
+  if(reg==='regulated'&&own==='none') notes.push('규제지역 무주택 경락대출 LTV 40%(×1.67)·6개월 전입의무 전제로 산정. 생애최초면 LTV 70%(×3.33)로 '+scFmtKRW(priceMaxAlt)+'까지 확대 가능 — 대출 조건과 실거주 요건은 분리해 확인.');
+  else if(reg==='regulated'&&(own==='one'||own==='multi')) notes.push('규제지역 '+(own==='multi'?'다주택':'1주택 미처분 추가구입')+'은 경락잔금대출에도 주담대 금지(LTV 0%)가 적용될 수 있어 전액 자기자본 전제로 입찰가를 산정했습니다. (금융사별 경락대출 취급기준 확인 필요)');
+  else if(reg==='unknown') notes.push('규제 여부 미상 → price_max를 규제(보수 '+scFmtKRW(priceMaxAlt)+')~비규제(확대 '+scFmtKRW(priceMax)+') 범위로 제시. 입찰 전 국토부 「조정대상지역·투기과열지구 지정」 페이지에서 규제 여부를 먼저 확인하세요.');
+  else notes.push('비규제 LTV 70%(×3.33) 가정. price_max는 대출 최대·DSR 40% 충족 가정의 검색 상한이며, 경락잔금대출 가용액은 금융사·소득별로 상이하니 보수적으로 잡고 DSR을 확인하세요.');
+  if(own==='multi'&&reg==='normal') notes.push('비규제라도 다주택은 수도권 주담대 6억 한도·추가구입 제약·DSR 불확실로 ×0.7 추가 보수를 적용했습니다.');
+  if(reg==='regulated') notes.push('규제지역 경매의 양면 — (기회) 토지거래허가 2년 실거주의무·자금조달계획서 면제 / (함정) 그 쏠림으로 고가낙찰 빈발 + 대출규제(LTV·DSR)는 동일. price_max는 검색 상한일 뿐, 낙찰가는 시세 역산 상한을 절대 넘기지 마세요.');
+  if(own==='multi'&&isFlip) notes.push('다주택 단기매각: 양도세 단기중과(1년 미만 70%·2년 미만 60% 등) + 조정지역 +20~30%p 중과(유예 종료 여부 확인) + 취득세 8~12% 중과 → 세후 마진이 거의 없을 수 있으니 세후 취득원가로 재계산.');
+  else if(own==='multi') notes.push('다주택 추가취득: 취득세 8~12% 중과 + 종부세 합산 → "싸게 낙찰"의 메리트가 상쇄될 수 있으니 세후 취득원가로 재계산.');
+  else if(own==='none'&&purpose==='reside') notes.push('무주택 실거주: 생애최초 취득세 감면·디딤돌/보금자리 대출 우대 대상일 수 있습니다.');
+  if(rights==='special_ok') notes.push('특수물건은 명도·소송 예비비와 기간 버퍼가 필수입니다. 최악 시나리오(소송 장기화) 기준으로 입찰가를 설계하세요.');
+  else notes.push('인도명령 가능 점유로 한정하고, 등기부·매각물건명세서·현황조사서 3종으로 인수권리 0을 확인하세요.');
+  if(DIFF==='x'&&exp==='novice') notes.push('초보가 특수물건에 들어가면 권리분석 실패·명도 분쟁 위험이 매우 큽니다 — 안전물건으로 첫 5건 경험을 쌓길 권합니다.');
+  if(exp==='novice') notes.push('초보의 진짜 위험은 권리가 아니라 고가낙찰입니다. 최근 실거래·급매가에서 역산한 입찰 상한선을 절대 넘기지 마세요(패찰을 두려워 말 것).');
+  notes.push('본 검색조건은 투자성향 기반 참고용 가이드일 뿐 투자·세무·법률 자문이 아닙니다. 실제 입찰 전 권리분석·시세·대출(경락잔금대출 가용액·DSR)을 직접 확인하세요. 규제 수치는 00_regulations.md(2026-07-01) 기준이며 정책은 수시 변경됩니다.');
+
+  return {
+    region:{ str:regionStr+regSuffix, sido:sido||null, sigungu:sigungu||null, scope:rscope, site:rsite, axis_consistency:raxis },
+    regulated_preference:regPref,
+    property_type:ptypes,
+    price_min:priceMin,
+    price_max:priceMax, price_max_alt:priceMaxAlt, price_max_alt_label:priceMaxAltLabel,
+    min_fail_count:mf,
+    rights_difficulty:rights, rights_note:rightsNote, special_conditions:specialConds,
+    area_pyeong:area, area_min_m2:areaMin, area_max_m2:areaMax,
+    notes:notes
+  };
+}
+
+function searchCriteriaJSON(r, sc){
+  return {
+    _meta:{
+      schema:'04_search_criteria.json', schema_version:'1.0', track:'gyeongmae',
+      type_code:r.code, generated_at:new Date().toISOString(), source:'부동산투자성향테스트.html',
+      region_struct:{ sido:sc.region.sido, sigungu:sc.region.sigungu, scope:sc.region.scope, axis_consistency:sc.region.axis_consistency },
+      site_special_conditions:sc.special_conditions,
+      area_m2:{ min:sc.area_min_m2, max:sc.area_max_m2 },
+      price_max_alt:sc.price_max_alt, price_max_alt_label:sc.price_max_alt_label||null,
+      disclaimer:'투자성향 기반 참고용 — 투자·세무·법률 자문 아님. 규제수치 00_regulations.md(2026-07-01) 기준. 실제 입찰 전 권리분석·시세·대출 직접 확인.'
+    },
+    region:sc.region.str,
+    regulated_preference:sc.regulated_preference,
+    property_type:sc.property_type,
+    price_min:sc.price_min,
+    price_max:sc.price_max,
+    min_fail_count:sc.min_fail_count,
+    rights_difficulty:sc.rights_difficulty,
+    area_pyeong:sc.area_pyeong,
+    notes:sc.notes
+  };
+}
+
+function searchCardShell(){
+  var opts=SC_SIDO.map(function(s){ return '<option value="'+s+'">'+(s||'시/도 선택')+'</option>'; }).join('');
+  return '<div class="sc-card">'
+   +'<div class="sc-head"><span style="font-size:1.3rem">⚖️</span><h4>추천 경매 검색조건</h4></div>'
+   +'<p class="sc-intro">당신의 유형(<b id="sc-code"></b>)과 입력 조건으로 <b>04_search_criteria.json</b> 규칙을 그대로 적용해 <b>courtauction.go.kr</b>에서 거를 수 있는 9개 검색 차원을 산출했습니다. <span style="color:#3f7d55;font-weight:600">[필터 O]</span>는 사이트에서 직접 거르는 조건, <span style="color:#2f6296;font-weight:600">[참고]</span>는 사이트로 못 거르는 메모입니다.</p>'
+   +'<div class="sc-region-input">'
+     +'<label>연고 시·군·구 지정 (선택) — 입력하면 region이 구체화됩니다</label>'
+     +'<div class="row"><select id="sc-sido">'+opts+'</select><input id="sc-sigungu" type="text" placeholder="예: 수원시 영통구 / 부천시 / 동탄"></div>'
+     +'<div class="hint">profile 입력에는 시·군·구 단위가 없어 직접 지정합니다. 미입력 시 시/도·범위 레벨로 표시됩니다.</div>'
+   +'</div>'
+   +'<div class="sc-dims" id="sc-dims"></div>'
+   +'<div class="sc-notes" id="sc-notes"></div>'
+   +'<div class="sc-export">'
+     +'<div class="btn-row"><button class="btn btn-primary" id="sc-copy">📋 JSON 복사</button><button class="btn btn-ghost" id="sc-download">⬇ JSON 다운로드</button></div>'
+     +'<textarea class="sc-json" id="sc-json" readonly spellcheck="false"></textarea>'
+     +'<p class="sc-foot">스키마는 <code>04_search_criteria.json</code>의 dimensions 키(region·regulated_preference·property_type·price_min/max·min_fail_count·rights_difficulty·area_pyeong·notes)를 따릅니다. 스크래퍼·다른 도구 입력으로 재사용하세요. <b>검색조건은 참고용이며, 실제 입찰 전 권리분석·시세·대출을 반드시 확인하세요.</b></p>'
+   +'</div>'
+  +'</div>';
+}
+
+var _scR=null;
+function initSearchCard(r){
+  _scR=r;
+  if($('sc-code')) $('sc-code').textContent=r.code;
+  if($('sc-sido')) $('sc-sido').onchange=updateSearchCard;
+  if($('sc-sigungu')) $('sc-sigungu').oninput=updateSearchCard;
+  if($('sc-copy')) $('sc-copy').onclick=function(){
+    var txt=$('sc-json').value;
+    if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(function(){toast('검색조건 JSON이 복사됐어요');}).catch(function(){ $('sc-json').select(); toast('JSON 영역을 직접 복사하세요'); });
+    else { $('sc-json').select(); try{document.execCommand('copy');toast('검색조건 JSON이 복사됐어요');}catch(e){toast('JSON 영역을 직접 복사하세요');} }
+  };
+  if($('sc-download')) $('sc-download').onclick=function(){
+    var blob=new Blob([$('sc-json').value],{type:'application/json'});
+    var url=URL.createObjectURL(blob), a=document.createElement('a');
+    a.href=url; a.download='auction_search_'+_scR.code+'.json';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+    toast('검색조건 JSON 파일을 내려받았어요');
+  };
+  updateSearchCard();
+}
+function scDim(label, siteOn, valueHtml, sub, full){
+  var badge=siteOn?'<span class="site">필터 O</span>':'<span class="site nosite">참고</span>';
+  return '<div class="sc-dim'+(full?' full':'')+'"><div class="dk">'+esc(label)+' '+badge+'</div><div class="dv">'+valueHtml+'</div>'+(sub?'<div class="dsub">'+sub+'</div>':'')+'</div>';
+}
+function updateSearchCard(){
+  if(!_scR) return;
+  var sidoEl=$('sc-sido'), sgEl=$('sc-sigungu');
+  var sido=sidoEl?sidoEl.value:''; var sigungu=sgEl?(sgEl.value||'').trim():'';
+  var sc=computeSearchCriteria(_scR, sido, sigungu);
+  var dh='';
+  dh+=scDim('지역 region', true, esc(sc.region.str), '범위: '+esc(sc.region.scope)+' · 사이트: '+esc(sc.region.site)+' (REGION='+esc(sc.region.axis_consistency)+')');
+  dh+=scDim('규제 선호 regulated_preference', false, esc(sc.regulated_preference), 'courtauction에 규제지역 필터 없음 → region·notes로 안내');
+  dh+=scDim('물건종류 property_type', true, sc.property_type.map(function(t){return '<span class="sc-tag">'+esc(t)+'</span>';}).join(''), null, true);
+  dh+=scDim('최저가 하한 price_min', true, sc.price_min!=null?esc(scFmtKRW(sc.price_min)):'하한 없음', sc.price_min!=null?'소액 — 저가 권리·환금 불량 회피용 하한':'대액 — 우량 집중, 하한 없음');
+  dh+=scDim('최저가 상한 price_max', true, esc(scFmtKRW(sc.price_max)), sc.price_max_alt_label?esc(sc.price_max_alt_label):'자기자본 밴드 상단 × LTV배수 × 보수계수');
+  dh+=scDim('유찰 회수 min_fail_count', true, '≥ '+sc.min_fail_count+'회', '1회 유찰 시 통상 최저가 20~30%↓(법원별 상이)');
+  var rv=sc.rights_difficulty==='safe'?'안전 (safe)':'특수 허용 (special_ok)';
+  dh+=scDim('권리 난이도 rights_difficulty', true, esc(rv), esc(sc.rights_note)+(sc.special_conditions.length?' · 체크: '+sc.special_conditions.map(esc).join(', '):''), true);
+  dh+=scDim('전용면적 area_pyeong', true, esc(sc.area_pyeong), '사이트: 전용면적 범위(㎡)로 필터');
+  $('sc-dims').innerHTML=dh;
+  $('sc-notes').innerHTML='<div class="sc-dim full"><div class="dk">메모 notes <span class="site nosite">참고</span></div><ul>'+sc.notes.map(function(n){return '<li>'+inlineFmt(n)+'</li>';}).join('')+'</ul></div>';
+  $('sc-json').value=JSON.stringify(searchCriteriaJSON(_scR, sc), null, 2);
+}
+function conditionText(data, pv){
+  const parts=[];
+  (data.profile_inputs||[]).forEach(inp=>{
+    if(pv[inp.id]!==undefined){
+      const opt=inp.options.find(o=>o.value===pv[inp.id]);
+      if(opt) parts.push(inp.label+': '+opt.label);
+    }
+  });
+  return '<b>입력한 조건</b> · '+parts.join('  ·  ');
+}
+function restart(){
+  state={ track:null, steps:[], stepIndex:0, answers:{}, profile:{} };
+  history.replaceState(null,'',location.pathname);
+  $('progress').style.width='0%';
+  $('start-btn').disabled=true; $('start-btn').textContent='트랙을 선택하세요';
+  document.querySelectorAll('.track-card').forEach(c=>c.classList.remove('sel'));
+  show('screen-start');
+}
+
+/* ---------- save / share via URL ---------- */
+function saveToURL(track, r){
+  const payload={ t:track, p:r.profileValues||{}, a:answerCodes() };
+  const enc=encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(payload)))));
+  const url=location.pathname+'?r='+enc;
+  history.replaceState(null,'',url);
+  try{ localStorage.setItem('rmbti_last', JSON.stringify(payload)); }catch(e){}
+}
+function answerCodes(){
+  // store selected option indexes to allow full re-score on reload
+  const out={};
+  for(const k in state.answers) out['q:'+k]=state.answers[k].__i;
+  for(const k in state.profile) out['p:'+k]=state.profile[k].__i;
+  return out;
+}
+function copyShare(){
+  const url=location.href;
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(url).then(()=>toast('결과 링크가 복사됐어요')).catch(()=>toast('주소창의 URL을 복사하세요'));
+  } else toast('주소창의 URL을 복사하세요');
+}
+function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200); }
+
+/* ---------- restore from URL ---------- */
+function tryRestore(){
+  const params=new URLSearchParams(location.search);
+  let payload=null;
+  if(params.get('r')){
+    try{ payload=JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(params.get('r')))))); }catch(e){ payload=null; }
+  }
+  if(!payload){ try{ const ls=localStorage.getItem('rmbti_last'); /* do not auto-load LS, only URL */ }catch(e){} }
+  if(payload && DATA[payload.t]){
+    const data=DATA[payload.t];
+    state.track=payload.t; state.answers={}; state.profile={};
+    const codes=payload.a||{};
+    data.questions.forEach(q=>{ const ix=codes['q:'+q.id]; if(ix!=null && q.options[ix]) state.answers[q.id]=Object.assign({__i:ix},q.options[ix]); });
+    (data.profile_inputs||[]).forEach(p=>{ const ix=codes['p:'+p.id]; if(ix!=null && p.options[ix]) state.profile[p.id]=Object.assign({__i:ix},p.options[ix]); });
+    const r=scoreTrack(data, state.answers, state.profile);
+    renderResult(payload.t, r);
+    show('screen-result');
+    return true;
+  }
+  return false;
+}
+
+/* ---------- init ---------- */
+renderStart();
+if(!tryRestore()){ show('screen-start'); }
+</script>
+</body>
+</html>
