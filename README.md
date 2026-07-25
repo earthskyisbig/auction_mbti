@@ -5,6 +5,17 @@
 > 🔗 **온라인 테스트**: https://earthskyisbig.github.io/auction_mbti/
 > 💻 **로컬 실행**: `부동산투자성향테스트.html`(= `index.html`)을 브라우저로 열면 됩니다. 설치 불필요, 단일 파일.
 
+### 📚 강의 수강생이라면
+
+| | |
+|---|---|
+| **실습 안내서** | [LECTURE.md](LECTURE.md) — 여기서 시작하세요 |
+| **시작점 코드** | `git clone -b lecture-base https://github.com/earthskyisbig/auction_mbti.git` |
+| **시작점 보기** | https://earthskyisbig.github.io/auction_mbti/v1/ (2026-07-01 개편 전) |
+| **완성본 보기** | https://earthskyisbig.github.io/auction_mbti/ |
+
+`lecture-base` 브랜치는 개편 전 상태로 **고정**돼 있습니다. `main`은 완성본이니 실습 시작점으로 받지 마세요.
+
 ## 특징
 
 - **매매 / 경매 트랙 분리** — 두 투자 방식의 성향을 각각 진단 (각 16유형, 총 32유형)
