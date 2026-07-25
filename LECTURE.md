@@ -15,11 +15,63 @@
 ## 1. 시작점 받기
 
 ```bash
-git clone -b lecture-base https://github.com/earthskyisbig/auction_mbti.git auction_mbti_실습
+git clone --single-branch -b lecture-base https://github.com/earthskyisbig/auction_mbti.git auction_mbti_실습
 cd auction_mbti_실습
 ```
 
-`lecture-base` 브랜치가 **개편 전 상태로 고정**돼 있습니다. `main`은 완성본이니 실수로 받지 마세요.
+`lecture-base` 브랜치가 **개편 전 상태로 고정**돼 있습니다.
+
+> 💡 **`--single-branch`를 꼭 붙이세요.** 빼면 완성본(`main` 브랜치)까지 같이 받아져서,
+> `git checkout main` 한 번이면 정답이 다 보입니다. 먼저 직접 해보는 게 실습의 전부입니다.
+
+---
+
+## 1-1. 내 깃허브에 저장하기
+
+**받은 코드를 내 저장소에 올려도 됩니다.** 강사 저장소에는 아무 영향이 없습니다 —
+수강생 계정에는 **읽기 권한만** 있어서 강사 저장소로는 push 자체가 거절됩니다(403).
+
+### ① 내 GitHub에 빈 저장소 만들기
+
+github.com → **New repository** → 이름 입력 →
+**README·.gitignore·license 추가는 모두 체크 해제** (빈 상태여야 충돌이 없습니다) → Create.
+
+### ② remote를 내 것으로 바꾸고 올리기
+
+```bash
+# 지금 origin은 강사 저장소를 가리킵니다. 내 저장소로 교체하세요.
+git remote set-url origin https://github.com/내아이디/내-저장소.git
+
+# 브랜치 이름을 main으로 (내 저장소에서는 이게 자연스럽습니다)
+git branch -M main
+
+git push -u origin main
+```
+
+이후로는 평소처럼 `git add` → `git commit` → `git push` 하면 **내 저장소에만** 쌓입니다.
+
+### 확인
+
+```bash
+git remote -v     # 강사 주소가 아니라 내 주소가 나와야 정상
+```
+
+<details>
+<summary>강사 저장소의 업데이트도 계속 받고 싶다면 (선택)</summary>
+
+```bash
+git remote add upstream https://github.com/earthskyisbig/auction_mbti.git
+git fetch upstream
+git log --oneline upstream/main    # 완성본 커밋 보기 (스포일러 주의)
+```
+
+`upstream`은 **읽기 전용**으로만 동작합니다. 여기로 push하면 거절됩니다.
+
+</details>
+
+> ⚠️ **Fork 버튼을 쓰지 않는 이유**
+> Fork도 되지만 내 저장소가 강사 저장소에 **연결된 상태**로 남아서, Pull Request를 만들면
+> 기본 대상이 강사 저장소가 됩니다. 실습 결과물을 내 것으로 독립시키려면 위 방식이 깔끔합니다.
 
 받은 뒤 `index.html`을 더블클릭하면 브라우저에서 바로 열립니다. **설치할 게 없습니다** — 단일 HTML 파일이라서요.
 
