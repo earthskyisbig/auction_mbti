@@ -439,6 +439,99 @@ a{ color:var(--ms-accent); }
 .rtbl th,.rtbl td{ border-color:var(--ms-line); }
 details.reg > summary{ background:var(--ms-surface2); color:var(--ms-ink); }
 
+/* ============================================================================
+   결과 인포그래픽 (v1.3)
+   ----------------------------------------------------------------------------
+   문제: 결과 화면이 "당신은 A-scnr" 을 열 가지 방식으로 반복하고,
+   정작 "그래서 뭘 하지"에 답하지 않았다. 축은 글자 하나로만 찍혀
+   tally(실제 점수)가 버려졌다.
+   → ① 흐름 맵으로 결과가 어디로 가는지 먼저 보여주고
+     ② 축은 스펙트럼 위 위치로 그려 기울기를 드러내고
+     ③ 섹션마다 "무엇을 보는 것인지" 한 줄을 붙인다.
+   ============================================================================ */
+
+/* --- ① 흐름 맵: 이 결과가 어디로 흘러가는지 --- */
+.flowmap{ display:flex; align-items:stretch; gap:0; margin:28px 0 6px; flex-wrap:wrap; }
+.fm-node{ flex:1 1 0; min-width:132px; background:var(--ms-surface); border:1px solid var(--ms-line2);
+  border-radius:14px; padding:14px 13px; display:flex; flex-direction:column; gap:4px; position:relative; }
+.fm-node .fm-n{ font-family:var(--label); font-size:0.66rem; font-weight:700; letter-spacing:0.1em; color:var(--ms-mut2); }
+.fm-node .fm-t{ font-size:0.97rem; font-weight:750; line-height:1.25; }
+.fm-node .fm-d{ font-size:0.76rem; color:var(--ms-mut); line-height:1.4; }
+.fm-node.on{ border-color:var(--ms-accent); background:var(--ms-accent-soft); }
+.fm-node.on .fm-n{ color:var(--ms-accent); }
+.fm-node.done{ opacity:0.72; }
+.fm-node .fm-here{ position:absolute; top:-9px; left:13px; font-family:var(--label); font-size:0.6rem; font-weight:800;
+  letter-spacing:0.08em; background:var(--ms-accent); color:var(--ms-on-accent); padding:2px 8px; border-radius:999px; }
+.fm-arrow{ flex:0 0 22px; display:flex; align-items:center; justify-content:center; color:var(--ms-line2); font-size:1rem; }
+@media (max-width:640px){
+  .flowmap{ flex-direction:column; }
+  .fm-arrow{ flex:0 0 18px; transform:rotate(90deg); }
+}
+a.fm-node{ text-decoration:none; color:inherit; cursor:pointer; transition:border-color 0.2s var(--ease); }
+a.fm-node:hover{ border-color:var(--ms-accent-line); }
+
+/* --- ② 축 스펙트럼: 어느 쪽으로 얼마나 기울었나 --- */
+.specs{ display:grid; grid-template-columns:1fr 1fr; gap:16px 26px; margin:6px 0 4px; }
+@media (max-width:640px){ .specs{ grid-template-columns:1fr; } }
+.spec{ padding:2px 0; }
+.spec-head{ display:flex; align-items:baseline; justify-content:space-between; gap:8px; margin-bottom:9px; }
+.spec-name{ font-family:var(--label); font-size:0.72rem; font-weight:700; letter-spacing:0.07em; text-transform:uppercase; color:var(--ms-mut); }
+.spec-tie{ font-family:var(--label); font-size:0.64rem; font-weight:700; color:var(--ms-danger);
+  background:var(--ms-danger-soft); padding:2px 8px; border-radius:999px; }
+.spec-track{ position:relative; height:8px; background:var(--ms-surface2); border-radius:999px; }
+.spec-track::before{ content:''; position:absolute; left:50%; top:-3px; bottom:-3px; width:1px; background:var(--ms-line2); }
+.spec-dot{ position:absolute; top:50%; width:16px; height:16px; margin:-8px 0 0 -8px; border-radius:50%;
+  background:var(--ms-accent); border:3px solid var(--ms-bg); box-shadow:0 0 0 1px var(--ms-accent); }
+.spec-poles{ display:flex; justify-content:space-between; gap:10px; margin-top:9px; }
+.spec-pole{ font-size:0.83rem; color:var(--ms-mut2); line-height:1.3; max-width:48%; }
+.spec-pole.r{ text-align:right; }
+.spec-pole.on{ color:var(--ms-ink); font-weight:700; }
+.spec-pole .pc{ font-family:var(--label); font-weight:800; color:var(--ms-mut2); margin-right:3px; }
+.spec-pole.on .pc{ color:var(--ms-accent); }
+
+/* --- ③ 섹션 안내: 이건 무엇을 보는 건가 --- */
+.readme{ font-size:0.88rem; line-height:1.6; color:var(--ms-mut); margin:-6px 0 16px;
+  padding-left:12px; border-left:2px solid var(--ms-line2); }
+.readme b{ color:var(--ms-ink); font-weight:700; }
+
+/* --- 레이어 헤더 (크게) --- */
+.layer-head{ display:flex; align-items:flex-start; gap:14px; padding:16px 18px; border-radius:16px;
+  border:1px solid var(--ms-line2); background:var(--ms-surface); margin-bottom:16px; }
+.layer-head .lnum{ flex:none; font-family:var(--label); font-size:0.88rem; font-weight:800; letter-spacing:0.06em;
+  padding:7px 12px; border-radius:10px; line-height:1; }
+.layer-head.l1 .lnum{ background:var(--ms-accent); color:var(--ms-on-accent); }
+.layer-head.l2 .lnum{ background:var(--ms-cyan); color:var(--ms-on-accent); }
+.layer-head .lname{ font-size:1.32rem; font-weight:800; letter-spacing:-0.02em; line-height:1.25; }
+.layer-head .ldesc{ font-size:0.9rem; color:var(--ms-mut); line-height:1.5; margin-top:4px; }
+.layer-head.l1{ border-left:4px solid var(--ms-accent); }
+.layer-head.l2{ border-left:4px solid var(--ms-cyan); }
+@media (max-width:640px){ .layer-head{ flex-direction:column; gap:10px; } .layer-head .lname{ font-size:1.15rem; } }
+
+/* --- 접이식 상세 (고급 정보는 기본 숨김) --- */
+details.adv{ border:1px dashed var(--ms-line2); border-radius:12px; margin-top:12px; background:transparent; }
+details.adv > summary{ cursor:pointer; list-style:none; padding:11px 15px; font-family:var(--label);
+  font-size:0.8rem; font-weight:700; color:var(--ms-mut); display:flex; align-items:center; gap:7px; }
+details.adv > summary::-webkit-details-marker{ display:none; }
+details.adv > summary::after{ content:'▸'; margin-left:auto; transition:transform .2s; }
+details.adv[open] > summary::after{ transform:rotate(90deg); }
+details.adv > summary:hover{ color:var(--ms-accent); }
+.adv-body{ padding:2px 15px 16px; }
+
+/* --- 다음 행동 (JSON·사이트 사용처 안내) --- */
+.usebox{ border:1px solid var(--ms-line2); border-radius:16px; background:var(--ms-surface); padding:20px; margin-top:14px; }
+.usebox h4{ font-size:1.05rem; margin-bottom:4px; }
+.use-step{ display:flex; gap:13px; padding:14px 0; border-bottom:1px dashed var(--ms-line); }
+.use-step:last-of-type{ border-bottom:none; }
+.use-n{ flex:none; min-width:25px; height:25px; padding:0 8px; border-radius:8px; background:var(--ms-surface2); color:var(--ms-ink);
+  font-family:var(--label); font-weight:800; font-size:0.78rem; display:flex; align-items:center; justify-content:center;
+  white-space:nowrap; }   /* 숫자(1,2,3)와 한글 라벨(빼기/올리기)을 함께 담는다 */
+.use-n.cut{ background:var(--ms-danger-soft); color:var(--ms-danger); }
+.use-n.up{ background:var(--ms-accent-soft); color:var(--ms-accent); }
+.use-t{ font-weight:750; font-size:0.95rem; margin-bottom:3px; }
+.use-d{ font-size:0.86rem; color:var(--ms-mut); line-height:1.55; }
+.use-d code{ background:var(--ms-surface2); padding:1px 6px; border-radius:5px; font-size:0.9em; }
+.use-d a{ font-weight:700; }
+
 /* --- 테마 토글 (deck-rules: 우상단 글로벌 토글) --- */
 #themeToggle{ position:fixed; right:22px; top:18px; z-index:300;
   border:1px solid var(--ms-line2); background:var(--ms-surface); color:var(--ms-ink);
@@ -757,6 +850,64 @@ const REG_SUMMARY = '<div class="sec"><details class="reg">'
 + '<p class="reg-disc"><b>면책:</b> 부동산 정책은 수시로 변경되고 예외·경과조치·지역별 차이가 많습니다. 본 도구는 규제 안내일 뿐 세무·법률 자문이 아닙니다. 실제 거래·대출·세금 적용 전 반드시 <b>금융기관·세무사·법무사</b> 등 전문가와 해당 시점 규정을 직접 확인하세요.</p>'
 + '</div></details></div>';
 
+/* ============================================================================
+   [v1.3] 결과 인포그래픽 헬퍼
+   ============================================================================ */
+
+/* 흐름 맵 — 이 결과가 어디로 흘러가는지. 모든 화면 상단에 같은 지도를 둔다. */
+const FLOW = [
+  { key:'quiz',   t:'성향 진단',   d:'문항에 답해 유형을 찾는다' },
+  { key:'profile',t:'투자 체질',   d:'검색에 걸 제외·가점 규칙이 된다' },
+  { key:'filter', t:'검색조건',    d:'예산·지역을 넣어 조건을 만든다' },
+  { key:'search', t:'물건 찾기',   d:'법원경매에서 실제로 거른다' }
+];
+function renderFlowMap(currentKey){
+  const i = FLOW.findIndex(f=>f.key===currentKey);
+  let h='<div class="flowmap">';
+  FLOW.forEach((f,n)=>{
+    if(n) h+='<div class="fm-arrow">→</div>';
+    const cls = n===i ? ' on' : (n<i ? ' done' : '');
+    h+='<div class="fm-node'+cls+'">'
+      +(n===i?'<span class="fm-here">지금 여기</span>':'')
+      +'<span class="fm-n">'+(n+1)+'단계</span>'
+      +'<span class="fm-t">'+esc(f.t)+'</span>'
+      +'<span class="fm-d">'+esc(f.d)+'</span></div>';
+  });
+  return h+'</div>';
+}
+
+/* 섹션 안내 — "이건 무엇을 보는 건가" */
+function readme(html){ return '<p class="readme">'+html+'</p>'; }
+
+/* 축 스펙트럼 — tally(실제 점수)로 기울기를 그린다.
+   기존에는 poles의 글자 하나만 쓰고 점수를 버렸다. */
+function renderSpectrum(axes, poleOf, tally, borderline){
+  let h='<div class="specs">';
+  axes.forEach(ax=>{
+    const A=ax.pole_a, B=ax.pole_b;
+    const sa=tally[A.code]||0, sb=tally[B.code]||0, tot=sa+sb;
+    // 0%/100%에서 점이 트랙 밖으로 반쯤 나가므로 가장자리를 물려 둔다
+    const pct = Math.max(4, Math.min(96, tot ? Math.round((sb/tot)*100) : 50));
+    const sel = poleOf(ax.id);
+    const tie = borderline.indexOf(ax.id)!==-1 || (tot>0 && sa===sb);
+    h+='<div class="spec">'
+      +'<div class="spec-head"><span class="spec-name">'+esc(ax.label)+'</span>'
+      +(tie?'<span class="spec-tie">거의 반반</span>':'')+'</div>'
+      +'<div class="spec-track"><span class="spec-dot" style="left:'+pct+'%"></span></div>'
+      +'<div class="spec-poles">'
+        +'<span class="spec-pole'+(sel===A.code?' on':'')+'"><span class="pc">'+A.code+'</span>'+esc(A.label)+'</span>'
+        +'<span class="spec-pole r'+(sel===B.code?' on':'')+'"><span class="pc">'+B.code+'</span>'+esc(B.label)+'</span>'
+      +'</div></div>';
+  });
+  return h+'</div>';
+}
+
+/* 레이어 헤더 — 개발 용어를 사람 말로 풀어 크게 보여준다 */
+function layerHead(n, name, desc){
+  return '<div class="layer-head l'+n+'"><span class="lnum">LAYER '+n+'</span>'
+    +'<div><div class="lname">'+esc(name)+'</div><div class="ldesc">'+desc+'</div></div></div>';
+}
+
 /* ---------- result ---------- */
 function findType(track,code){ return DATA[track].types.find(t=>t.code===code); }
 function renderResult(track, r){
@@ -773,18 +924,18 @@ function renderResult(track, r){
   if(t.rare) h+='<div><span class="rare-pill">희귀 · 동기 충돌 조합</span></div>';
   h+='</div>';
 
-  // axis breakdown
-  h+='<div class="axisrow">';
-  data.axis_order.forEach(axisId=>{
-    const ax=data.axes.find(a=>a.id===axisId);
-    const code=r.poles[axisId];
-    const pole = ax.pole_a.code===code?ax.pole_a:ax.pole_b;
-    const bl=r.borderline.indexOf(axisId)!==-1;
-    h+='<div class="axisbox'+(bl?' bl':'')+'"><div class="al">'+esc(ax.label)+'</div>'+
-       '<div class="av"><span class="ac">'+code+'</span>'+esc(pole.label)+'</div>'+
-       (bl?'<div class="blnote">⚖ 거의 반반</div>':'')+'</div>';
-  });
-  h+='</div>';
+  // [v1.3] 흐름 맵 — 결과가 어디로 흘러가는지 먼저 보여준다
+  h+='<div class="sec"><div class="sec-title">이 결과로 무엇을 하나</div>';
+  h+=readme('진단은 <b>끝이 아니라 시작</b>입니다. 아래 순서로 실제 경매 물건을 거르는 데까지 씁니다. 지금은 1단계입니다.');
+  h+=renderFlowMap('quiz')+'</div>';
+
+  // [v1.3] 축 스펙트럼 — tally를 써서 "얼마나 기울었나"를 그린다
+  h+='<div class="sec"><div class="sec-title">4가지 축에서 나온 위치</div>';
+  h+=readme('각 축에서 <b>어느 쪽으로 얼마나 기울었는지</b>입니다. 점이 가운데에 가까울수록 상황에 따라 달라지는 성향이라, 한쪽으로 단정하기 어렵다는 뜻입니다.');
+  h+=renderSpectrum(
+       data.axis_order.map(id=>data.axes.find(a=>a.id===id)),
+       id=>r.poles[id], r.tally||{}, r.borderline||[])
+   +'</div>';
 
   // condition line (both tracks have profile inputs in v1.1)
   if(r.profileValues && Object.keys(r.profileValues).length){
@@ -795,7 +946,9 @@ function renderResult(track, r){
   if(p.identity){ h+='<div class="sec"><div class="panel identity"><p>'+inlineFmt(p.identity)+'</p></div></div>'; }
 
   // strength / weakness / blindspot
-  h+='<div class="sec"><div class="sec-title">강점 · 약점 · 맹점</div><div class="swb">';
+  h+='<div class="sec"><div class="sec-title">강점 · 약점 · 맹점</div>';
+  h+=readme('이 유형이 잘하는 것과, <b>스스로는 잘 안 보이는 위험</b>입니다. 맹점이 실제로 돈을 잃는 지점이니 여기를 가장 오래 보세요.');
+  h+='<div class="swb">';
   if(p.strength) h+='<div class="panel strength"><h4>💪 강점</h4>'+fmt(p.strength)+'</div>';
   if(p.weakness) h+='<div class="panel weakness"><h4>🔻 약점</h4>'+fmt(p.weakness)+'</div>';
   if(p.blindspot) h+='<div class="panel blind"><h4>⚠️ 맹점</h4>'+fmt(p.blindspot)+'</div>';
@@ -811,6 +964,7 @@ function renderResult(track, r){
   // personalization + regulation flags (both tracks, v1.1)
   if(r.flags && r.flags.length){
     h+='<div class="sec"><div class="sec-title">규제 · 개인화 경고 · 당신의 조건 기준</div>';
+    h+=readme('앞에서 입력한 <b>보유주택 수·규제지역·투자 계획</b>에 실제로 걸리는 대출·세금 규제입니다. 성향과 무관하게 당신의 조건이라서 뜨는 경고입니다.');
     // 경매: 규제지역이면 (a)대출 동일적용 / (b)토허 면제 두 갈래를 분리 안내함을 명시
     if(track==='gyeongmae' && r.profileValues && r.profileValues.region_regulated==='regulated'){
       h+='<div class="reg-note">⚖ 경매 규제는 <b>(a) 대출규제 동일 적용</b> ↔ <b>(b) 토지거래허가(실거주·갭·자금조달계획서) 의무 면제</b> — 상반된 두 갈래로 나눠 아래에 함께 표시합니다.</div>';
@@ -829,6 +983,7 @@ function renderResult(track, r){
   // guide
   if(g.length){
     h+='<div class="sec"><div class="sec-title">'+(track==='maemae'?'매매 활용 가이드':'경매 활용 가이드')+'</div>';
+    h+=readme('이 유형이 <b>실제 입찰 전에 확인할 것</b>들입니다. 어떤 물건을 고르고, 무엇을 조심하고, 무엇을 체크할지.');
     g.forEach(item=>{ h+='<div class="guide-item"><h4>'+esc(item.label)+'</h4>'+fmt(item.body)+'</div>'; });
     h+='</div>';
   }
@@ -836,20 +991,27 @@ function renderResult(track, r){
   // [S5] Layer 1 — 투자 체질 파생 (신규 4축). 기존 16유형 결과는 위에 그대로 유지된다.
   h+=renderIpSection(track, r);
 
-  // [S6] Layer 2 진입 — 실제 검색은 FilterMode 화면이 담당한다
-  h+='<div class="sec"><div class="qr-box" style="border-color:rgba(217,119,87,0.35)">'
-   +'<span class="layer-tag l2">LAYER 2 · 이번 검색조건</span>'
-   +'<h4 style="margin-top:10px">실제 검색조건 만들기</h4>'
-   +'<p style="font-size:0.93rem;color:var(--mute);margin:6px 0 14px">위 성향은 <b>배경 설정</b>입니다. 예산·지역·자산유형·유찰수·최저가율 같은 <b>이번 검색값</b>은 다음 화면에서 정하고, 성향은 제외규칙·가중치로만 개입합니다. 조건은 프리셋으로 저장해 재사용할 수 있습니다.</p>'
-   +'<div class="btn-row" style="justify-content:flex-start;margin:0">'
-     +'<button class="btn btn-primary" id="go-filter">🔎 검색조건 만들기 →</button>'
-     +'<button class="btn btn-ghost" id="go-mini">✎ 성향 보강 미니설문 (1분)</button>'
-     +'<button class="btn btn-ghost" id="go-presets">📚 저장된 프리셋</button>'
+  // [S6/v1.3] Layer 2 진입 — 실제 검색은 FilterMode 화면이 담당한다
+  h+='<div class="sec">';
+  h+=layerHead(2,'이번 검색조건','<b>매번 바뀌는 값</b>입니다. 예산·지역·자산유형·유찰수처럼 이번에 찾을 물건의 조건. 검색할 때마다 새로 정하고, 자주 쓰는 조합은 프리셋으로 저장합니다.');
+  h+='<div class="qr-box">'
+   +'<h4>다음 단계 — 검색조건 만들기</h4>'
+   +'<p style="font-size:0.92rem;color:var(--ms-mut);margin:6px 0 4px;line-height:1.6">'
+     +'다음 화면에서 <b>예산과 지역</b>만 넣으면 위 체질과 합쳐져 최종 검색조건이 나옵니다. '
+     +'성향은 값을 만들지 않고 <b>거를 것과 올릴 것</b>만 정합니다.</p>'
+   +renderFlowMap('filter')
+   +'<div class="btn-row" style="justify-content:flex-start;margin:16px 0 0">'
+     +'<button class="btn btn-primary" id="go-filter">검색조건 만들기 →</button>'
+     +'<button class="btn btn-ghost" id="go-mini">성향 더 정확히 (1분)</button>'
+     +'<button class="btn btn-ghost" id="go-presets">저장된 프리셋</button>'
    +'</div></div></div>';
 
-  // 추천 경매 검색조건 카드 (경매 트랙 전용) — 레거시 규칙 기반 간이 추천으로 유지
+  // 레거시 간이 추천 카드 — 새 흐름과 중복되므로 기본 접어 둔다
   if(track==='gyeongmae'){
-    h+='<div class="sec"><div class="sec-title">간이 추천 검색조건 · courtauction 필터 <span class="layer-tag l1">레거시 규칙</span></div>'+searchCardShell()+'</div>';
+    h+='<div class="sec"><details class="adv"><summary>고급 · 예전 방식의 간이 추천 검색조건 보기</summary>'
+     +'<div class="adv-body">'
+     +readme('아래는 개편 전 규칙으로 뽑은 <b>간이 추천</b>입니다. 위 「검색조건 만들기」가 이걸 대체하니 평소에는 볼 필요가 없습니다.')
+     +searchCardShell()+'</div></details></div>';
   }
 
   // actions
@@ -880,36 +1042,49 @@ function renderResult(track, r){
   });
 }
 
-/* [S5] 레거시 결과 → Layer 1 파생 결과 렌더 (기존 16유형 섹션은 위에 그대로 유지) */
+/* [S5/v1.3] 레거시 결과 → Layer 1 파생 결과 렌더.
+   기존에는 "이 체질이 검색에 거는 규칙"으로 exclusions·weights 원본을 그대로 노출해
+   무엇을 보는 건지 알 수 없었다. → 용도를 문장으로 먼저 말하고, 규칙 원본은 접는다. */
 function renderIpSection(track, r){
   const mini=(LS.read(STORE_KEYS.meta,{})||{}).last_mini||{};
   const p=deriveInvestorProfile(track, r, mini);
-  const COV={ measured:'직접 측정', derived:'기존 답변에서 파생', unmeasured:'미측정(기본값)' };
-  let h='<div class="sec"><div class="sec-title">투자 체질 프로필 <span class="layer-tag l1">LAYER 1</span></div>';
-  h+='<p style="font-size:0.92rem;color:var(--mute);margin:-6px 0 4px">'
-   +'위 '+esc(r.code)+' 유형과 별개로, 검색 <b>제외규칙·가중치</b>를 결정하는 4개 체질축입니다. '
-   +'자금·지역처럼 매번 바뀌는 값은 여기에 들어가지 않습니다.</p>';
-  h+='<div class="rhead" style="padding:18px 0 6px"><div class="rcode">'+esc(p.mbti_code)+'</div>'
-   +'<div class="rname">'+esc(p.label)+'</div></div>';
-  h+='<div class="ip-axisrow">';
-  IP_AXES.forEach(ax=>{
-    const code=p[{RIGHTS:'rights_axis',EVICTION:'eviction_axis',PROFIT:'profit_axis',HORIZON:'horizon_axis'}[ax.id]];
-    const pole=ipPole(ax.id, code), cov=p.axis_coverage[ax.id];
-    h+='<div class="ip-axisbox"><div class="al">'+esc(ax.label)+'</div>'
-     +'<div class="av"><span class="ac">'+esc(code)+'</span>'+esc(pole.label)+'</div>'
-     +'<span class="cov '+cov+'">'+COV[cov]+'</span></div>';
-  });
-  h+='</div>';
+  const poleOf = id => p[{RIGHTS:'rights_axis',EVICTION:'eviction_axis',PROFIT:'profit_axis',HORIZON:'horizon_axis'}[id]];
   const R=p.risk_preferences_json;
-  h+='<div class="qr-box"><h4>이 체질이 검색에 거는 규칙</h4>';
-  h+='<div class="qr-kv"><div class="k">기본 제외</div><div class="v">'
-   +(R.exclusions.length?esc(R.exclusions.join(', ')):'<span style="color:var(--mute)">없음</span>')+'</div>';
-  const ws=Object.keys(R.weights).sort((a,b)=>Math.abs(R.weights[b])-Math.abs(R.weights[a]));
-  h+='<div class="k">랭킹 가중치</div><div class="v">'
-   +ws.map(k=>'<span class="wchip '+(R.weights[k]>=0?'pos':'neg')+'">'+esc(k)+' <span class="n">'+(R.weights[k]>0?'+':'')+R.weights[k]+'</span></span>').join('')+'</div></div></div>';
+
+  let h='<div class="sec">';
+  h+=layerHead(1,'투자 체질','<b>잘 바뀌지 않는 나의 성향</b>입니다. 한 번 정해두면 검색할 때마다 계속 쓰입니다. 예산·지역처럼 매번 달라지는 값은 여기 들어가지 않습니다.');
+
+  // 용도를 먼저 — "어디에 쓰는지 모르겠다"에 대한 답
+  h+=readme('이 체질은 <b>물건을 걸러 주는 필터</b>로 쓰입니다. 다음 단계에서 예산·지역을 넣으면, '
+    +'체질이 <b>「이런 물건은 아예 빼라」</b>와 <b>「이런 물건은 위로 올려라」</b> 두 가지를 자동으로 붙입니다. '
+    +'검색 결과가 왜 그렇게 나왔는지는 항상 근거로 표시됩니다.');
+
+  h+='<div class="rhead" style="padding:10px 0 14px"><div class="rcode">'+esc(p.mbti_code)+'</div>'
+   +'<div class="rname">'+esc(p.label)+'</div></div>';
+
+  h+=renderSpectrum(IP_AXES, poleOf, p.tally||{}, p.borderline_axes||[]);
+
+  // 규칙이 실제로 무엇을 하는지 한 문장으로 (원본 나열 대신)
+  const nEx=R.exclusions.length, nUp=Object.keys(R.weights).filter(k=>R.weights[k]>0).length;
+  h+='<div class="qr-box" style="margin-top:16px"><h4>이 체질이 검색에서 하는 일</h4>'
+   +'<div class="use-step"><span class="use-n cut">빼기</span><div>'
+     +'<div class="use-t">위험하다고 보는 물건 '+nEx+'종을 검색에서 제외</div>'
+     +'<div class="use-d">'+(nEx?esc(R.exclusions.slice(0,4).join(', '))+(nEx>4?(' 외 '+(nEx-4)+'종'):''):'제외 없음 — 다 보겠다는 성향')+'</div></div></div>'
+   +'<div class="use-step"><span class="use-n up">올리기</span><div>'
+     +'<div class="use-t">선호하는 조건 '+nUp+'가지를 가진 물건을 상위로</div>'
+     +'<div class="use-d">'+esc((R.recommend||[]).slice(0,2).join(' · ')||'-')+'</div></div></div>'
+   +'<details class="adv"><summary>고급 · 제외 목록과 가중치 원본 보기</summary><div class="adv-body">'
+     +'<div class="qr-kv"><div class="k">기본 제외</div><div class="v">'
+     +(nEx?esc(R.exclusions.join(', ')):'<span style="color:var(--ms-mut)">없음</span>')+'</div>'
+     +'<div class="k">랭킹 가중치</div><div class="v">'
+     +Object.keys(R.weights).sort((a,b)=>Math.abs(R.weights[b])-Math.abs(R.weights[a]))
+        .map(k=>'<span class="wchip '+(R.weights[k]>=0?'pos':'neg')+'">'+esc(k)+' <span class="n">'+(R.weights[k]>0?'+':'')+R.weights[k]+'</span></span>').join('')
+     +'</div></div></div></details>'
+   +'</div>';
+
   const un=IP_AXIS_ORDER.filter(id=>p.axis_coverage[id]==='unmeasured');
   if(un.length) h+='<div class="flag warn"><span class="fi">⚠️</span><div><span class="ft">주의</span>'
-   +'<div class="fm">'+esc(un.map(id=>ipAxis(id).label).join(', '))+' 축은 기존 설문으로 측정할 수 없어 기본값입니다. 아래 <b>미니설문 5문항</b>으로 정확도를 올릴 수 있습니다.</div></div></div>';
+   +'<div class="fm">'+esc(un.map(id=>ipAxis(id).label).join(', '))+' 축은 지금 설문으로는 알 수 없어 기본값으로 뒀습니다. 아래 <b>「성향 더 정확히」</b> 5문항으로 채울 수 있습니다.</div></div></div>';
   h+='</div>';
   return h;
 }
@@ -1502,6 +1677,7 @@ function deriveInvestorProfile(track, r, miniAnswers){
     legacy_track:track, legacy_code:r.code,
     answers_json:{ legacy_profile_values:r.profileValues||{}, mini:miniCodes },
     axis_coverage:coverage, borderline_axes:borderline,
+    tally:tally,   // v1.3: 축별 기울기를 스펙트럼으로 그리기 위해 원점수를 함께 보존
     created_at:null, updated_at:null
   };
 }
@@ -1585,9 +1761,12 @@ function buildSearchQuery(profile, fm){
     postFilters.push({ key:'discount_ratio', op:'>=', value:fm.min_discount_ratio, label:'최저가율 '+Math.round(fm.min_discount_ratio*100)+'% 이상' });
   if(fm.max_discount_ratio!=null)
     postFilters.push({ key:'discount_ratio', op:'<=', value:fm.max_discount_ratio, label:'최저가율 '+Math.round(fm.max_discount_ratio*100)+'% 이하' });
-  if(fm.regulation_mode && fm.regulation_mode!=='unknown')
+  if(fm.regulation_mode && fm.regulation_mode!=='unknown'){
+    // 옵션 라벨('규제지역만')을 그대로 이어붙이면 "규제지역 규제지역만"이 된다 → 전용 문구를 쓴다
+    const REG_PF={ include:'규제지역 포함', exclude:'규제지역 제외', only:'규제지역만' };
     postFilters.push({ key:'is_regulated', op:fm.regulation_mode==='only'?'==':(fm.regulation_mode==='exclude'?'!=':'*'),
-                       value:fm.regulation_mode!=='exclude', label:'규제지역 '+fmLabelOf('regulation_mode',fm.regulation_mode) });
+                       value:fm.regulation_mode!=='exclude', label:REG_PF[fm.regulation_mode] });
+  }
   (query.exclude_special_conditions||[]).forEach(e=>
     postFilters.push({ key:'special_conditions', op:'not_contains', value:e, label:e+' 없음' }));
   if(postFilters.length)
@@ -1720,12 +1899,14 @@ function fmSetRaw(fm, key, raw){
 }
 function renderFilterScreen(){
   const fm=fmState.fm, prof=fmState.profile;
-  let h='<div class="pagehead"><span class="layer-tag l2">LAYER 2 · 이번 검색조건</span>'
-   +'<h2>검색조건 만들기</h2>'
-   +'<p>실제 검색값은 여기서 정합니다. 투자 체질(MBTI)은 뒤에서 제외규칙·가중치로만 개입합니다.</p></div>';
+  let h='<div class="pagehead"><h2>검색조건 만들기</h2>'
+   +'<p>이번에 찾을 물건의 조건을 정합니다.</p></div>';
+  h+=renderFlowMap('filter');
+  h+=layerHead(2,'이번 검색조건','<b>매번 바뀌는 값</b>입니다. 여기서 정한 값이 실제 검색 필터가 됩니다. 투자 체질은 값을 만들지 않고, 뒤에서 <b>거를 것과 올릴 것</b>만 더합니다.');
   h+='<div class="crumb">'+(prof
-     ? '체질: <b>'+esc(prof.mbti_code)+'</b> · '+esc(prof.label)+' <a href="#" id="fm-remeasure">다시 측정</a>'
-     : '체질 <b>미설정</b> — 순수 필터만 적용됩니다. <a href="#" id="fm-measure">체질 측정하기</a>')+'</div>';
+     ? '적용 중인 체질: <b>'+esc(prof.mbti_code)+'</b> · '+esc(prof.label)+' <a href="#" id="fm-remeasure">다시 측정</a>'
+     : '체질 <b>미설정</b> — 지금은 순수 필터만 적용됩니다. <a href="#" id="fm-measure">체질 측정하기</a>')+'</div>';
+  h+=readme('아래 항목 중 <b>「필터 O」</b>는 법원경매 사이트에서 그대로 거를 수 있고, <b>「참고」</b>는 사이트로는 못 걸러 결과를 받은 뒤 확인하거나 세금·대출 계산에 쓰입니다. 비워 두면 그 조건은 제한 없음으로 봅니다.');
 
   FM_GROUPS.forEach(gr=>{
     const fields=FM_FIELDS.filter(f=>f.group===gr.id);
@@ -1861,11 +2042,43 @@ function renderQueryResult(out){
     if(out.avoid.length)     h+='<div class="panel weakness"><h4>👎 비추천 스타일</h4><ul>'+out.avoid.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul></div>';
     h+='</div>';
   }
-  h+='<div class="sc-export"><div class="btn-row">'
-   +'<button class="btn btn-primary" id="qr-copy">📋 JSON 복사</button>'
-   +'<button class="btn btn-ghost" id="qr-download">⬇ JSON 다운로드</button></div>'
+  // [v1.3] 다음 행동 — "복사해서 어디에 쓰나"에 대한 답
+  const q2=out.query;
+  const regTxt = q2.region.sido ? (q2.region.sido+(q2.region.sigungu.length?' '+q2.region.sigungu.join(', '):''))
+                                : fmLabelOf('region_scope', q2.region.scope);
+  h+='<div class="usebox"><h4>이 조건, 어디에 쓰나요</h4>'
+   +'<p style="font-size:0.87rem;color:var(--ms-mut);margin:4px 0 6px;line-height:1.55">순서대로 하면 됩니다.</p>'
+
+   +'<div class="use-step"><span class="use-n">1</span><div>'
+     +'<div class="use-t">법원경매 사이트에 ①번 값을 그대로 입력</div>'
+     +'<div class="use-d">물건상세검색에서 <code>소재지 '+esc(regTxt)+'</code>'
+       +(q2.property_type.length?(' · <code>용도 '+esc(q2.property_type.join('/'))+'</code>'):'')
+       +(q2.min_price_max!=null?(' · <code>최저가 ~'+esc(scFmtKRW(q2.min_price_max))+'</code>'):'')
+       +' · <code>유찰 '+q2.fail_count_min+'회 이상</code> 을 넣으세요.<br>'
+       +'<a href="https://www.courtauction.go.kr" target="_blank" rel="noopener">courtauction.go.kr 열기 →</a></div></div></div>'
+
+   +'<div class="use-step"><span class="use-n">2</span><div>'
+     +'<div class="use-t">②번은 사이트에서 못 거릅니다 — 결과를 받은 뒤 직접 확인</div>'
+     +'<div class="use-d">'+(out.postFilters.length
+        ? esc(out.postFilters.slice(0,3).map(p=>p.label).join(', '))+(out.postFilters.length>3?(' 외 '+(out.postFilters.length-3)+'개'):'')+' — 목록을 훑으며 걸러내세요.'
+        : '해당 없음.')+'</div></div></div>'
+
+   +'<div class="use-step"><span class="use-n">3</span><div>'
+     +'<div class="use-t">③번 가중치는 "어느 물건부터 볼지" 순서</div>'
+     +'<div class="use-d">여러 건이 남았을 때 <b>+ 점수가 높은 조건</b>을 가진 물건부터 임장하면 시간이 덜 듭니다.</div></div></div>'
+
+   +'<div class="use-step"><span class="use-n">4</span><div>'
+     +'<div class="use-t">JSON 복사 — 사람이 읽는 용도가 아닙니다</div>'
+     +'<div class="use-d">위 조건을 <b>기계가 읽는 형식</b>으로 담은 것입니다. 크롤러·스프레드시트·분석 도구에 붙여넣어 '
+       +'자동 수집을 돌리거나, 다른 사람에게 조건을 그대로 전달할 때 씁니다.<br>'
+       +'<b>이 앱에서 다시 쓰려는 것뿐이라면 JSON 대신 「프리셋으로 저장」을 쓰세요</b> — 한 번 클릭으로 되불러옵니다.</div></div></div>'
+   +'</div>';
+
+  h+='<div class="sc-export" style="border-top:none;padding-top:8px"><div class="btn-row">'
+   +'<button class="btn btn-primary" id="qr-copy">JSON 복사</button>'
+   +'<button class="btn btn-ghost" id="qr-download">JSON 파일로 저장</button></div>'
    +'<textarea class="sc-json" id="qr-json" readonly spellcheck="false">'+esc(JSON.stringify(out,null,2))+'</textarea>'
-   +'<p class="sc-foot">이 JSON은 향후 <code>auction_item</code> 검색 API / 자동검색·알림 파이프라인의 입력 규격입니다.</p></div>';
+   +'</div>';
   h+='</div>';
   return h;
 }
@@ -2086,6 +2299,31 @@ function runSelfTest(){
     const pL=deriveInvestorProfile('gyeongmae', rL, {}), pT=deriveInvestorProfile('gyeongmae', rT, {});
     return (pL.horizon_axis==='L' && pT.horizon_axis==='T')
       ? true : ('g9=0→'+pL.horizon_axis+' / g9=1→'+pT.horizon_axis); });
+
+  t('T19 후처리 라벨에 같은 단어가 겹쳐 나오지 않는다', ()=>{
+    // "규제지역 규제지역만" 같은 라벨 조합 사고를 막는다.
+    for(const mode of ['include','exclude','only']){
+      const fm=fmDefaults(); fm.regulation_mode=mode;
+      const out=buildSearchQuery(null, fm);
+      for(const p of out.postFilters){
+        const words=p.label.split(/\s+/).filter(w=>w.length>=3);
+        for(let i=0;i<words.length;i++) for(let j=i+1;j<words.length;j++)
+          if(words[j].indexOf(words[i])===0) return mode+' → "'+p.label+'"';
+      }
+    }
+    return true; });
+
+  t('T20 결과 인포그래픽 헬퍼가 모든 축을 그린다', ()=>{
+    const G2=DATA.gyeongmae;
+    const html=renderSpectrum(G2.axis_order.map(id=>G2.axes.find(a=>a.id===id)),
+                              id=>rBase.poles[id], rBase.tally||{}, rBase.borderline||[]);
+    const n=(html.match(/class="spec"/g)||[]).length;
+    if(n!==4) return '축 '+n+'개만 렌더됨';
+    // 마커가 트랙 밖으로 나가지 않는지 (4~96%)
+    const pcts=(html.match(/left:(\d+)%/g)||[]).map(s=>+s.match(/\d+/)[0]);
+    const bad=pcts.filter(p=>p<4||p>96);
+    if(bad.length) return '마커 범위 이탈: '+bad.join(',');
+    return (renderFlowMap('quiz').indexOf('지금 여기')>=0) ? true : '흐름 맵에 현재 위치 표시 없음'; });
 
   t('T15 레거시 공유 URL 포맷(문항ID 기반)이 그대로 복원된다', ()=>{
     const codes={}; G.questions.forEach(q=>{ codes['q:'+q.id]=0; });

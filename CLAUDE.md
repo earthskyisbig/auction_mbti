@@ -24,6 +24,13 @@
 - CSS 구조: 레거시 변수(`--dark`/`--light`/`--orange`…)는 이름을 유지한 채 `:root`에서 Mono Signal 토큰으로 **재매핑**하고, 하드코딩 색상은 파일 끝 **「Mono Signal 패치 레이어」**에서만 교정한다. 원본 규칙 블록은 건드리지 않아 diff로 원본/리스킨이 구분된다.
 - 색을 바꿀 땐 개별 규칙이 아니라 `:root` / `:root[data-theme="light"]`의 `--ms-*` 토큰을 고칠 것.
 
+**결과 화면 원칙 (v1.3~)**
+- 모든 섹션에 `readme()`로 **"이건 무엇을 보는 것인가"** 한 줄을 붙인다. 데이터만 던지지 않는다.
+- 축은 글자 하나가 아니라 `renderSpectrum()`으로 **기울기**를 보여준다(`tally` 사용).
+- 화면마다 `renderFlowMap(key)`로 **지금 어느 단계인지** 표시한다.
+- 내부 자료구조(`exclusions`/`weights` 원본)는 `details.adv`로 접는다. 기본 화면엔 **그게 무슨 일을 하는지 문장**만 둔다.
+- 사용자 대상 문구에 개발 용어(`auction_item`, 스키마명)를 쓰지 않는다. 무엇을 어디에 붙여넣는지로 쓴다.
+
 **작업 규칙**
 - 검색차원 추가 → `FM_FIELDS` 배열에 항목 1개 추가 (폼·검증·쿼리빌더·JSON이 모두 이 배열을 읽는다)
 - 체질 규칙 변경 → `IP_AXES`의 해당 극에 `exclusions`/`weights` 수정
@@ -45,3 +52,4 @@
 | 2026-07-25 | **2레이어 개편** — InvestorProfile(체질) / FilterMode(검색조건) 분리, 병합엔진·프리셋·미니설문·셀프테스트 | 05_data_model.md(신규), 05_*.schema.json(신규), tools/(신규), html(+화면 3종), CLAUDE.md, README.md | 검색값과 체질이 한 함수에 뒤엉켜 있어(`computeSearchCriteria(r,sido,sigungu)`) 검색차원 확장이 막힘. 경매 검색/필터/분석 자동화의 기반 모델로 전환 |
 | 2026-07-25 | **Mono Signal 리스킨** — Pretendard, 다크(라임)/라이트(근-검정) 2테마 + 우상단 토글, 하드코딩 색상 37종 토큰화 | html(폰트·`:root`·패치 레이어·토글), CLAUDE.md, README.md | 디자인 시스템 통일 요청. 덱 구조(16:9·키보드 네비)는 인터랙티브 앱을 깨뜨려 제외하고 **시각 언어만** 적용 |
 | 2026-07-25 | **경매 문항 중복 제거 (v1.2)** — g8·g9·g10 재작성(가치산정/시간압박/자본재조달), `purpose` 입력을 조건으로 리프레이밍, `from:'question'` 파생 신설, 조건입력 가중치 하향 | html(DATA·scoreTrack·IP_DERIVE·T16~T18) | 사용자 제보: 스텝 2·14·15·16이 "보유 vs 매각" 하나를 4번 되물음. 배점·순서를 유지해 기존 공유 URL은 동일 결과 |
+| 2026-07-25 | **결과 인포그래픽 (v1.3)** — 흐름 맵(4단계), 축 스펙트럼(tally 활용), 섹션별 해석 안내, 레이어 헤더 대형화, 규칙 원본·레거시 카드 접기, JSON 사용처 안내 재작성 | html(CSS 인포그래픽 블록·renderFlowMap/renderSpectrum/layerHead/readme·renderResult·renderIpSection·renderQueryResult·T19~T20) | 사용자 제보: 결과가 복잡하고 무엇을 보는지·어디에 쓰는지 모르겠다 |
