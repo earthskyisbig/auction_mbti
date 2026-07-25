@@ -1,0 +1,288 @@
+/* ============================================================================
+   Mono Signal — 이식용 디자인 시스템
+   ----------------------------------------------------------------------------
+   다크 우선. 근-검정 표면 위 라임 단일 액센트. 라이트 모드에서는 라임을 버리고
+   근-검정을 액센트로 쓴다(밝은 배경 위 라임은 대비가 무너진다).
+
+   사용법
+     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+     <link rel="stylesheet" href="mono-signal.css">
+     <html data-theme="dark">   ← 없으면 다크로 동작
+
+   모든 클래스에 ms- 접두어를 붙여 기존 스타일과 충돌하지 않는다.
+   토큰만 쓰고 컴포넌트는 직접 짜도 된다.
+   ============================================================================ */
+
+/* ---------------------------------------------------------------- 1. 토큰 */
+:root{
+  /* 색 — 다크(기본) */
+  --ms-bg:#0b0b0d;          /* 페이지 배경 */
+  --ms-surface:#141417;     /* 카드·패널 */
+  --ms-surface2:#1b1b20;    /* 칩·코드·중첩 표면 */
+  --ms-line:#26262c;        /* 약한 구분선 */
+  --ms-line2:#33333b;       /* 카드 테두리 */
+  --ms-ink:#f4f4f5;         /* 본문 */
+  --ms-mut:#9a9aa2;         /* 보조 텍스트 */
+  --ms-mut2:#5d5d66;        /* 라벨·비활성 */
+
+  --ms-accent:#c8fa46;      /* 유일한 강조색 */
+  --ms-accent-dim:#7f9c33;
+  --ms-cyan:#5fe3d0;        /* 보조 — 정보/2차 분류 */
+  --ms-danger:#ff9d85;      /* 보조 — 경고 */
+  --ms-on-accent:#0b0b0d;   /* 액센트 배경 위 글자 */
+
+  --ms-accent-soft:rgba(200,250,70,0.08);
+  --ms-accent-line:rgba(200,250,70,0.30);
+  --ms-cyan-soft:rgba(95,227,208,0.12);
+  --ms-cyan-line:rgba(95,227,208,0.30);
+  --ms-danger-soft:rgba(255,157,133,0.10);
+  --ms-danger-line:rgba(255,157,133,0.32);
+
+  /* 서체 — Pretendard 하나로 display/body/label을 모두 처리한다.
+     굵기 대비(800 vs 450)와 자간으로 위계를 만든다. */
+  --ms-font:'Pretendard',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+  --ms-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+
+  /* 타입 스케일 */
+  --ms-fs-2xs:0.66rem; --ms-fs-xs:0.76rem; --ms-fs-sm:0.86rem;
+  --ms-fs-md:0.95rem;  --ms-fs-lg:1.1rem;  --ms-fs-xl:1.32rem;
+  --ms-fs-2xl:1.75rem; --ms-fs-3xl:clamp(2.1rem,5vw,3.2rem);
+
+  /* 반경 · 여백 · 모션 */
+  --ms-r-sm:8px; --ms-r-md:12px; --ms-r-lg:16px; --ms-r-xl:20px; --ms-r-pill:999px;
+  --ms-sp-1:6px; --ms-sp-2:10px; --ms-sp-3:14px; --ms-sp-4:20px; --ms-sp-5:28px; --ms-sp-6:40px;
+  --ms-ease:cubic-bezier(.16,1,.3,1);
+  --ms-maxw:880px;
+}
+
+/* 라이트 — 액센트가 근-검정으로 바뀐다. 라임을 남기지 않는다. */
+:root[data-theme="light"]{
+  --ms-bg:#f3f4ef; --ms-surface:#ffffff; --ms-surface2:#e9ebe5;
+  --ms-line:#d8dbd1; --ms-line2:#c5c9bd;
+  --ms-ink:#151713; --ms-mut:#676b61; --ms-mut2:#92978c;
+  --ms-accent:#151713; --ms-accent-dim:#2d3029;
+  --ms-cyan:#1f6b60; --ms-danger:#a8402a;
+  --ms-on-accent:#f3f4ef;
+  --ms-accent-soft:rgba(0,0,0,0.04);   --ms-accent-line:rgba(0,0,0,0.24);
+  --ms-cyan-soft:rgba(31,107,96,0.09); --ms-cyan-line:rgba(31,107,96,0.28);
+  --ms-danger-soft:rgba(168,64,42,0.07); --ms-danger-line:rgba(168,64,42,0.26);
+}
+
+/* ------------------------------------------------------------- 2. 베이스 */
+*{ box-sizing:border-box; }
+body.ms{
+  margin:0; background:var(--ms-bg); color:var(--ms-ink);
+  font-family:var(--ms-font); font-weight:450; line-height:1.6;
+  letter-spacing:-0.01em; -webkit-font-smoothing:antialiased;
+}
+.ms h1,.ms h2,.ms h3,.ms h4{ margin:0; font-weight:750; letter-spacing:-0.025em; line-height:1.25; }
+.ms h1{ font-size:var(--ms-fs-3xl); font-weight:800; letter-spacing:-0.035em; }
+.ms h2{ font-size:var(--ms-fs-2xl); font-weight:800; }
+.ms h3{ font-size:var(--ms-fs-xl); }
+.ms h4{ font-size:var(--ms-fs-lg); }
+.ms a{ color:var(--ms-accent); }
+.ms ::selection{ background:var(--ms-accent); color:var(--ms-on-accent); }
+.ms :focus-visible{ outline:2px solid var(--ms-accent); outline-offset:3px; }
+.ms-wrap{ max-width:var(--ms-maxw); margin:0 auto; padding:0 24px; }
+.ms-mut{ color:var(--ms-mut); }
+@media (prefers-reduced-motion:reduce){
+  .ms *,.ms *::before,.ms *::after{ animation-duration:.01ms!important; transition-duration:.01ms!important; }
+}
+
+/* 섹션 제목 — 얇은 라임 대시가 위계를 만든다 */
+.ms-sec{ margin:var(--ms-sp-5) 0; }
+.ms-sec-title{ font-size:var(--ms-fs-xs); font-weight:700; letter-spacing:0.09em;
+  text-transform:uppercase; color:var(--ms-mut); margin-bottom:var(--ms-sp-3);
+  display:flex; align-items:center; gap:8px; }
+.ms-sec-title::before{ content:''; width:18px; height:2px; background:var(--ms-accent); }
+
+/* --------------------------------------------------------- 3. 버튼 · 칩 */
+.ms-btn{ font-family:inherit; font-weight:700; font-size:var(--ms-fs-md);
+  border:none; border-radius:var(--ms-r-pill); padding:14px 30px; cursor:pointer;
+  transition:all .25s var(--ms-ease); letter-spacing:-0.01em; }
+.ms-btn--primary{ background:var(--ms-accent); color:var(--ms-on-accent); }
+.ms-btn--primary:hover{ filter:brightness(1.08); transform:translateY(-2px); }
+.ms-btn--ghost{ background:transparent; color:var(--ms-ink); border:1.5px solid var(--ms-line2); }
+.ms-btn--ghost:hover{ border-color:var(--ms-accent); color:var(--ms-accent); }
+.ms-btn:disabled{ background:var(--ms-surface2); color:var(--ms-mut2); cursor:not-allowed; transform:none; filter:none; }
+.ms-btn--sm{ font-size:var(--ms-fs-xs); padding:7px 14px; }
+.ms-btn-row{ display:flex; gap:12px; flex-wrap:wrap; }
+
+.ms-chip{ font-size:var(--ms-fs-sm); font-weight:600; padding:7px 13px;
+  border-radius:var(--ms-r-pill); border:1.5px solid var(--ms-line2);
+  background:var(--ms-surface); cursor:pointer; transition:all .2s var(--ms-ease); }
+.ms-chip:hover{ border-color:var(--ms-accent-line); }
+.ms-chip[aria-pressed="true"],.ms-chip.is-on{ background:var(--ms-accent); border-color:var(--ms-accent); color:var(--ms-on-accent); }
+
+/* 상태 태그 */
+.ms-tag{ display:inline-block; font-size:var(--ms-fs-2xs); font-weight:700;
+  padding:3px 9px; border-radius:var(--ms-r-pill); letter-spacing:0.04em; }
+.ms-tag--accent{ background:var(--ms-accent-soft); color:var(--ms-accent); }
+.ms-tag--cyan{ background:var(--ms-cyan-soft); color:var(--ms-cyan); }
+.ms-tag--danger{ background:var(--ms-danger-soft); color:var(--ms-danger); }
+.ms-tag--mute{ background:var(--ms-surface2); color:var(--ms-mut); }
+.ms-tag--solid{ background:var(--ms-accent); color:var(--ms-on-accent); }
+
+/* ----------------------------------------------------------- 4. 컨테이너 */
+.ms-card{ background:var(--ms-surface); border:1px solid var(--ms-line2);
+  border-radius:var(--ms-r-lg); padding:var(--ms-sp-4); }
+.ms-card--flat{ background:transparent; border-style:dashed; }
+
+/* 알림 — 라임(주의) / 시안(정보) / 살몬(위험) 3단.
+   심각도가 색으로 읽히도록 이 순서를 지킨다. */
+.ms-note{ border-radius:var(--ms-r-md); padding:16px 18px; margin-bottom:12px;
+  border:1px solid; display:flex; gap:12px; align-items:flex-start; font-size:var(--ms-fs-md); line-height:1.6; }
+.ms-note--info{ background:var(--ms-cyan-soft); border-color:var(--ms-cyan-line); }
+.ms-note--warn{ background:var(--ms-accent-soft); border-color:var(--ms-accent-line); }
+.ms-note--danger{ background:var(--ms-danger-soft); border-color:var(--ms-danger-line); }
+.ms-note__label{ font-size:var(--ms-fs-2xs); font-weight:700; letter-spacing:0.08em;
+  text-transform:uppercase; padding:3px 9px; border-radius:var(--ms-r-pill);
+  display:inline-block; margin-bottom:7px; color:var(--ms-on-accent); }
+.ms-note--info .ms-note__label{ background:var(--ms-cyan); }
+.ms-note--warn .ms-note__label{ background:var(--ms-accent); }
+.ms-note--danger .ms-note__label{ background:var(--ms-danger); }
+
+/* 안내문 — "이건 무엇을 보는 것인가". 데이터 위에 항상 한 줄. */
+.ms-readme{ font-size:var(--ms-fs-sm); line-height:1.6; color:var(--ms-mut);
+  margin:0 0 var(--ms-sp-3); padding-left:12px; border-left:2px solid var(--ms-line2); }
+.ms-readme b{ color:var(--ms-ink); font-weight:700; }
+
+/* 접이식 상세 — 내부 자료구조·고급 정보는 기본으로 접는다 */
+.ms-adv{ border:1px dashed var(--ms-line2); border-radius:var(--ms-r-md); margin-top:12px; }
+.ms-adv > summary{ cursor:pointer; list-style:none; padding:11px 15px;
+  font-size:var(--ms-fs-xs); font-weight:700; color:var(--ms-mut); display:flex; align-items:center; gap:7px; }
+.ms-adv > summary::-webkit-details-marker{ display:none; }
+.ms-adv > summary::after{ content:'▸'; margin-left:auto; transition:transform .2s; }
+.ms-adv[open] > summary::after{ transform:rotate(90deg); }
+.ms-adv > summary:hover{ color:var(--ms-accent); }
+.ms-adv__body{ padding:2px 15px 16px; }
+
+/* 키-값 표 */
+.ms-kv{ display:grid; grid-template-columns:170px 1fr; gap:8px 14px; font-size:var(--ms-fs-md); }
+.ms-kv dt,.ms-kv .ms-kv__k{ font-size:var(--ms-fs-xs); font-weight:600; color:var(--ms-mut); margin:0; }
+.ms-kv dd,.ms-kv .ms-kv__v{ font-weight:600; margin:0; }
+@media (max-width:640px){ .ms-kv{ grid-template-columns:1fr; gap:2px 0; } .ms-kv dt{ margin-top:8px; } }
+
+/* 코드 블록 */
+.ms-code{ font-family:var(--ms-mono); font-size:var(--ms-fs-xs); line-height:1.6;
+  background:#08080a; color:#cfe8a0; border:1px solid var(--ms-line);
+  border-radius:var(--ms-r-md); padding:16px; overflow:auto; white-space:pre; }
+:root[data-theme="light"] .ms-code{ background:#eceee8; color:#33451c; }
+
+/* ------------------------------------------------- 5. 시그니처 컴포넌트 */
+
+/* 5-1. 흐름 맵 — 지금 어느 단계인지. 여러 화면에 같은 지도를 반복해 둔다. */
+.ms-flow{ display:flex; align-items:stretch; gap:0; flex-wrap:wrap; margin:var(--ms-sp-4) 0; }
+.ms-flow__node{ flex:1 1 0; min-width:132px; background:var(--ms-surface);
+  border:1px solid var(--ms-line2); border-radius:14px; padding:14px 13px;
+  display:flex; flex-direction:column; gap:4px; position:relative; }
+.ms-flow__n{ font-size:var(--ms-fs-2xs); font-weight:700; letter-spacing:0.1em; color:var(--ms-mut2); }
+.ms-flow__t{ font-size:var(--ms-fs-md); font-weight:750; line-height:1.25; }
+.ms-flow__d{ font-size:var(--ms-fs-xs); color:var(--ms-mut); line-height:1.4; }
+.ms-flow__node.is-current{ border-color:var(--ms-accent); background:var(--ms-accent-soft); }
+.ms-flow__node.is-current .ms-flow__n{ color:var(--ms-accent); }
+.ms-flow__node.is-done{ opacity:.72; }
+.ms-flow__here{ position:absolute; top:-9px; left:13px; font-size:0.6rem; font-weight:800;
+  letter-spacing:0.08em; background:var(--ms-accent); color:var(--ms-on-accent);
+  padding:2px 8px; border-radius:var(--ms-r-pill); }
+.ms-flow__arrow{ flex:0 0 22px; display:flex; align-items:center; justify-content:center;
+  color:var(--ms-line2); font-size:1rem; }
+@media (max-width:640px){
+  .ms-flow{ flex-direction:column; }
+  .ms-flow__arrow{ flex:0 0 18px; transform:rotate(90deg); }
+}
+
+/* 5-2. 스펙트럼 — 이분법 대신 "어느 쪽으로 얼마나".
+   마커 위치는 인라인 style="left:N%"로 준다(4~96%로 클램프할 것). */
+.ms-specs{ display:grid; grid-template-columns:1fr 1fr; gap:16px 26px; }
+@media (max-width:640px){ .ms-specs{ grid-template-columns:1fr; } }
+.ms-spec__head{ display:flex; align-items:baseline; justify-content:space-between; gap:8px; margin-bottom:9px; }
+.ms-spec__name{ font-size:var(--ms-fs-xs); font-weight:700; letter-spacing:0.07em;
+  text-transform:uppercase; color:var(--ms-mut); }
+.ms-spec__tie{ font-size:var(--ms-fs-2xs); font-weight:700; color:var(--ms-danger);
+  background:var(--ms-danger-soft); padding:2px 8px; border-radius:var(--ms-r-pill); }
+.ms-spec__track{ position:relative; height:8px; background:var(--ms-surface2); border-radius:var(--ms-r-pill); }
+.ms-spec__track::before{ content:''; position:absolute; left:50%; top:-3px; bottom:-3px;
+  width:1px; background:var(--ms-line2); }
+.ms-spec__dot{ position:absolute; top:50%; width:16px; height:16px; margin:-8px 0 0 -8px;
+  border-radius:50%; background:var(--ms-accent); border:3px solid var(--ms-bg);
+  box-shadow:0 0 0 1px var(--ms-accent); }
+.ms-spec__poles{ display:flex; justify-content:space-between; gap:10px; margin-top:9px; }
+.ms-spec__pole{ font-size:var(--ms-fs-sm); color:var(--ms-mut2); line-height:1.3; max-width:48%; }
+.ms-spec__pole--right{ text-align:right; }
+.ms-spec__pole.is-on{ color:var(--ms-ink); font-weight:700; }
+.ms-spec__code{ font-weight:800; color:var(--ms-mut2); margin-right:3px; }
+.ms-spec__pole.is-on .ms-spec__code{ color:var(--ms-accent); }
+
+/* 5-3. 레이어 헤더 — 두 종류의 정보를 구분해 보여줄 때 */
+.ms-layer{ display:flex; align-items:flex-start; gap:14px; padding:16px 18px;
+  border-radius:var(--ms-r-lg); border:1px solid var(--ms-line2);
+  background:var(--ms-surface); margin-bottom:var(--ms-sp-3); }
+.ms-layer__num{ flex:none; font-size:var(--ms-fs-sm); font-weight:800; letter-spacing:0.06em;
+  padding:7px 12px; border-radius:var(--ms-r-sm); line-height:1; }
+.ms-layer__name{ font-size:var(--ms-fs-xl); font-weight:800; letter-spacing:-0.02em; line-height:1.25; }
+.ms-layer__desc{ font-size:var(--ms-fs-md); color:var(--ms-mut); line-height:1.5; margin-top:4px; }
+.ms-layer--1{ border-left:4px solid var(--ms-accent); }
+.ms-layer--1 .ms-layer__num{ background:var(--ms-accent); color:var(--ms-on-accent); }
+.ms-layer--2{ border-left:4px solid var(--ms-cyan); }
+.ms-layer--2 .ms-layer__num{ background:var(--ms-cyan); color:var(--ms-on-accent); }
+@media (max-width:640px){ .ms-layer{ flex-direction:column; gap:10px; } .ms-layer__name{ font-size:var(--ms-fs-lg); } }
+
+/* 5-4. 단계 목록 — "그래서 뭘 하면 되나" */
+.ms-steps__item{ display:flex; gap:13px; padding:14px 0; border-bottom:1px dashed var(--ms-line); }
+.ms-steps__item:last-child{ border-bottom:none; }
+.ms-steps__n{ flex:none; min-width:25px; height:25px; padding:0 8px; border-radius:var(--ms-r-sm);
+  background:var(--ms-surface2); color:var(--ms-ink); font-weight:800; font-size:var(--ms-fs-xs);
+  display:flex; align-items:center; justify-content:center; white-space:nowrap; }
+.ms-steps__n--cut{ background:var(--ms-danger-soft); color:var(--ms-danger); }
+.ms-steps__n--up{ background:var(--ms-accent-soft); color:var(--ms-accent); }
+.ms-steps__t{ font-weight:750; font-size:var(--ms-fs-md); margin-bottom:3px; }
+.ms-steps__d{ font-size:var(--ms-fs-sm); color:var(--ms-mut); line-height:1.55; }
+.ms-steps__d code{ background:var(--ms-surface2); padding:1px 6px; border-radius:5px; font-size:0.9em; }
+
+/* ------------------------------------------------------------- 6. 입력 */
+.ms-field{ margin-bottom:12px; }
+.ms-label{ display:block; font-size:var(--ms-fs-xs); font-weight:600; margin-bottom:6px; }
+.ms-input,.ms-select{ width:100%; padding:10px 12px; border:1px solid var(--ms-line2);
+  border-radius:var(--ms-r-sm); font-family:inherit; font-size:var(--ms-fs-md);
+  background:var(--ms-surface); color:var(--ms-ink); }
+.ms-input:focus,.ms-select:focus{ outline:2px solid var(--ms-accent); outline-offset:1px; }
+.ms-hint{ font-size:var(--ms-fs-xs); color:var(--ms-mut); margin-top:5px; line-height:1.45; }
+
+/* --------------------------------------------------- 7. 진행바 · 토스트 */
+.ms-progress{ position:fixed; top:0; left:0; height:3px; width:0;
+  background:var(--ms-accent); z-index:100; transition:width .35s var(--ms-ease); }
+.ms-bar{ height:8px; background:var(--ms-surface2); border-radius:var(--ms-r-pill); overflow:hidden; }
+.ms-bar > span{ display:block; height:100%; width:0; background:var(--ms-accent);
+  border-radius:var(--ms-r-pill); transition:width .4s var(--ms-ease); }
+.ms-toast{ position:fixed; bottom:26px; left:50%; transform:translateX(-50%) translateY(20px);
+  background:var(--ms-accent); color:var(--ms-on-accent); padding:13px 22px;
+  border-radius:var(--ms-r-pill); font-size:var(--ms-fs-sm); font-weight:700;
+  opacity:0; pointer-events:none; transition:all .35s var(--ms-ease); z-index:200; }
+.ms-toast.is-shown{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* --------------------------------------------------------- 8. 테마 토글 */
+.ms-theme-toggle{ position:fixed; right:22px; top:18px; z-index:300;
+  border:1px solid var(--ms-line2); background:var(--ms-surface); color:var(--ms-ink);
+  border-radius:var(--ms-r-pill); padding:9px 15px; font-family:inherit;
+  font-weight:700; font-size:var(--ms-fs-xs); cursor:pointer;
+  display:inline-flex; align-items:center; gap:7px; transition:all .2s var(--ms-ease); }
+.ms-theme-toggle:hover{ border-color:var(--ms-accent); color:var(--ms-accent); }
+@media (max-width:640px){ .ms-theme-toggle{ right:12px; top:10px; padding:7px 12px; } }
+@media print{ .ms-theme-toggle,.ms-progress,.ms-toast{ display:none; } }
+
+/* 히어로 글로우 — 블러 원 대신 은은한 radial.
+   overflow:hidden으로 자르면 아래쪽에 직선 경계(솔기)가 보이므로,
+   마스크로 서서히 사라지게 해 요소 끝과 만나지 않도록 한다. */
+.ms-glow{ position:relative; overflow:hidden; }
+.ms-glow::before{ content:''; position:absolute; inset:0; pointer-events:none; z-index:0;
+  background:
+    radial-gradient(58% 46% at 84% -14%, rgba(200,250,70,0.10), transparent 64%),
+    radial-gradient(44% 34% at 0% 82%,   rgba(200,250,70,0.05),  transparent 60%);
+  -webkit-mask-image:linear-gradient(180deg,#000 48%,transparent 96%);
+          mask-image:linear-gradient(180deg,#000 48%,transparent 96%); }
+:root[data-theme="light"] .ms-glow::before{
+  background:
+    radial-gradient(58% 46% at 84% -14%, rgba(0,0,0,0.06),  transparent 64%),
+    radial-gradient(44% 34% at 0% 82%,   rgba(0,0,0,0.035), transparent 60%); }
+.ms-glow > *{ position:relative; z-index:1; }

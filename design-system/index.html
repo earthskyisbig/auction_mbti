@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mono Signal · 디자인 시스템</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="stylesheet" href="mono-signal.css">
+<style>
+  /* 스타일가이드 전용 — 시스템 일부가 아니다 */
+  .g-swatches{ display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:12px; }
+  .g-swatch{ border:1px solid var(--ms-line2); border-radius:var(--ms-r-md); overflow:hidden; }
+  .g-swatch .box{ height:62px; }
+  .g-swatch .meta{ padding:9px 11px; background:var(--ms-surface); }
+  .g-swatch .nm{ font-size:var(--ms-fs-xs); font-weight:700; }
+  .g-swatch .vl{ font-family:var(--ms-mono); font-size:0.68rem; color:var(--ms-mut); }
+  .g-demo{ border:1px solid var(--ms-line2); border-radius:var(--ms-r-lg); overflow:hidden; margin-bottom:var(--ms-sp-3); }
+  .g-demo__view{ padding:var(--ms-sp-4); background:var(--ms-bg); }
+  .g-demo__bar{ display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:9px 14px; background:var(--ms-surface2); border-top:1px solid var(--ms-line); }
+  .g-demo__name{ font-family:var(--ms-mono); font-size:var(--ms-fs-xs); color:var(--ms-mut); }
+  .g-copy{ border:1px solid var(--ms-line2); background:var(--ms-surface); color:var(--ms-mut);
+    border-radius:6px; padding:4px 10px; font-family:inherit; font-size:0.7rem; font-weight:700; cursor:pointer; }
+  .g-copy:hover{ color:var(--ms-accent); border-color:var(--ms-accent); }
+  .g-type-row{ display:flex; align-items:baseline; gap:16px; padding:12px 0; border-bottom:1px dashed var(--ms-line); }
+  .g-type-row .lbl{ flex:none; width:190px; font-family:var(--ms-mono); font-size:var(--ms-fs-xs); color:var(--ms-mut); }
+  .g-toc{ display:flex; flex-wrap:wrap; gap:8px; margin:var(--ms-sp-3) 0 var(--ms-sp-5); }
+  .g-toc a{ font-size:var(--ms-fs-xs); font-weight:700; text-decoration:none; color:var(--ms-mut);
+    border:1px solid var(--ms-line2); border-radius:var(--ms-r-pill); padding:6px 13px; }
+  .g-toc a:hover{ color:var(--ms-accent); border-color:var(--ms-accent); }
+  .g-rules li{ margin-bottom:9px; line-height:1.6; }
+  .g-hero{ padding:var(--ms-sp-6) 0 var(--ms-sp-5); }
+</style>
+</head>
+<body class="ms">
+
+<button class="ms-theme-toggle" id="themeToggle" type="button" aria-label="다크/라이트 전환">
+  <span id="themeIco">◐</span><span id="themeTxt">Light</span>
+</button>
+<div class="ms-progress" id="progress"></div>
+
+<div class="ms-wrap">
+
+  <header class="g-hero ms-glow">
+    <span class="ms-tag ms-tag--accent">디자인 시스템</span>
+    <h1 style="margin:14px 0 12px">Mono Signal</h1>
+    <p class="ms-mut" style="max-width:620px;font-size:var(--ms-fs-lg);line-height:1.55;margin:0">
+      근-검정 표면 위 <b style="color:var(--ms-accent)">라임 하나</b>로 위계를 만드는 다크 우선 시스템.
+      라이트 모드에서는 라임을 버리고 근-검정을 액센트로 쓴다.
+    </p>
+    <div class="ms-btn-row" style="margin-top:var(--ms-sp-4)">
+      <button class="ms-btn ms-btn--primary" id="copy-link">CSS 링크 복사</button>
+      <a class="ms-btn ms-btn--ghost" href="mono-signal.css" download style="text-decoration:none;display:inline-block">mono-signal.css 내려받기</a>
+    </div>
+  </header>
+
+  <nav class="g-toc">
+    <a href="#start">시작하기</a><a href="#color">색</a><a href="#type">서체</a>
+    <a href="#btn">버튼·칩</a><a href="#note">알림·안내</a><a href="#flow">흐름 맵</a>
+    <a href="#spec">스펙트럼</a><a href="#layer">레이어</a><a href="#steps">단계</a>
+    <a href="#form">입력</a><a href="#rules">원칙</a>
+  </nav>
+
+  <!-- ================= 시작하기 ================= -->
+  <section class="ms-sec" id="start">
+    <div class="ms-sec-title">시작하기</div>
+    <p class="ms-readme">HTML 한 곳에 <b>두 줄</b>만 넣으면 됩니다. 빌드 도구·프레임워크가 필요 없습니다.</p>
+    <div class="g-demo">
+      <div class="g-demo__view">
+<pre class="ms-code" id="code-start">&lt;link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"&gt;
+&lt;link rel="stylesheet" href="mono-signal.css"&gt;
+
+&lt;html lang="ko" data-theme="dark"&gt;
+  &lt;body class="ms"&gt; ... &lt;/body&gt;
+&lt;/html&gt;</pre>
+      </div>
+      <div class="g-demo__bar"><span class="g-demo__name">설치</span>
+        <button class="g-copy" data-copy="code-start">복사</button></div>
+    </div>
+    <div class="ms-note ms-note--info">
+      <div><span class="ms-note__label">알아둘 것</span>
+      <div><code>data-theme</code>이 없으면 다크로 동작합니다. 모든 클래스에 <code>ms-</code> 접두어가 붙어 기존 스타일과 부딪히지 않습니다.
+      토큰만 가져다 쓰고 컴포넌트는 직접 짜도 됩니다.</div></div>
+    </div>
+  </section>
+
+  <!-- ================= 색 ================= -->
+  <section class="ms-sec" id="color">
+    <div class="ms-sec-title">색</div>
+    <p class="ms-readme">액센트는 <b>하나</b>입니다. 시안과 살몬은 의미가 사라지면 안 되는 곳(정보 구분·경고)에만 씁니다.
+      <b>라이트 모드에 라임을 남기지 마세요</b> — 밝은 배경 위에서 대비가 무너집니다.</p>
+    <div class="g-swatches" id="swatches"></div>
+  </section>
+
+  <!-- ================= 서체 ================= -->
+  <section class="ms-sec" id="type">
+    <div class="ms-sec-title">서체</div>
+    <p class="ms-readme">Pretendard 하나로 제목·본문·라벨을 모두 처리합니다. 서체를 늘리는 대신
+      <b>굵기 대비(800 ↔ 450)와 자간</b>으로 위계를 만듭니다.</p>
+    <div class="g-type-row"><span class="lbl">h1 / 800 / -0.035em</span><span style="font-size:var(--ms-fs-2xl);font-weight:800;letter-spacing:-0.035em">투자 성향 유형</span></div>
+    <div class="g-type-row"><span class="lbl">h3 / 750 / -0.025em</span><span style="font-size:var(--ms-fs-xl);font-weight:750;letter-spacing:-0.025em">이 체질이 검색에서 하는 일</span></div>
+    <div class="g-type-row"><span class="lbl">body / 450 / -0.01em</span><span style="font-size:var(--ms-fs-md)">각 축에서 어느 쪽으로 얼마나 기울었는지 보여줍니다.</span></div>
+    <div class="g-type-row"><span class="lbl">label / 700 / 0.09em / UPPER</span><span style="font-size:var(--ms-fs-xs);font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:var(--ms-mut)">SECTION TITLE</span></div>
+    <div class="g-type-row"><span class="lbl">mono</span><span style="font-family:var(--ms-mono);font-size:var(--ms-fs-sm)">min_price_max: 75000000</span></div>
+  </section>
+
+  <!-- ================= 버튼 · 칩 ================= -->
+  <section class="ms-sec" id="btn">
+    <div class="ms-sec-title">버튼 · 칩 · 태그</div>
+    <div class="g-demo">
+      <div class="g-demo__view">
+        <div class="ms-btn-row" style="margin-bottom:16px">
+          <button class="ms-btn ms-btn--primary">검색조건 만들기</button>
+          <button class="ms-btn ms-btn--ghost">저장된 프리셋</button>
+          <button class="ms-btn ms-btn--ghost ms-btn--sm">수정</button>
+          <button class="ms-btn ms-btn--primary" disabled>선택하세요</button>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px">
+          <button class="ms-chip is-on" aria-pressed="true">아파트</button>
+          <button class="ms-chip">오피스텔</button>
+          <button class="ms-chip">다세대주택</button>
+          <button class="ms-chip">토지</button>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:7px">
+          <span class="ms-tag ms-tag--accent">필터 O</span>
+          <span class="ms-tag ms-tag--cyan">참고</span>
+          <span class="ms-tag ms-tag--danger">확인 필요</span>
+          <span class="ms-tag ms-tag--mute">레거시</span>
+          <span class="ms-tag ms-tag--solid">지금 여기</span>
+        </div>
+      </div>
+      <div class="g-demo__bar"><span class="g-demo__name">.ms-btn / .ms-chip / .ms-tag</span>
+        <button class="g-copy" data-copy="src-btn">코드 복사</button></div>
+    </div>
+    <pre id="src-btn" hidden>&lt;button class="ms-btn ms-btn--primary"&gt;검색조건 만들기&lt;/button&gt;
+&lt;button class="ms-btn ms-btn--ghost"&gt;저장된 프리셋&lt;/button&gt;
+&lt;button class="ms-chip is-on" aria-pressed="true"&gt;아파트&lt;/button&gt;
+&lt;span class="ms-tag ms-tag--accent"&gt;필터 O&lt;/span&gt;</pre>
+  </section>
+
+  <!-- ================= 알림 · 안내 ================= -->
+  <section class="ms-sec" id="note">
+    <div class="ms-sec-title">알림 · 안내 · 접이식</div>
+    <p class="ms-readme">심각도가 <b>색으로 읽히도록</b> 순서를 지킵니다 — 시안(정보) → 라임(주의) → 살몬(위험).
+      데이터를 보여주기 전에는 항상 <b>안내 한 줄</b>을 답니다.</p>
+    <div class="g-demo">
+      <div class="g-demo__view">
+        <p class="ms-readme">각 축에서 <b>어느 쪽으로 얼마나 기울었는지</b>입니다. 가운데에 가까울수록 상황에 따라 달라집니다.</p>
+        <div class="ms-note ms-note--info"><span>ℹ️</span><div><span class="ms-note__label">안내</span>
+          <div>경매는 토지거래허가 대상이 아니라 2년 실거주 의무가 면제됩니다.</div></div></div>
+        <div class="ms-note ms-note--warn"><span>⚠️</span><div><span class="ms-note__label">주의</span>
+          <div>경매 낙찰이라도 대출규제는 동일하게 적용됩니다.</div></div></div>
+        <div class="ms-note ms-note--danger"><span>🚨</span><div><span class="ms-note__label">강경고</span>
+          <div>초보가 특수물건에 들어가면 권리분석 실패 위험이 매우 큽니다.</div></div></div>
+        <details class="ms-adv"><summary>고급 · 원본 값 보기</summary>
+          <div class="ms-adv__body"><dl class="ms-kv">
+            <dt>기본 제외</dt><dd>유치권, 법정지상권, 지분매각</dd>
+            <dt>랭킹 가중치</dt><dd>rights_clean +4 · special_condition −6</dd>
+          </dl></div></details>
+      </div>
+      <div class="g-demo__bar"><span class="g-demo__name">.ms-readme / .ms-note / .ms-adv / .ms-kv</span>
+        <button class="g-copy" data-copy="src-note">코드 복사</button></div>
+    </div>
+    <pre id="src-note" hidden>&lt;p class="ms-readme"&gt;각 축에서 &lt;b&gt;어느 쪽으로 얼마나&lt;/b&gt; 기울었는지입니다.&lt;/p&gt;
+
+&lt;div class="ms-note ms-note--warn"&gt;&lt;span&gt;⚠️&lt;/span&gt;&lt;div&gt;
+  &lt;span class="ms-note__label"&gt;주의&lt;/span&gt;
+  &lt;div&gt;경매 낙찰이라도 대출규제는 동일하게 적용됩니다.&lt;/div&gt;
+&lt;/div&gt;&lt;/div&gt;
+
+&lt;details class="ms-adv"&gt;&lt;summary&gt;고급 · 원본 값 보기&lt;/summary&gt;
+  &lt;div class="ms-adv__body"&gt;…&lt;/div&gt;
+&lt;/details&gt;</pre>
+  </section>
+
+  <!-- ================= 흐름 맵 ================= -->
+  <section class="ms-sec" id="flow">
+    <div class="ms-sec-title">흐름 맵 <span class="ms-tag ms-tag--accent" style="margin-left:6px">시그니처</span></div>
+    <p class="ms-readme">여러 단계를 거치는 제품에서 <b>지금 어디쯤인지</b>를 알려줍니다.
+      화면마다 같은 지도를 반복해 두면 각 화면이 전체의 한 칸으로 읽힙니다.</p>
+    <div class="g-demo">
+      <div class="g-demo__view">
+        <div class="ms-flow">
+          <div class="ms-flow__node is-done"><span class="ms-flow__n">1단계</span>
+            <span class="ms-flow__t">성향 진단</span><span class="ms-flow__d">문항에 답해 유형을 찾는다</span></div>
+          <div class="ms-flow__arrow">→</div>
+          <div class="ms-flow__node is-current"><span class="ms-flow__here">지금 여기</span>
+            <span class="ms-flow__n">2단계</span>
+            <span class="ms-flow__t">투자 체질</span><span class="ms-flow__d">검색에 걸 제외·가점 규칙이 된다</span></div>
+          <div class="ms-flow__arrow">→</div>
+          <div class="ms-flow__node"><span class="ms-flow__n">3단계</span>
+            <span class="ms-flow__t">검색조건</span><span class="ms-flow__d">예산·지역을 넣어 조건을 만든다</span></div>
+          <div class="ms-flow__arrow">→</div>
+          <div class="ms-flow__node"><span class="ms-flow__n">4단계</span>
+            <span class="ms-flow__t">물건 찾기</span><span class="ms-flow__d">실제로 거른다</span></div>
+        </div>
+      </div>
+      <div class="g-demo__bar"><span class="g-demo__name">.ms-flow — is-done / is-current</span>
+        <button class="g-copy" data-copy="src-flow">코드 복사</button></div>
+    </div>
+    <pre id="src-flow" hidden>&lt;div class="ms-flow"&gt;
+  &lt;div class="ms-flow__node is-done"&gt;
+    &lt;span class="ms-flow__n"&gt;1단계&lt;/span&gt;
+    &lt;span class="ms-flow__t"&gt;성향 진단&lt;/span&gt;
+    &lt;span class="ms-flow__d"&gt;문항에 답해 유형을 찾는다&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class="ms-flow__arrow"&gt;→&lt;/div&gt;
+  &lt;div class="ms-flow__node is-current"&gt;
+    &lt;span class="ms-flow__here"&gt;지금 여기&lt;/span&gt;
+    …
+  &lt;/div&gt;
+&lt;/div&gt;</pre>
+  </section>
+
+  <!-- ================= 스펙트럼 ================= -->
+  <section class="ms-sec" id="spec">
+    <div class="ms-sec-title">스펙트럼 <span class="ms-tag ms-tag--accent" style="margin-left:6px">시그니처</span></div>
+    <p class="ms-readme">이분법 라벨(A형/B형) 대신 <b>어느 쪽으로 얼마나</b>를 보여줍니다.
+      가운데에 가까우면 <b>단정하지 않는다</b>는 신호를 함께 띄웁니다. 마커는 4~96%로 클램프하세요.</p>
+    <div class="g-demo">
+      <div class="g-demo__view">
+        <div class="ms-specs">
+          <div class="ms-spec">
+            <div class="ms-spec__head"><span class="ms-spec__name">권리 성향</span></div>
+            <div class="ms-spec__track"><span class="ms-spec__dot" style="left:12%"></span></div>
+            <div class="ms-spec__poles">
+              <span class="ms-spec__pole is-on"><span class="ms-spec__code">S</span>권리안정형</span>
+              <span class="ms-spec__pole ms-spec__pole--right"><span class="ms-spec__code">R</span>권리감수형</span>
+            </div>
+          </div>
+          <div class="ms-spec">
+            <div class="ms-spec__head"><span class="ms-spec__name">투자 기간</span>
+              <span class="ms-spec__tie">거의 반반</span></div>
+            <div class="ms-spec__track"><span class="ms-spec__dot" style="left:50%"></span></div>
+            <div class="ms-spec__poles">
+              <span class="ms-spec__pole is-on"><span class="ms-spec__code">L</span>장기보유형</span>
+              <span class="ms-spec__pole ms-spec__pole--right"><span class="ms-spec__code">T</span>단기회전형</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="g-demo__bar"><span class="g-demo__name">.ms-spec — style="left:N%"</span>
+        <button class="g-copy" data-copy="src-spec">코드 복사</button></div>
+    </div>
+    <pre id="src-spec" hidden>&lt;div class="ms-spec"&gt;
+  &lt;div class="ms-spec__head"&gt;
+    &lt;span class="ms-spec__name"&gt;권리 성향&lt;/span&gt;
+    &lt;span class="ms-spec__tie"&gt;거의 반반&lt;/span&gt;   &lt;!-- 동점일 때만 --&gt;
+  &lt;/div&gt;
+  &lt;div class="ms-spec__track"&gt;
+    &lt;span class="ms-spec__dot" style="left:12%"&gt;&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class="ms-spec__poles"&gt;
+    &lt;span class="ms-spec__pole is-on"&gt;&lt;span class="ms-spec__code"&gt;S&lt;/span&gt;권리안정형&lt;/span&gt;
+    &lt;span class="ms-spec__pole ms-spec__pole--right"&gt;&lt;span class="ms-spec__code"&gt;R&lt;/span&gt;권리감수형&lt;/span&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- 위치 계산 --&gt;
+const pct = Math.max(4, Math.min(96, Math.round(b/(a+b)*100)));</pre>
+  </section>
+
+  <!-- ================= 레이어 ================= -->
+  <section class="ms-sec" id="layer">
+    <div class="ms-sec-title">레이어 헤더</div>
+    <p class="ms-readme">성격이 다른 두 종류의 정보를 나눌 때 씁니다. 번호만 크게 두지 말고
+      <b>이름과 용도 한 문장</b>을 함께 답니다 — 번호만으로는 뭘 하는 건지 알 수 없습니다.</p>
+    <div class="g-demo">
+      <div class="g-demo__view">
+        <div class="ms-layer ms-layer--1"><span class="ms-layer__num">LAYER 1</span>
+          <div><div class="ms-layer__name">투자 체질</div>
+          <div class="ms-layer__desc"><b>잘 바뀌지 않는 나의 성향</b>입니다. 한 번 정해두면 계속 쓰입니다.</div></div></div>
+        <div class="ms-layer ms-layer--2"><span class="ms-layer__num">LAYER 2</span>
+          <div><div class="ms-layer__name">이번 검색조건</div>
+          <div class="ms-layer__desc"><b>매번 바뀌는 값</b>입니다. 검색할 때마다 새로 정합니다.</div></div></div>
+      </div>
+      <div class="g-demo__bar"><span class="g-demo__name">.ms-layer--1 / --2</span>
+        <button class="g-copy" data-copy="src-layer">코드 복사</button></div>
+    </div>
+    <pre id="src-layer" hidden>&lt;div class="ms-layer ms-layer--1"&gt;
+  &lt;span class="ms-layer__num"&gt;LAYER 1&lt;/span&gt;
+  &lt;div&gt;
+    &lt;div class="ms-layer__name"&gt;투자 체질&lt;/div&gt;
+    &lt;div class="ms-layer__desc"&gt;잘 바뀌지 않는 나의 성향입니다.&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre>
+  </section>
+
+  <!-- ================= 단계 ================= -->
+  <section class="ms-sec" id="steps">
+    <div class="ms-sec-title">단계 목록</div>
+    <p class="ms-readme">결과를 보여준 뒤 <b>그래서 뭘 하면 되는지</b>를 잇습니다. 번호 대신 짧은 한글 라벨도 들어갑니다.</p>
+    <div class="g-demo">
+      <div class="g-demo__view">
+        <div class="ms-card">
+          <h4 style="margin-bottom:4px">이 조건, 어디에 쓰나요</h4>
+          <div class="ms-steps">
+            <div class="ms-steps__item"><span class="ms-steps__n">1</span><div>
+              <div class="ms-steps__t">사이트에 값을 그대로 입력</div>
+              <div class="ms-steps__d"><code>소재지 경기도 수원시</code> · <code>유찰 2회 이상</code></div></div></div>
+            <div class="ms-steps__item"><span class="ms-steps__n ms-steps__n--cut">빼기</span><div>
+              <div class="ms-steps__t">위험하다고 보는 물건 11종을 제외</div>
+              <div class="ms-steps__d">유치권, 법정지상권, 지분매각 외 8종</div></div></div>
+            <div class="ms-steps__item"><span class="ms-steps__n ms-steps__n--up">올리기</span><div>
+              <div class="ms-steps__t">선호 조건을 가진 물건을 상위로</div>
+              <div class="ms-steps__d">인수권리 0 · 공실 물건</div></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="g-demo__bar"><span class="g-demo__name">.ms-steps — --cut / --up</span>
+        <button class="g-copy" data-copy="src-steps">코드 복사</button></div>
+    </div>
+    <pre id="src-steps" hidden>&lt;div class="ms-steps"&gt;
+  &lt;div class="ms-steps__item"&gt;
+    &lt;span class="ms-steps__n"&gt;1&lt;/span&gt;
+    &lt;div&gt;
+      &lt;div class="ms-steps__t"&gt;사이트에 값을 그대로 입력&lt;/div&gt;
+      &lt;div class="ms-steps__d"&gt;&lt;code&gt;유찰 2회 이상&lt;/code&gt;&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre>
+  </section>
+
+  <!-- ================= 입력 ================= -->
+  <section class="ms-sec" id="form">
+    <div class="ms-sec-title">입력 · 진행</div>
+    <div class="g-demo">
+      <div class="g-demo__view">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px 16px;margin-bottom:18px">
+          <div class="ms-field"><label class="ms-label" for="d1">가용자금 최대 <span class="ms-tag ms-tag--cyan">참고</span></label>
+            <input class="ms-input" id="d1" type="text" value="300000000">
+            <div class="ms-hint">물건 가격이 아니라 내 자금 한도입니다.</div></div>
+          <div class="ms-field"><label class="ms-label" for="d2">검색 범위 <span class="ms-tag ms-tag--accent">필터 O</span></label>
+            <select class="ms-select" id="d2"><option>연고 시·군·구 1~2곳</option><option>수도권</option><option>전국</option></select></div>
+        </div>
+        <div class="ms-bar"><span style="width:62%"></span></div>
+      </div>
+      <div class="g-demo__bar"><span class="g-demo__name">.ms-field / .ms-input / .ms-bar</span>
+        <button class="g-copy" data-copy="src-form">코드 복사</button></div>
+    </div>
+    <pre id="src-form" hidden>&lt;div class="ms-field"&gt;
+  &lt;label class="ms-label" for="x"&gt;가용자금 최대&lt;/label&gt;
+  &lt;input class="ms-input" id="x" type="text"&gt;
+  &lt;div class="ms-hint"&gt;물건 가격이 아니라 내 자금 한도입니다.&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="ms-bar"&gt;&lt;span style="width:62%"&gt;&lt;/span&gt;&lt;/div&gt;</pre>
+  </section>
+
+  <!-- ================= 원칙 ================= -->
+  <section class="ms-sec" id="rules">
+    <div class="ms-sec-title">쓸 때 지킬 것</div>
+    <div class="ms-card">
+      <ol class="g-rules" style="margin:0;padding-left:20px">
+        <li><b>액센트는 하나.</b> 라임을 여기저기 쓰면 강조가 사라집니다. 한 화면에서 라임이 붙는 곳은 서너 군데면 충분합니다.</li>
+        <li><b>라이트 모드에 라임을 남기지 마세요.</b> 밝은 배경 위 라임은 대비가 무너집니다. 액센트를 근-검정으로 바꿉니다.</li>
+        <li><b>데이터 앞에 안내 한 줄.</b> <code>.ms-readme</code>로 "이건 무엇을 보는 것인가"를 먼저 말합니다.</li>
+        <li><b>내부 자료구조는 접습니다.</b> 배열·키 이름을 그대로 노출하지 말고 <code>.ms-adv</code> 안으로 넣은 뒤, 바깥에는 그게 무슨 일을 하는지 문장으로 씁니다.</li>
+        <li><b>이분법 대신 스펙트럼.</b> 값이 연속적이면 라벨 하나로 찍지 말고 위치로 보여주고, 애매하면 애매하다고 표시합니다.</li>
+        <li><b>단계가 있으면 지도를 반복합니다.</b> 화면마다 <code>.ms-flow</code>를 같은 자리에 둡니다.</li>
+        <li><b>사용자 문구에 개발 용어를 쓰지 않습니다.</b> 스키마명·API명 대신 무엇을 어디에 넣는지로 씁니다.</li>
+        <li><b>서체를 늘리지 않습니다.</b> Pretendard 하나로 굵기와 자간만으로 위계를 만듭니다.</li>
+      </ol>
+    </div>
+    <div class="ms-note ms-note--warn" style="margin-top:14px"><span>⚠️</span><div>
+      <span class="ms-note__label">주의</span>
+      <div>Pretendard에는 진짜 이탤릭이 없습니다. <code>font-style:italic</code>을 쓰면 브라우저가 기울여 그려 품질이 떨어집니다 — 강조는 굵기나 색으로 하세요.</div></div>
+    </div>
+  </section>
+
+  <footer style="padding:var(--ms-sp-6) 0;color:var(--ms-mut2);font-size:var(--ms-fs-xs);border-top:1px solid var(--ms-line);margin-top:var(--ms-sp-5)">
+    Mono Signal · 이식용 디자인 시스템 · <a href="mono-signal.css">mono-signal.css</a>
+  </footer>
+</div>
+
+<div class="ms-toast" id="toast"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+
+/* 테마 — 선택값만 기억하고, 기본은 다크 */
+const KEY='ms.theme';
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  $('themeIco').textContent = t==='light' ? '◑' : '◐';
+  $('themeTxt').textContent = t==='light' ? 'Dark' : 'Light';  // 누르면 갈 모드
+}
+(function(){
+  let t=null; try{ t=localStorage.getItem(KEY); }catch(e){}
+  applyTheme(t==='light'||t==='dark' ? t : 'dark');
+  $('themeToggle').onclick=()=>{
+    const next=document.documentElement.getAttribute('data-theme')==='light'?'dark':'light';
+    applyTheme(next); try{ localStorage.setItem(KEY,next); }catch(e){}
+  };
+})();
+
+function toast(msg){
+  const t=$('toast'); t.textContent=msg; t.classList.add('is-shown');
+  setTimeout(()=>t.classList.remove('is-shown'), 1800);
+}
+function copyText(txt, okMsg){
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(()=>toast(okMsg)).catch(()=>toast('복사에 실패했습니다 — 직접 선택해 복사하세요'));
+  } else toast('이 브라우저에서는 자동 복사가 안 됩니다 — 직접 선택해 복사하세요');
+}
+document.querySelectorAll('.g-copy').forEach(b=>{
+  b.onclick=()=>{
+    const src=$(b.dataset.copy);
+    copyText(src.textContent.trim(), '코드를 복사했습니다');
+  };
+});
+$('copy-link').onclick=()=>copyText(
+  '<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">\n'+
+  '<link rel="stylesheet" href="mono-signal.css">', 'CSS 링크를 복사했습니다');
+
+/* 색 견본은 토큰에서 직접 읽어 그린다 — 문서와 코드가 어긋날 수 없다 */
+const SWATCHES=[
+  ['--ms-bg','배경'],['--ms-surface','표면'],['--ms-surface2','표면 2'],
+  ['--ms-line2','테두리'],['--ms-ink','본문'],['--ms-mut','보조 텍스트'],
+  ['--ms-accent','액센트'],['--ms-cyan','보조 · 정보'],['--ms-danger','보조 · 경고']
+];
+function paintSwatches(){
+  const cs=getComputedStyle(document.documentElement);
+  $('swatches').innerHTML = SWATCHES.map(([v,n])=>{
+    const val=cs.getPropertyValue(v).trim();
+    return '<div class="g-swatch"><div class="box" style="background:'+val+'"></div>'
+      +'<div class="meta"><div class="nm">'+n+'</div><div class="vl">'+v+' · '+val+'</div></div></div>';
+  }).join('');
+}
+paintSwatches();
+new MutationObserver(paintSwatches).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* 스크롤 진행바 */
+addEventListener('scroll',()=>{
+  const h=document.documentElement;
+  const p=h.scrollTop/Math.max(1,h.scrollHeight-h.clientHeight);
+  $('progress').style.width=(p*100)+'%';
+},{passive:true});
+</script>
+</body>
+</html>
