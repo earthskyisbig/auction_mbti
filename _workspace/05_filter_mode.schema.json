@@ -1,0 +1,319 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://earthskyisbig.github.io/auction_mbti/schema/filter_mode.schema.json",
+  "title": "FilterMode / SearchPreset (Layer 2)",
+  "description": "매 검색마다 바뀌는 실제 검색 조건. 향후 auction_item 검색 API·자동검색 파이프라인의 입력 규격.",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "PK"
+    },
+    "user_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "인증 도입 전에는 null"
+    },
+    "investor_profile_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "FK → investor_profile.id"
+    },
+    "schema_version": {
+      "type": "integer",
+      "const": 2
+    },
+    "is_saved_preset": {
+      "type": "boolean",
+      "description": "false=임시 작업본, true=저장된 프리셋"
+    },
+    "created_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "name": {
+      "type": "string",
+      "title": "프리셋 이름",
+      "x-db-column": "name",
+      "x-site-filterable": false,
+      "description": "저장해두면 다음에 그대로 다시 검색할 수 있습니다.",
+      "default": ""
+    },
+    "budget_min": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "title": "가용자금 최소",
+      "x-db-column": "budget_min",
+      "x-site-filterable": false,
+      "description": "내가 실제로 넣을 수 있는 돈(자기자본＋대출).",
+      "minimum": 0,
+      "default": null
+    },
+    "budget_max": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "title": "가용자금 최대",
+      "x-db-column": "budget_max",
+      "x-site-filterable": false,
+      "description": "물건 가격이 아니라 내 자금 한도입니다.",
+      "minimum": 0,
+      "default": null
+    },
+    "min_price_min": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "title": "최저매각가 하한",
+      "x-db-column": "min_price_min",
+      "x-site-filterable": true,
+      "description": "물건의 최저매각가 검색 범위. 가용자금에서 자동 유도되며 직접 덮어쓸 수 있습니다.",
+      "minimum": 0,
+      "default": null
+    },
+    "min_price_max": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "title": "최저매각가 상한",
+      "x-db-column": "min_price_max",
+      "x-site-filterable": true,
+      "description": "LTV·보수계수를 반영한 검색 상한. 낙찰 상한선이 아닙니다.",
+      "minimum": 0,
+      "default": null
+    },
+    "asset_types_json": {
+      "type": "array",
+      "title": "자산유형",
+      "x-db-column": "asset_types_json",
+      "x-site-filterable": true,
+      "items": {
+        "type": "string",
+        "enum": [
+          "아파트",
+          "다세대주택",
+          "연립주택",
+          "오피스텔",
+          "도시형생활주택",
+          "단독주택",
+          "다가구주택",
+          "근린생활시설(상가)",
+          "토지",
+          "공장·창고"
+        ]
+      },
+      "default": [
+        "아파트"
+      ]
+    },
+    "area_min_m2": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "title": "전용면적 최소(㎡)",
+      "x-db-column": "area_min_m2",
+      "x-site-filterable": true,
+      "minimum": 0,
+      "default": null
+    },
+    "area_max_m2": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "title": "전용면적 최대(㎡)",
+      "x-db-column": "area_max_m2",
+      "x-site-filterable": true,
+      "minimum": 0,
+      "default": null
+    },
+    "fail_count_min": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "title": "유찰 최소 회수",
+      "x-db-column": "fail_count_min",
+      "x-site-filterable": true,
+      "description": "1회 유찰 시 통상 최저가 20~30%↓(법원별 상이).",
+      "minimum": 0,
+      "default": 0
+    },
+    "fail_count_max": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "title": "유찰 최대 회수",
+      "x-db-column": "fail_count_max",
+      "x-site-filterable": false,
+      "description": "사이트에 상한 필터가 없어 결과 후처리로 거릅니다.",
+      "minimum": 0,
+      "default": null
+    },
+    "min_discount_ratio": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "title": "최저가율 하한(%)",
+      "x-db-column": "min_discount_ratio",
+      "x-site-filterable": false,
+      "description": "최저매각가 ÷ 감정가. 사이트 필터에 없어 후처리로 계산합니다. (0~1 비율로 저장, UI는 %)",
+      "minimum": 0,
+      "maximum": 1,
+      "default": null
+    },
+    "max_discount_ratio": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "title": "최저가율 상한(%)",
+      "x-db-column": "max_discount_ratio",
+      "x-site-filterable": false,
+      "description": "예: 70 이하로 두면 감정가의 70% 이하인 물건만. (0~1 비율로 저장, UI는 %)",
+      "minimum": 0,
+      "maximum": 1,
+      "default": null
+    },
+    "regulation_mode": {
+      "type": "string",
+      "title": "규제지역",
+      "x-db-column": "regulation_mode",
+      "x-site-filterable": false,
+      "description": "courtauction에 규제지역 필터가 없어 후처리 + 지역선택으로 반영합니다.",
+      "enum": [
+        "unknown",
+        "include",
+        "exclude",
+        "only"
+      ],
+      "default": "unknown"
+    },
+    "entity_type": {
+      "type": "string",
+      "title": "취득 주체",
+      "x-db-column": "entity_type",
+      "x-site-filterable": false,
+      "enum": [
+        "individual",
+        "corp"
+      ],
+      "default": "individual"
+    },
+    "housing_status": {
+      "type": "string",
+      "title": "주택 보유",
+      "x-db-column": "housing_status",
+      "x-site-filterable": false,
+      "enum": [
+        "none",
+        "one",
+        "multi"
+      ],
+      "default": "none"
+    },
+    "investment_goal": {
+      "type": "string",
+      "title": "투자 목적",
+      "x-db-column": "investment_goal",
+      "x-site-filterable": false,
+      "enum": [
+        "reside",
+        "flip",
+        "hold",
+        "rental",
+        "redev",
+        "land_comp"
+      ],
+      "default": "reside"
+    },
+    "ops_mode": {
+      "type": "string",
+      "title": "운영 개입도",
+      "x-db-column": "ops_mode",
+      "x-site-filterable": false,
+      "description": "높을수록 체질상 제외되던 명도·특수물건이 일부 허용됩니다.",
+      "enum": [
+        "passive",
+        "semi",
+        "active"
+      ],
+      "default": "semi"
+    },
+    "extra_cost_tolerance": {
+      "type": "string",
+      "title": "추가비용 허용도",
+      "x-db-column": "extra_cost_tolerance",
+      "x-site-filterable": false,
+      "description": "명도비·유치권 합의금·수리비 등.",
+      "enum": [
+        "low",
+        "mid",
+        "high"
+      ],
+      "default": "mid"
+    },
+    "region_json": {
+      "type": "object",
+      "title": "지역",
+      "x-db-column": "region_json",
+      "x-site-filterable": true,
+      "properties": {
+        "sido": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "sigungu": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "scope": {
+          "type": "string",
+          "enum": [
+            "home",
+            "metro",
+            "nation"
+          ]
+        }
+      },
+      "default": {
+        "sido": null,
+        "sigungu": [],
+        "scope": "home"
+      }
+    }
+  },
+  "required": [
+    "schema_version"
+  ],
+  "x-db-table": "filter_mode"
+}

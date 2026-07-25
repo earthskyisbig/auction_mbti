@@ -1,0 +1,187 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://earthskyisbig.github.io/auction_mbti/schema/investor_profile.schema.json",
+  "title": "InvestorProfile (Layer 1)",
+  "description": "잘 바뀌지 않는 투자 체질. 검색값을 담지 않으며, 제외규칙·가중치·추천스타일만 산출한다.",
+  "type": "object",
+  "x-db-table": "investor_profile",
+  "properties": {
+    "id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "user_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "schema_version": {
+      "type": "integer",
+      "const": 2
+    },
+    "mbti_code": {
+      "type": "string",
+      "pattern": "^IP-[SR][AE][CG][LT]$"
+    },
+    "risk_preferences_json": {
+      "type": "object",
+      "description": "극별 규칙 합성 결과",
+      "properties": {
+        "exclusions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "weights": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number"
+          }
+        },
+        "recommend": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "avoid": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "asset_bias": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "label": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "legacy_track": {
+      "type": "string",
+      "enum": [
+        "maemae",
+        "gyeongmae"
+      ],
+      "description": "하위호환: 기존 32유형 콘텐츠 렌더용"
+    },
+    "legacy_code": {
+      "type": "string",
+      "description": "예: A-scnr / M-SHRG"
+    },
+    "answers_json": {
+      "type": "object"
+    },
+    "axis_coverage": {
+      "type": "object",
+      "description": "축별 측정 신뢰도",
+      "additionalProperties": {
+        "type": "string",
+        "enum": [
+          "measured",
+          "derived",
+          "unmeasured"
+        ]
+      }
+    },
+    "borderline_axes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "created_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "rights_axis": {
+      "type": "string",
+      "title": "권리 성향",
+      "enum": [
+        "S",
+        "R"
+      ],
+      "x-db-column": "rights_axis",
+      "x-poles": {
+        "S": "권리안정형",
+        "R": "권리감수형"
+      }
+    },
+    "eviction_axis": {
+      "type": "string",
+      "title": "명도 성향",
+      "enum": [
+        "A",
+        "E"
+      ],
+      "x-db-column": "eviction_axis",
+      "x-poles": {
+        "A": "명도회피형",
+        "E": "명도실행형"
+      }
+    },
+    "profit_axis": {
+      "type": "string",
+      "title": "수익 방식",
+      "enum": [
+        "C",
+        "G"
+      ],
+      "x-db-column": "profit_axis",
+      "x-poles": {
+        "C": "현금흐름형",
+        "G": "차익형"
+      }
+    },
+    "horizon_axis": {
+      "type": "string",
+      "title": "투자 기간",
+      "enum": [
+        "L",
+        "T"
+      ],
+      "x-db-column": "horizon_axis",
+      "x-poles": {
+        "L": "장기보유형",
+        "T": "단기회전형"
+      }
+    }
+  },
+  "required": [
+    "schema_version",
+    "mbti_code"
+  ],
+  "x-forbidden-keys": [
+    "budget_min",
+    "budget_max",
+    "min_price_min",
+    "min_price_max",
+    "region_json",
+    "asset_types_json",
+    "fail_count_min",
+    "fail_count_max",
+    "area_min_m2",
+    "area_max_m2"
+  ]
+}

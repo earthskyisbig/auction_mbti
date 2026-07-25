@@ -11,7 +11,46 @@
 - **채점 엔진** — 축별 점수 합산으로 유형 판별, 동점 경계형 표시
 - **유형 프로필 + 활용 가이드** — 강점·약점·**맹점**, 적합 물건, 함정, 매수/입찰 전 체크리스트
 - **부동산 규제 반영** — 2025 6·27 / 9·7 / 10·15 대책 + 2026-06-30 규제지역 추가지정(화성 동탄구·용인 기흥구·구리시)을 근거로, 보유주택수·규제지역에 따른 대출제한·세금중과·실거주의무 경고
-- **경매 검색조건 생성** — 진단 결과 + 입력값(자금·지역·규제·보유상황)을 법원경매 검색 필터(지역·가격대·물건종류·유찰횟수·권리난이도)로 변환, JSON 내보내기
+- **경매 검색조건 생성** — 진단 결과 + 입력값을 법원경매 검색 필터로 변환, JSON 내보내기
+- **2레이어 구조** — 투자 체질(MBTI)과 이번 검색조건을 분리, 검색 프리셋 저장·재사용
+- **Mono Signal 디자인** — 다크(라임 액센트) / 라이트(근-검정) 2테마, 우상단 토글로 전환
+
+## 2레이어 구조
+
+단순 성향 테스트가 아니라 **‘내 투자 체질 + 이번 검색조건’을 결합해 경매 물건을 거르는 도구**입니다.
+
+```
+Layer 1  InvestorProfile (체질)      잘 안 바뀜 · 사용자당 1개
+         권리 S/R · 명도 A/E · 수익 C/G · 기간 L/T
+         → 검색값이 아니라 "제외규칙 · 가중치 · 추천스타일"을 만든다
+                    │
+                    ▼  프리셋처럼 뒤에서 개입
+Layer 2  FilterMode (이번 검색조건)   매번 바뀜 · 사용자당 N개(프리셋)
+         예산 · 지역 · 자산유형 · 유찰수 · 최저가율 · 규제 · 주체 · 목적 · 운영개입도
+                    │
+                    ▼  buildSearchQuery(profile, filterMode)
+         { query, exclusions, postFilters, weights, rationale }
+```
+
+| 화면 | 역할 |
+|---|---|
+| **A. 투자 성향 프로필** | 기존 설문 → 32유형 결과 + 신규 4축 체질 |
+| **B. 검색조건 만들기** | 실제 검색값 입력. 진단 없이도 바로 진입 가능(체질 없으면 순수 필터) |
+| **C. 저장된 프리셋** | “경기 아파트 단기매매형” 같은 조건을 저장·수정·복제·재사용 |
+
+MBTI는 **배경 설정**이고, 실제 검색은 화면 B가 담당합니다. 예: 권리안정형이면 선순위임차인·유치권이 자동 제외되고, 장기보유형이면 재개발 물건에 가점이 붙습니다. 모든 결정은 `rationale`에 근거가 남습니다.
+
+> 상세 설계·마이그레이션·DB 연결 계약: [`_workspace/05_data_model.md`](_workspace/05_data_model.md)
+> 스키마: [`05_investor_profile.schema.json`](_workspace/05_investor_profile.schema.json) · [`05_filter_mode.schema.json`](_workspace/05_filter_mode.schema.json)
+
+## 개발
+
+```bash
+node _workspace/tools/selftest_node.js 부동산투자성향테스트.html   # 셀프테스트 (브라우저에선 ?selftest=1)
+node _workspace/tools/gen_schema.js 부동산투자성향테스트.html _workspace   # JSON Schema 재생성
+```
+
+원본은 `부동산투자성향테스트.html`이고 `index.html`은 `publish.sh`가 만드는 생성물입니다.
 
 ## 유형 축
 
@@ -34,8 +73,11 @@
 ## 프로젝트 구조
 
 ```
-부동산투자성향테스트.html   최종 웹 테스트 (index.html과 동일)
+부동산투자성향테스트.html   원본 (publish.sh가 index.html로 복사)
 _workspace/                  중간 산출물 (유형 체계·문항/채점·프로필·규제·검색기준·QA)
+  05_data_model.md           2레이어 설계·마이그레이션·DB 연결 계약
+  05_*.schema.json           InvestorProfile / FilterMode JSON Schema (코드에서 자동 생성)
+  tools/                     셀프테스트 하네스 · 스키마 생성기
 .claude/                     에이전트 팀 하네스 (agents 6 + skills 6 + 오케스트레이터)
 CLAUDE.md                    하네스 포인터 + 변경 이력
 ```
