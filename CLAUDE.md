@@ -29,7 +29,9 @@
 - 체질 규칙 변경 → `IP_AXES`의 해당 극에 `exclusions`/`weights` 수정
 - 스키마 파일은 손으로 쓰지 말고 `node _workspace/tools/gen_schema.js 부동산투자성향테스트.html _workspace`로 재생성
 - 변경 후 반드시 `node _workspace/tools/selftest_node.js 부동산투자성향테스트.html` (또는 `?selftest=1`) 통과 확인
-- **기존 경매 10문항·매매 16문항과 문항 ID는 건드리지 말 것** — 공유 URL(`?r=`)이 문항ID 기반이라 깨진다. 신규 축은 `IP_MINI_QUESTIONS`(미니설문)로 추가한다.
+- **문항 ID·선택지 순서·배점은 건드리지 말 것** — 공유 URL(`?r=`)이 문항ID+선택지 인덱스 기반이라 깨진다. **문구(text/label) 수정은 안전**하다. 신규 축은 `IP_MINI_QUESTIONS`(미니설문)로 추가한다.
+- **같은 축 문항은 서로 다른 판단을 물을 것** — 동의어로 같은 걸 되물으면 어휘 중복도 검사(T16)를 통과해도 응답자에겐 같은 질문이다. 축이 같아도 묻는 국면을 달리한다(예: 가치 산정 기준 / 시간 압박 / 자본 재조달).
+- **파생 가중치 원칙: 행동을 직접 물은 문항 > 축 합산값 > 조건 입력.** `profile_inputs`는 Layer 2 성격의 조건이므로 체질 판정에서 보조 신호로만 쓴다(크게 두면 일회성 조건이 체질을 뒤집는다).
 
 **변경 이력:**
 | 날짜 | 변경 내용 | 대상 | 사유 |
@@ -42,3 +44,4 @@
 | 2026-07-01 | 배포 흐름 추가 (index.html 동기화→커밋·푸시), GitHub Pages 공개 | skills/publish-site(신규), README.md, index.html | GitHub 공개 + 재빌드 후 사이트 동기화 요청 |
 | 2026-07-25 | **2레이어 개편** — InvestorProfile(체질) / FilterMode(검색조건) 분리, 병합엔진·프리셋·미니설문·셀프테스트 | 05_data_model.md(신규), 05_*.schema.json(신규), tools/(신규), html(+화면 3종), CLAUDE.md, README.md | 검색값과 체질이 한 함수에 뒤엉켜 있어(`computeSearchCriteria(r,sido,sigungu)`) 검색차원 확장이 막힘. 경매 검색/필터/분석 자동화의 기반 모델로 전환 |
 | 2026-07-25 | **Mono Signal 리스킨** — Pretendard, 다크(라임)/라이트(근-검정) 2테마 + 우상단 토글, 하드코딩 색상 37종 토큰화 | html(폰트·`:root`·패치 레이어·토글), CLAUDE.md, README.md | 디자인 시스템 통일 요청. 덱 구조(16:9·키보드 네비)는 인터랙티브 앱을 깨뜨려 제외하고 **시각 언어만** 적용 |
+| 2026-07-25 | **경매 문항 중복 제거 (v1.2)** — g8·g9·g10 재작성(가치산정/시간압박/자본재조달), `purpose` 입력을 조건으로 리프레이밍, `from:'question'` 파생 신설, 조건입력 가중치 하향 | html(DATA·scoreTrack·IP_DERIVE·T16~T18) | 사용자 제보: 스텝 2·14·15·16이 "보유 vs 매각" 하나를 4번 되물음. 배점·순서를 유지해 기존 공유 URL은 동일 결과 |
