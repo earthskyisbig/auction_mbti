@@ -1,223 +1,156 @@
 {
-  "version": "1.0",
-  "track": "gyeongmae",
-  "purpose": "경매 진단 결과(유형코드 + profile_inputs)를 courtauction.go.kr에서 거를 수 있는 검색조건으로 결정적 변환. 검색조건 = f(유형 축, profile 입력값).",
+  "version": "2.0",
+  "track": "auction",
+  "note": "진단 결과(유형 3축 + 사실 입력 4개) → 법원경매 검색조건. 같은 입력이면 항상 같은 결과(결정적).",
   "source_of_truth": {
     "typology": "_workspace/01_typology.md",
-    "profile_inputs_and_types": "_workspace/02_gyeongmae.json",
-    "regulations": "_workspace/00_regulations.md (작성기준일 2026-07-01, 수치 인용은 이 문서만)",
-    "strategy_guide": "_workspace/03_strategy_guide.md"
+    "types_and_questions": "_workspace/02_diagnostic.json",
+    "regulations": "_workspace/00_regulations.md (기준일 2026-07-01, 규제 수치는 이 문서만 인용)"
   },
-  "disclaimer": "본 매핑은 투자성향 기반 물건 탐색 가이드일 뿐 투자·세무·법률 자문이 아니다. 규제 수치는 00_regulations.md 기준이며 정책은 수시 변경된다. 실제 입찰·대출·세금 적용 전 금융기관·세무사·법무사와 해당 시점 규정을 직접 확인하라.",
-
-  "dimensions": ["region", "regulated_preference", "property_type", "price_min", "price_max", "min_fail_count", "rights_difficulty", "area_pyeong", "notes"],
-
-  "site_filterable": {
-    "region": "소재지 시/도 + 시/군/구 (또는 관할 법원)",
-    "property_type": "용도(물건종류) 체크박스 — 아파트/오피스텔/다세대주택/연립/단독·다가구 등",
-    "price_min": "최저매각가격 하한",
-    "price_max": "최저매각가격 상한",
-    "min_fail_count": "유찰회수(매각기일 회차) 필터",
-    "rights_difficulty": "특수조건 체크박스 — 유치권/법정지상권/지분매각/대지권미등기/선순위임차인 등 (안전=미체크, 특수=해당 체크)",
-    "area_pyeong": "전용면적 범위(㎡)"
-  },
-  "notes_only_not_filterable": {
-    "regulated_preference": "courtauction에 규제지역 필터 없음 → region 선택을 조정하고 notes로 안내. 규제여부는 국토부 「조정대상지역·투기과열지구 지정」 페이지로 별도 확인.",
-    "tax_loan_eviction": "취득세·양도세·경락대출 가용액·DSR·명도난이도·시세대비 입찰상한 등은 사이트에서 못 거름 → notes."
-  },
+  "disclaimer": "본 매핑은 성향에 맞는 물건을 찾는 출발점일 뿐 투자·세무·법률 자문이 아니다. 실제 입찰·대출·세금 적용 전 금융기관·세무사·법무사와 해당 시점 규정을 직접 확인하라.",
 
   "rules": {
-    "region": {
-      "from_input": "region_pref",
-      "map": {
-        "home": { "scope": "연고 시/군/구 1~2곳", "site": "시도+시군구 직접 지정", "axis_consistency": "REGION=n" },
-        "metro": { "scope": "수도권(서울·경기·인천)", "site": "시도=서울/경기/인천", "axis_consistency": "REGION=w(약)" },
-        "nation": { "scope": "전국(수익률 우선 복수 시군구)", "site": "시도 무제한, 수익률 상위 지역 순회", "axis_consistency": "REGION=w" }
+    "price_max": {
+      "formula": "equity_top × ltv_mult × reserve_coef",
+      "equity_top": { "u50": 50000000, "u150": 150000000, "u300": 300000000, "o300": 400000000 },
+      "ltv_mult": {
+        "normal": { "none": 3.3, "one": 3.3, "multi": 2.31 },
+        "regulated": { "none": 1.7, "one": 1.0, "multi": 1.0 },
+        "unknown": { "none": 1.7, "one": 1.0, "multi": 1.0 }
       },
-      "axis_refine": { "n": "시군구 1~2곳으로 좁힘", "w": "광역/복수 시군구로 넓힘" },
-      "note": "구체 시군구 단위 입력은 profile_inputs에 없음 → '연고 시군구'는 사용자가 결과화면에서 직접 지정. (diagnostic-designer 협의 대상)"
+      "ltv_basis": {
+        "normal_70": "비규제 LTV 70% → 1/(1-0.7) ≈ 3.3배 (00_reg C)",
+        "normal_multi": "비규제라도 다주택 추가구입은 한도·DSR 제약 → 3.3 × 0.7 = 2.31 (00_reg B-1)",
+        "regulated_none_40": "규제지역 무주택 LTV 40% → 1/(1-0.4) ≈ 1.7배. 생애최초면 70%(3.3배)로 상향 가능 (00_reg A-2)",
+        "regulated_one_multi_0": "규제지역 미처분 1주택·다주택 추가구입 주담대 금지 → 자기자본만 1.0배 (00_reg A-1)",
+        "unknown": "판정 불가 시 규제지역 기준으로 보수적 계산"
+      },
+      "reserve_coef": {
+        "base": 1.0,
+        "WORK_H": 0.85,
+        "RIGHTS_R": 0.9,
+        "note": "해당하는 계수를 모두 곱한다. 수리·명도·소송 예비비를 미리 떼어놓기 위한 성향 계수이며 규제 수치가 아니다."
+      },
+      "rounding": "만 원 단위 내림"
     },
 
-    "regulated_preference": {
-      "by_ownership_and_purpose": {
-        "multi": "비규제선호(강)",
-        "one": "비규제권장",
-        "none|reside": "규제무관(실수요면 규제지역도 적합·기회)",
-        "none|rent": "규제무관~비규제선호",
-        "none|flip": "비규제선호"
-      },
-      "rationale": {
-        "multi": "다주택 추가취득 = 취득세 8~12% 중과 + (규제지역)경락대출 LTV 0% 위험 → 비규제·저가 가중 (00_reg B-2, A-1, D).",
-        "none_reside": "무주택 실수요는 규제지역도 적합. 경매는 토허 2년 실거주의무·자금조달계획서 면제 → 규제지역을 '실거주 의무 없이' 취득 가능(기회). 단 그 쏠림으로 고가낙찰·LTV40%·6개월 전입의무 유의 (00_reg D, A-2).",
-        "flip": "단기매각은 양도세 단기중과가 규제·비규제 동일하나, 규제지역 고가낙찰 쏠림 회피·회전 유리 위해 비규제선호."
-      },
-      "input_region_regulated_handling": {
-        "regulated": "사용자가 규제지역을 골랐어도 위 선호와 충돌 시 notes에 명시 + 대출·세금 경고 강제(02_gyeongmae.json flags 재사용).",
-        "normal": "정상 진행.",
-        "unknown": "price를 규제(보수)~비규제(확대) 범위로 양쪽 제시 + '국토부 규제지역 페이지 확인' 메모."
+    "price_min": {
+      "u50": 30000000,
+      "u150": 0,
+      "u300": 0,
+      "o300": 0,
+      "basis": "소액 구간의 3천만 원 미만 물건은 환금성·권리 문제 비중이 높아 하한을 둔다"
+    },
+
+    "min_fail_count": {
+      "base": 1,
+      "modifiers": [
+        { "when": { "axis": { "RIGHTS": "R" } }, "delta": 1, "why": "특수물건은 유찰 누적이 정상" },
+        { "when": { "axis": { "EXIT": "P" } }, "delta": 1, "why": "차익형은 낙찰가 자체가 싸야 성립" },
+        { "when": { "regulated": true }, "delta": 1, "why": "규제지역은 경매 수요 쏠림으로 고가 낙찰 빈발 → 더 내려온 회차 대기" },
+        { "when": { "axis": { "RIGHTS": "S", "WORK": "E" }, "budget": ["u300", "o300"] }, "delta": -1, "why": "우량·안전물건은 유찰이 적어 무리한 대기가 비현실적" }
+      ],
+      "floor": 0,
+      "note": "1회 유찰 시 최저매각가격은 통상 20~30% 하락(법원별 상이)"
+    },
+
+    "rights_difficulty": {
+      "S": { "value": "safe", "site": "특수조건 체크 안 함", "detail": "말소기준권리 이하 전부 소멸 · 인수 권리 0 · 인도명령 가능" },
+      "R": { "value": "special_ok", "site": "특수조건 체크", "detail": "유치권 · 법정지상권 · 분묘기지권 · 지분매각 · 대지권미등기 · 선순위(대항력) 임차인" },
+      "override": {
+        "when": { "experience": "novice", "axis": { "RIGHTS": "R" } },
+        "to": "safe",
+        "flag": "novice_risk",
+        "why": "초보 안전장치. 유형 코드는 바꾸지 않고 검색조건만 하향한다"
       }
     },
 
     "property_type": {
-      "base_by_purpose": {
-        "reside": ["아파트"],
-        "rent": ["아파트", "오피스텔", "다세대주택"],
-        "flip": ["아파트", "오피스텔"]
+      "by_exit": {
+        "K": ["오피스텔", "다세대/연립", "아파트(소형)"],
+        "P": ["아파트", "다세대/연립"]
       },
-      "fund_modifier": {
-        "small_fund (fund_size in [u50,u150] 또는 FUND=s)": "저가 진입 위해 ['다세대주택','연립주택','오피스텔','도시형생활주택'] 추가",
-        "big_fund (fund_size in [u300,o300] 또는 FUND=b)": "['아파트'] 우량 집중(임대면 오피스텔 허용), 다세대·연립 제외"
-      },
-      "regulated_note": "토허구역(규제지역) 토지거래허가 대상 용도는 '아파트' → 일반매매라면 허가 필요하나 경매는 허가 면제. 규제지역 아파트는 고가낙찰 쏠림 경계(notes)."
-    },
-
-    "price": {
-      "method": "price_max(최저가 검색 상한) = equity_top × LTV_multiplier × safety. 'equity_top'=가용자금 밴드 상단(=입찰 가능한 최대 자기자본), LTV는 00_regulations.md 근거(경락잔금대출도 동일 적용, D절). 결과는 보수적으로 그 이하 권장.",
-      "equity_top_by_fund_band_KRW": { "u50": 50000000, "u150": 150000000, "u300": 300000000, "o300": 400000000 },
-      "ltv_multiplier_by_region_and_ownership": {
-        "_def": "multiplier = 1/(1-LTV). 최저가 검색 상한 ≈ 자기자본/(1-LTV).",
-        "normal": { "none": 3.33, "one": 3.33, "multi": 3.33 },
-        "regulated": { "none": 1.67, "one": 1.0, "multi": 1.0 },
-        "unknown": { "low": "regulated 값", "high": "normal 값", "present": "range" }
-      },
-      "ltv_source": {
-        "normal_LTV70": "비규제 LTV 70% → 1/(0.3)=3.33 (00_reg C, B-1)",
-        "regulated_none_LTV40": "규제지역 무주택 LTV 40% → 1/(0.6)=1.67. 생애최초면 LTV 70%(=3.33) 가능 → notes에 분기 (00_reg A-2, B-1)",
-        "regulated_one_or_multi_LTV0": "규제지역 1주택 미처분 추가구입·다주택 = 주담대 금지(LTV 0%) → multiplier 1.0(자기자본만). 처분조건부 1주택은 50% 표현 혼재[불확실] (00_reg A-1, B-1)"
-      },
-      "safety_factor": {
-        "_note": "LTV는 규제 근거값. 아래는 성향·불확실성 반영 '보수화' 계수(규제수치 아님).",
-        "fund_axis": { "s": 0.9, "b": 1.0 },
-        "ownership_multi_in_normal": 0.7,
-        "rationale": "s(소액분산)=레버리지 보수·다건 분산 여지. 비규제 다주택은 수도권 6억한도·추가구입 제약 가능·DSR 불확실 → 0.7 추가 보수."
-      },
-      "price_min": {
-        "default": null,
-        "small_fund_floor_KRW": 30000000,
-        "note": "소액(s)은 너무 저가의 권리·환금 불량 물건 회피용 하한만. 대액은 하한 두지 않음(우량 집중)."
-      },
-      "regulated_overbid_warning": "규제지역은 토허 실거주의무 면제로 경매 수요 쏠려 고가낙찰 빈발 → 시세 기반 입찰 상한선을 더 엄격히. price_max는 '검색 상한'일 뿐, 낙찰가는 시세 역산 상한을 절대 넘기지 말 것."
-    },
-
-    "min_fail_count": {
-      "base_by_difficulty": { "c": 1, "x": 2 },
-      "modifiers": {
-        "purpose_flip(f)": "+1 (싸게 사야 차익)",
-        "region_regulated_regulated": "+1 (고가낙찰 쏠림 → 더 내려온 회차 대기)",
-        "fund_big_clean(FUND=b & DIFFICULTY=c)": "-1 (우량·안전은 경쟁 심해 유찰 적음, 무리한 대기 비현실; floor 0)"
-      },
-      "note": "1회 유찰 시 통상 최저가 20~30%↓(법원별 상이). courtauction 유찰회수 필터로 거름. 권리난이도 x는 유찰 누적이 정상."
-    },
-
-    "rights_difficulty": {
-      "by_axis": { "c": "safe", "x": "special_ok" },
-      "safe_def": "말소기준권리 이하 전부 소멸·인수권리 0·대항력 없는 점유(인도명령 가능)·임차인 단순. 특수조건 미체크.",
-      "special_ok_def": "유치권·법정지상권·분묘기지권·지분매각·대지권미등기·선순위(대항력)임차인 등 허용. 특수조건 체크.",
-      "experience_override": {
-        "novice & x": "danger — 안전(safe)으로 강등 권고 + 02_gyeongmae.json danger flag. 첫 5건 안전물건.",
-        "inter & x": "쟁점 1~2개 물건까지 제한 권고",
-        "expert & x": "특수 전면 허용"
+      "by_budget": {
+        "u50": { "remove": ["아파트", "아파트(소형)"], "why": "예산 대비 검색 결과가 거의 없음" },
+        "u150": { "remove": [] },
+        "u300": { "remove": [] },
+        "o300": { "remove": ["다세대/연립"], "why": "큰 자본을 환금성 낮은 물건에 묶지 않는다" }
       }
     },
 
-    "area_pyeong": {
-      "by_purpose_and_fund": {
-        "reside": "국민평형 지향(전용 59~84㎡), 단 small_fund면 소형(전용 ~59㎡)",
-        "rent": "소형 임대형(전용 ~59㎡)·오피스텔",
-        "flip": "환금 잘 되는 국민평형(전용 59~84㎡), small_fund면 소형"
-      },
-      "site": "전용면적 범위(㎡)로 필터"
+    "area": {
+      "K": "전용 59㎡ 이하 (소형 임대형)",
+      "P": "전용 59~84㎡ (국민평형, 환금성 우선)",
+      "override_u50": "전용 59㎡ 이하"
     },
 
-    "notes": {
-      "compose_from": [
-        "02_gyeongmae.json flags 중 현재 입력(ownership·experience·region_regulated·axis·type_code)에 해당하는 메시지 전부 재사용",
-        "price 분기 메모(생애최초 LTV70%, 규제 LTV40%, 다주택 대출0, DSR 40%, 경락대출 금융사별 상이[불확실])",
-        "regulated_overbid_warning(고가낙찰 경계) / 토허 실거주의무·자금조달계획서 면제(기회)",
-        "취득세 중과(다주택)·단기 양도세 중과(flip+다주택)·종부세 합산",
-        "명도: 인도명령 가능 점유 한정(c) / 명도·소송 예비비(x)",
-        "면책 1줄"
-      ]
-    }
+    "site_filterable": ["지역", "물건종류", "최저매각가격", "유찰횟수", "특수조건", "전용면적"],
+    "notes_only": ["규제지역 여부", "대출 가용액·DSR", "취득세·양도세", "명도 난이도", "수리 상태"]
   },
 
-  "golden": [
+  "golden_cases": [
     {
       "id": "G1",
-      "label": "필수 헤드라인 — 동네 안전 낙찰러 / 경기·비규제·5천·무주택·실거주",
-      "type": "A-scnr",
-      "axes": { "FUND": "s", "DIFFICULTY": "c", "REGION": "n", "PURPOSE": "r" },
-      "inputs": { "fund_size": "u50", "purpose": "reside", "region_pref": "home", "ownership": "none", "experience": "novice", "region_regulated": "normal", "region_label": "경기" },
+      "input": { "type": "A-SHP", "budget": "u50", "region": "경기 평택시", "regulated": false, "ownership": "none", "experience": "novice" },
       "expect": {
-        "region": "경기도 연고 시·군·구(비규제 지역 우선)",
-        "regulated_preference": "규제무관(무주택 실수요면 규제지역도 가능하나, 5천 자금엔 비규제가 현실적)",
-        "property_type": ["아파트", "오피스텔", "다세대주택", "연립주택"],
+        "price_max": 140250000,
         "price_min": 30000000,
-        "price_max": 150000000,
-        "price_calc": "equity_top 50,000,000 × 3.33(비규제 LTV70%) × 0.9(FUND=s) ≈ 150,000,000",
-        "min_fail_count": 1,
-        "rights_difficulty": "safe",
-        "area_pyeong": "전용 ~59㎡ 소형(국민평형은 5천 자금엔 외곽·소형 한정)",
-        "notes": [
-          "최저가 ~1.5억(보수) — 대출 최대·DSR 40% 충족 가정 시 2억 내외까지. 경락대출 가용액은 금융사·소득별 상이하니 보수적으로 잡고 DSR 확인.",
-          "무주택 실거주: 생애최초 취득세 감면·디딤돌/보금자리 등 대출 우대 가능. 생애최초면 LTV 70%까지.",
-          "초보의 진짜 위험은 권리가 아니라 고가낙찰 — 최근 실거래·급매가에서 역산한 입찰 상한선을 절대 넘기지 말 것(패찰 두려워 말기).",
-          "등기부·매각물건명세서·현황조사서 3종으로 인수권리 0 확인, 인도명령 가능 점유로 한정.",
-          "본 가이드는 자문이 아님 — 대출·세금·권리는 전문가 확인."
-        ]
-      }
+        "min_fail_count": 2,
+        "rights": "safe",
+        "property_type": ["다세대/연립"],
+        "area": "전용 59㎡ 이하",
+        "flags": ["work_h_reserve", "exit_p_short", "budget_small"]
+      },
+      "calc": "5,000만 × 3.3(비규제 무주택) × 0.85(H) = 1억 4,025만 / 유찰 1(base) + 1(P) = 2"
     },
     {
       "id": "G2",
-      "label": "대조 — 다주택 + 규제지역(서울)",
-      "type": "A-scnf",
-      "axes": { "FUND": "s", "DIFFICULTY": "c", "REGION": "n", "PURPOSE": "f" },
-      "inputs": { "fund_size": "u150", "purpose": "flip", "region_pref": "home", "ownership": "multi", "experience": "inter", "region_regulated": "regulated", "region_label": "서울" },
+      "input": { "type": "A-SEK", "budget": "u150", "region": "서울 노원구", "regulated": true, "ownership": "none", "experience": "inter" },
       "expect": {
-        "region": "서울(연고 자치구) — 단 규제지역, 비규제로 이동 권장(아래 notes)",
-        "regulated_preference": "비규제선호(강) — 사용자가 규제지역 선택 → 강한 경고",
-        "property_type": ["아파트", "오피스텔", "다세대주택", "연립주택"],
-        "price_min": 30000000,
-        "price_max": 135000000,
-        "price_calc": "규제+다주택 LTV 0% → multiplier 1.0 × equity_top 150,000,000 × 0.9(s) ≈ 135,000,000 (전액 자기자본 전제)",
-        "min_fail_count": 3,
-        "min_fail_calc": "base 1(c) + 1(flip) + 1(규제 고가낙찰 회피) = 3",
-        "rights_difficulty": "safe",
-        "area_pyeong": "전용 ~59㎡ 소형(환금 우선)",
-        "notes": [
-          "다주택+규제지역 추가 낙찰: 경락잔금대출에도 다주택 주담대 금지(LTV 0%) 적용 가능 → 전액 자기자본 전제로 입찰가 산정. (금융사 취급기준 확인 필요)",
-          "취득세 조정지역 다주택 8~12% 중과 → '싸게 낙찰' 메리트 상쇄. 세후 취득원가로 재계산.",
-          "다주택 단기매각(flip): 양도세 중과(1년 미만 70%·2년 미만 60% 등) + 조정지역 +20~30%p 중과(유예 종료 여부 확인) → 세후 남는 게 거의 없을 수 있음.",
-          "규제지역은 토허 실거주의무는 면제지만 그 쏠림으로 고가낙찰 빈발 → 비규제 지역으로 옮기면 대출·취득세·낙찰가 모두 유리. 비규제 우선 권장.",
-          "본 가이드는 자문이 아님 — 대출·세금은 전문가 확인."
-        ]
-      }
+        "price_max": 255000000,
+        "price_min": 0,
+        "min_fail_count": 2,
+        "rights": "safe",
+        "property_type": ["오피스텔", "다세대/연립", "아파트(소형)"],
+        "area": "전용 59㎡ 이하",
+        "flags": ["reg_none_ltv", "work_e_command", "exit_k_yield"]
+      },
+      "calc": "1.5억 × 1.7(규제 무주택 LTV40) × 1.0 = 2억 5,500만 / 유찰 1(base) + 1(규제) = 2"
     },
     {
       "id": "G3",
-      "label": "규제 양면 대조 — 동네 안전 낙찰러 / 서울·규제·5천·무주택·실거주(토허 면제 기회)",
-      "type": "A-scnr",
-      "axes": { "FUND": "s", "DIFFICULTY": "c", "REGION": "n", "PURPOSE": "r" },
-      "inputs": { "fund_size": "u50", "purpose": "reside", "region_pref": "home", "ownership": "none", "experience": "novice", "region_regulated": "regulated", "region_label": "서울" },
+      "input": { "type": "A-RHP", "budget": "u300", "region": "경기 평택시", "regulated": false, "ownership": "multi", "experience": "expert" },
       "expect": {
-        "region": "서울(연고 자치구) — 규제지역",
-        "regulated_preference": "규제무관(무주택 실수요 → 규제지역도 적합·기회)",
-        "property_type": ["아파트", "오피스텔", "다세대주택", "연립주택"],
+        "price_max": 530145000,
+        "price_min": 0,
+        "min_fail_count": 3,
+        "rights": "special_ok",
+        "property_type": ["아파트", "다세대/연립"],
+        "area": "전용 59~84㎡",
+        "flags": ["multi_acq_tax", "multi_flip_tax", "work_h_reserve", "rights_r_worst", "exit_p_short"]
+      },
+      "calc": "3억 × 2.31(비규제 다주택) × 0.85(H) × 0.9(R) = 5억 3,014만 / 유찰 1 + 1(R) + 1(P) = 3"
+    },
+    {
+      "id": "G4",
+      "input": { "type": "A-RHP", "budget": "u50", "region": "서울 강북구", "regulated": true, "ownership": "none", "experience": "novice" },
+      "expect": {
+        "price_max": 65025000,
         "price_min": 30000000,
-        "price_max": 75000000,
-        "price_calc": "규제+무주택 LTV 40% → 1.67 × equity_top 50,000,000 × 0.9(s) ≈ 75,000,000. (생애최초 LTV 70% 인정 시 ~150,000,000까지 확대 가능)",
-        "min_fail_count": 2,
-        "min_fail_calc": "base 1(c) + 1(규제 고가낙찰 회피) = 2",
-        "rights_difficulty": "safe",
-        "area_pyeong": "전용 ~59㎡ 소형(서울+5천은 아파트 한계, 오피스텔·다세대 현실적)",
-        "notes": [
-          "기회: 경매는 토허 2년 실거주의무·자금조달계획서가 면제 → 규제지역을 실거주 의무 부담 없이 취득 가능.",
-          "함정: 그 쏠림으로 고가낙찰 빈발 + 규제지역 무주택 LTV 40%(생애최초면 70%)·6개월 전입의무 → 자기자본 부담↑. 5천으론 서울 아파트 한계, 비규제 경기까지 넓히면 선택지·가격 유리.",
-          "생애최초 취득세 감면·디딤돌/보금자리 우대 적극 활용. 대출 조건과 실거주 요건은 분리해 확인.",
-          "초보: 고가낙찰 경계가 최우선. 시세 역산 상한선 엄수.",
-          "본 가이드는 자문이 아님 — 대출·세금은 전문가 확인."
-        ]
-      }
+        "min_fail_count": 4,
+        "rights": "safe",
+        "rights_overridden": true,
+        "property_type": ["다세대/연립"],
+        "area": "전용 59㎡ 이하",
+        "flags": ["novice_risk", "reg_none_ltv", "work_h_reserve", "rights_r_worst", "exit_p_short", "budget_small"]
+      },
+      "calc": "5,000만 × 1.7 × 0.85 × 0.9 = 6,502만 / 유찰 1 + 1(R) + 1(P) + 1(규제) = 4 / 초보+R → rights를 safe로 하향"
     }
-  ]
+  ],
+
+  "regulated_regions": {
+    "note": "00_regulations.md §E 기준(2026-07-01). 서울은 전역, 경기는 아래 시군구.",
+    "seoul_all": true,
+    "gyeonggi": ["과천시", "광명시", "성남시 분당구", "성남시 수정구", "성남시 중원구", "수원시 영통구", "수원시 장안구", "수원시 팔달구", "안양시 동안구", "용인시 수지구", "의왕시", "하남시", "구리시", "화성시 동탄구", "용인시 기흥구"]
+  }
 }
