@@ -1,3 +1,7 @@
 .DS_Store
 node_modules/
 *.log
+
+# 테스트 응답 데이터 (개인 입력) — 폴더 구조만 커밋
+responses/*.json
+responses/_all.jsonl

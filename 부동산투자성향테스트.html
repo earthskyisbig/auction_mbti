@@ -614,6 +614,99 @@ function nextQ(){
   else { renderResult(); show('screen-result'); }
 }
 
+/* ══════════════════════════════════════════════════════
+   결과 저장 — 서버 → 저장위치 선택 → 다운로드 → 텍스트 창 순으로 시도
+   ══════════════════════════════════════════════════════ */
+function stamp(){
+  const d = new Date(), p = n=>String(n).padStart(2,'0');
+  return { iso: d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'T'+p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds()),
+           file: ''+d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+'-'+p(d.getHours())+p(d.getMinutes())+p(d.getSeconds()) };
+}
+
+function buildRecord(c, t, flags, strength){
+  const s = stamp();
+  const answers = QUESTIONS.map(q=>({
+    id: q.id, axis: q.axis,
+    pole: q.opts[state.answers[q.id]].pole,
+    choice: q.opts[state.answers[q.id]].label
+  }));
+  return {
+    schema: 'auction-mbti-response',
+    version: '2.0',
+    saved_at: s.iso,
+    _file_hint: s.file + '-' + c.code,
+    facts: {
+      budget: state.budget,
+      budget_label: BUDGETS.find(b=>b.v===state.budget).label,
+      equity_top: c.budgetTop,
+      sido: state.sido, sigungu: state.sigungu,
+      region: c.region,
+      regulated: c.regulated,                 // true / false / null(미확인)
+      ownership: state.ownership,
+      ownership_label: OWNERSHIPS.find(o=>o.v===state.ownership).label,
+      experience: state.experience,
+      experience_label: EXPERIENCES.find(e=>e.v===state.experience).label
+    },
+    answers: answers,
+    type: {
+      code: c.code, name: t.name,
+      axes: { RIGHTS: c.code[2], WORK: c.code[3], EXIT: c.code[4] },
+      strength: strength                      // 3=뚜렷함 / 2=약간 기울어짐
+    },
+    criteria: {
+      region: c.region,
+      property_type: c.types,
+      price_min: c.priceMin, price_max: c.priceMax,
+      min_fail_count: c.fail, min_fail_reason: c.failWhy,
+      rights: c.rights, rights_overridden: c.overridden,
+      area: c.area,
+      calc: { ltv_mult: c.ltv, reserve_coef: c.coefWhy, formula: fmtWon(c.budgetTop)+' × '+c.ltv+(c.coefWhy.length?' × '+c.coefWhy.join(' × '):'')+' = '+fmtWon(c.priceMax) }
+    },
+    flags: flags.map(f=>({ id: f.id, level: f.level, title: f.title }))
+  };
+}
+
+async function saveRecord(rec){
+  const text = JSON.stringify(rec, null, 2);
+  const name = rec._file_hint + '.json';
+
+  // 1) 로컬 저장 서버(save_server.py)가 떠 있으면 프로젝트 폴더에 바로 저장
+  try {
+    const r = await fetch('save', { method:'POST', headers:{'Content-Type':'application/json'}, body:text });
+    if(r.ok){
+      const j = await r.json();
+      toast('저장했습니다 → ' + (j.file || name));
+      return;
+    }
+  } catch(e) { /* 서버 없음 — 다음 방법으로 */ }
+
+  // 2) 저장 위치 직접 선택 (Chrome 계열)
+  if(window.showSaveFilePicker){
+    try {
+      const h = await window.showSaveFilePicker({ suggestedName:name,
+        types:[{ description:'JSON 파일', accept:{'application/json':['.json']} }] });
+      const w = await h.createWritable();
+      await w.write(text); await w.close();
+      toast('저장했습니다: ' + name);
+      return;
+    } catch(e) { if(e && e.name === 'AbortError') return; }
+  }
+
+  // 3) 다운로드 폴더로
+  try {
+    const url = URL.createObjectURL(new Blob([text], {type:'application/json'}));
+    const a = document.createElement('a');
+    a.href = url; a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 1000);
+    toast('다운로드 폴더에 저장했습니다: ' + name);
+    return;
+  } catch(e) { /* 마지막 방법으로 */ }
+
+  // 4) 텍스트 창 (아티팩트 등 저장이 막힌 환경)
+  showTextModal('결과 JSON', '이 화면에서는 파일 저장이 막혀 있습니다. 아래 내용을 복사해 ' + name + ' 으로 저장하세요.', text);
+}
+
 /* --- 3단계: 결과 --- */
 function renderResult(){
   const c = computeCriteria();
@@ -700,9 +793,10 @@ function renderResult(){
     '</div>'+
 
     '<div class="btn-row" style="margin-top:30px">'+
-      '<button class="btn btn-primary" id="r-restart">↻ 다시하기</button>'+
+      '<button class="btn btn-primary" id="r-save">💾 결과 저장 (JSON)</button>'+
       '<button class="btn btn-ghost" id="r-copy">📋 검색조건 복사</button>'+
       '<button class="btn btn-ghost" id="r-print">🖨 인쇄 / PDF</button>'+
+      '<button class="btn btn-ghost" id="r-restart">↻ 다시하기</button>'+
     '</div>'+
     '<p class="disclaimer">'+esc(DISCLAIMER)+'</p>'+
     '<footer>법원경매 투자성향 테스트 · 규제 기준일 2026-07-01</footer>';
@@ -735,6 +829,7 @@ function renderResult(){
 
   $('#r-restart').onclick = ()=>{ state.answers = {}; qi = 0; show('screen-start'); };
   $('#r-copy').onclick = ()=>copyText(criteriaText, '검색조건을 복사했습니다');
+  $('#r-save').onclick = ()=>saveRecord(buildRecord(c, t, flags, strength));
 
   const printBtn = $('#r-print');
   printBtn.textContent = EMBEDDED ? '📄 결과 전체 텍스트' : '🖨 인쇄 / PDF';

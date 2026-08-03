@@ -25,3 +25,4 @@
 | 2026-07-01 | 배포 흐름 추가 (GitHub Pages) | publish-site, README, index.html | 공개 + 재빌드 후 동기화 |
 | **2026-07-25** | **v2 전면 개편 — 매매 트랙 폐기, 3축 8유형, 성향/사실 분리, 초보 안전장치, 3단계 화면 재설계** | 01_typology, 02_diagnostic.json(신규), 02_scoring, 03_profiles, 04_*, index.html, agents 6, skills 6 | v1의 4축 16유형 중 6개가 "희귀/모순"이었고(자금·지역을 축에 넣은 탓), 결과가 검색조건으로 잘 이어지지 않음 |
 | 2026-07-25 | publish.sh 방향 반전(index.html이 정본) + main 외 브랜치 푸시 차단 | publish-site | v2에서 index.html이 정본이 됨 / 실습 브랜치 오배포 방지 |
+| 2026-08-03 | 결과 JSON 저장 기능 + 저장 서버 | index.html, save_server.py(신규), responses/ | 응답을 파일로 남겨 집계·검토. 저장은 서버 → 위치선택 → 다운로드 → 텍스트창 순 폴백 |

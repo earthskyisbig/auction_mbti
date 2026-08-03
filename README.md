@@ -51,11 +51,24 @@
 
 > ⚠️ 가격 상한은 **검색 범위**일 뿐 **입찰가 상한이 아닙니다.** 입찰가는 시세에서 역산해 따로 정하세요.
 
+## 결과를 파일로 남기기
+
+결과 화면의 **💾 결과 저장 (JSON)** 버튼은 입력한 조건·9문항 답변·유형·계산된 검색조건을 한 파일에 담습니다.
+
+```bash
+python save_server.py            # http://127.0.0.1:8899/index.html
+```
+
+이 서버를 켜고 접속해서 테스트하면 **`responses/` 폴더에 바로 저장**됩니다(`responses/README.md` 참조).
+서버 없이 파일을 그냥 열면 저장 위치를 고르는 창이 뜨거나 다운로드 폴더로 떨어집니다.
+
 ## 프로젝트 구조
 
 ```
 index.html                   웹 테스트 (정본)
 부동산투자성향테스트.html      같은 내용의 사본
+save_server.py               결과 저장 서버 (responses/ 에 JSON 기록)
+responses/                   저장된 응답 (gitignore — 폴더 설명만 커밋)
 _workspace/
   00_regulations.md          규제 수치의 유일한 출처
   01_typology.md             축·유형 정본
