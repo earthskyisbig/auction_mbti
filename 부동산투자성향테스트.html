@@ -470,6 +470,35 @@ const OFT_AREAS = [
   {v:'o_m', label:'전용 45㎡ 이상(투룸급)',     sub:'주거용 수요, 공실 위험 낮음'}
 ];
 
+/* ── 연식 · 규모 · 시설 (법원경매 검색창에 없는 항목 → 검색 후 확인) ── */
+const AGES = [
+  {v:'any',   label:'상관없음',        sub:'물건을 넓게 보고 싶을 때'},
+  {v:'new',   label:'10년 이내 신축',  sub:'수리비가 거의 안 든다. 대신 낙찰가가 높다'},
+  {v:'mid',   label:'10~25년 준구축',  sub:'가격과 상태의 균형. 부분 수리로 값을 올릴 여지'},
+  {v:'old',   label:'25년 이상 구축',  sub:'싸게 받을 수 있다. 수리비·재건축 가능성을 함께 본다'}
+];
+const APT_SCALES = [
+  {v:'any',  label:'상관없음',          sub:''},
+  {v:'s300', label:'300세대 이상',      sub:'최소 기준. 이보다 작으면 시세 파악이 어렵다'},
+  {v:'s500', label:'500세대 이상',      sub:'거래가 꾸준해 시세가 명확하다'},
+  {v:'s1000',label:'1,000세대 이상 대단지', sub:'환금성 최상. 커뮤니티·관리도 안정적'}
+];
+const VILLA_FLOORS = [
+  {v:'any',  label:'상관없음',            sub:''},
+  {v:'f24',  label:'2~4층 선호',          sub:'가장 무난. 1층·반지하와 탑층을 피한다'},
+  {v:'no1',  label:'1층·반지하만 제외',   sub:'침수·사생활 문제로 되팔기가 어렵다'},
+  {v:'ok1',  label:'1층도 괜찮다',        sub:'싸게 받을 수 있다. 어린이집·노인 수요가 있는 곳이면'}
+];
+const VILLA_EV = [
+  {v:'any', label:'상관없음',        sub:''},
+  {v:'need',label:'엘리베이터 필수',  sub:'4층 이상이면 없을 때 월세·매매가 모두 떨어진다'}
+];
+const VILLA_PARK = [
+  {v:'any',  label:'상관없음',           sub:''},
+  {v:'need', label:'세대당 1대 이상 필수', sub:'빌라는 주차가 곧 환금성이다'},
+  {v:'some', label:'주차 가능하면 됨',    sub:'공동주차라도 자리가 있으면'}
+];
+
 /* ── 특수조건 10종 (법원경매정보 검색 항목) ── */
 const SPECIALS = [
   {v:'sangryun', label:'법정지상권',
@@ -599,6 +628,8 @@ const state = {
   subject:null, cash:null, totalFunds:null,
   regions:[], ownership:null, experience:null,
   props:[], aptArea:'a59', villaRooms:'r3', oftArea:'o_s',
+  aptAge:'any', aptScale:'any', oftAge:'any',
+  villaAge:'any', villaFloor:'f24', villaEV:'any', villaPark:'any',
   specials:[], answers:{}
 };
 Object.defineProperty(state, 'special', { get(){ return state.specials.length > 0; } });
@@ -698,6 +729,32 @@ function computeCriteria(){
   }
   const over85 = state.props.indexOf('apt') >= 0 && state.aptArea === 'a84';
 
+  /* 검색창에 없는 선호 조건 → 검색 후 확인할 체크리스트 */
+  const lab = (arr, v) => { const o = arr.find(x=>x.v===v); return o ? o.label : v; };
+  const checkItems = [];
+  if(state.props.indexOf('apt') >= 0){
+    if(state.aptAge !== 'any')   checkItems.push({t:'아파트 연식', v:lab(AGES, state.aptAge),
+      why: state.aptAge==='new' ? '건축물대장의 사용승인일로 확인하세요. 신축은 수리비가 거의 안 들지만 경쟁이 붙어 낙찰가가 높습니다.'
+         : state.aptAge==='old' ? '25년이 넘으면 배관·창호 등 목돈 수리가 나올 수 있습니다. 대신 재건축 가능성을 함께 볼 수 있습니다.'
+         : '가격과 상태의 균형이 좋은 구간입니다. 부분 수리로 값을 올릴 여지가 있습니다.'});
+    if(state.aptScale !== 'any') checkItems.push({t:'단지 규모', v:lab(APT_SCALES, state.aptScale),
+      why:'네이버 부동산이나 KB시세에서 총 세대수를 확인하세요. 세대가 많을수록 같은 평형 거래가 많아 시세를 믿을 수 있고, 팔 때도 빠릅니다. 300세대 미만은 시세 자체가 잘 안 잡힙니다.'});
+  }
+  if(state.props.indexOf('villa') >= 0){
+    if(state.villaAge !== 'any')  checkItems.push({t:'빌라 연식', v:lab(AGES, state.villaAge),
+      why:'빌라는 아파트보다 노후 속도가 빠릅니다. 옥상 방수·누수 이력을 현황조사서와 현장에서 함께 확인하세요.'});
+    if(state.villaFloor !== 'any')checkItems.push({t:'층수', v:lab(VILLA_FLOORS, state.villaFloor),
+      why:'1층·반지하는 침수·사생활 문제로 되팔기 어렵고, 탑층은 누수 위험이 있습니다. 매각물건명세서의 층 표시와 현장을 대조하세요.'});
+    if(state.villaEV === 'need')  checkItems.push({t:'엘리베이터', v:'필수',
+      why:'4층 이상인데 엘리베이터가 없으면 월세도 매매가도 눈에 띄게 떨어집니다. 건축물대장 또는 현장에서 확인하세요.'});
+    if(state.villaPark !== 'any') checkItems.push({t:'주차', v:lab(VILLA_PARK, state.villaPark),
+      why:'빌라는 주차가 곧 환금성입니다. 건축물대장의 주차대수를 세대수로 나눠 보고, 현장에서 실제 주차 상태를 보세요.'});
+  }
+  if(state.props.indexOf('oft') >= 0 && state.oftAge !== 'any'){
+    checkItems.push({t:'오피스텔 연식', v:lab(AGES, state.oftAge),
+      why:'오피스텔은 노후화가 임대료에 바로 반영됩니다. 같은 건물 다른 호실의 현재 월세를 확인해 비교하세요.'});
+  }
+
   /* ── 유찰 횟수: 필터가 아니라 참고 지표 ── */
   let failHint = '1~3회', failWhy;
   if(X === 'P' || R === 'R'){
@@ -712,7 +769,7 @@ function computeCriteria(){
   const specialLabels = state.specials.map(v=>{ const sp = SPECIALS.find(x=>x.v===v); return sp ? sp.label : v; });
 
   return { code, regulated, metro, ltv, basis, capApplied, coef, coefWhy, priceMax, priceMin,
-           failHint, failWhy, rights, specialLabels, over85, typeLabels, areaLines,
+           failHint, failWhy, rights, specialLabels, over85, typeLabels, areaLines, checkItems,
            regions: state.regions.map(regionLabel),
            cashTop: cash.top, base };
 }
@@ -878,13 +935,31 @@ function renderProp(){
    '<div class="chipset" id="p-types">'+ PROP_TYPES.map(t=>
      '<button class="chip'+(state.props.indexOf(t.v)>=0?' sel':'')+'" data-v="'+t.v+'">'+t.label+'<span class="sub">'+t.sub+'</span></button>').join('') +'</div></div>'+
 
-   (state.props.length ? '<div class="fact"><h3>2. 크기는 어느 정도로 볼까요?</h3>'+
-     '<p class="help">광고에 나오는 <b>공급면적</b>이 아니라 등기부·건축물대장의 <b>전용면적</b> 기준입니다. 같은 "24평"이라도 아파트·빌라·오피스텔의 실제 크기는 크게 다릅니다.</p>'+
-     (state.props.indexOf('apt')>=0 ? '<div class="sub-opts"><h5>아파트</h5><p class="help">전용 59㎡ 미만은 되팔 때 수요가 확 줄어듭니다.</p>'+sub(APT_AREAS,'aptArea',state.aptArea)+'</div>' : '')+
-     (state.props.indexOf('villa')>=0 ? '<div class="sub-opts"><h5>빌라·다세대</h5><p class="help">빌라는 면적보다 <b>방 개수</b>가 환금성을 좌우합니다.</p>'+sub(VILLA_ROOMS,'villaRooms',state.villaRooms)+'</div>' : '')+
-     (state.props.indexOf('oft')>=0 ? '<div class="sub-opts"><h5>오피스텔</h5><p class="help">오피스텔은 전용률이 낮아 공급면적 대비 실제가 작습니다.</p>'+sub(OFT_AREAS,'oftArea',state.oftArea)+'</div>' : '')+
+   (state.props.length ? '<div class="fact"><h3>2. 어떤 조건의 물건을 볼까요?</h3>'+
+     '<p class="help">모든 면적은 광고의 <b>공급면적</b>이 아니라 등기부·건축물대장의 <b>전용면적</b> 기준입니다. 같은 "24평"이라도 아파트·빌라·오피스텔의 실제 크기는 크게 다릅니다.</p>'+
+
+     (state.props.indexOf('apt')>=0 ? '<div class="sub-opts"><h5>🏢 아파트</h5>'+
+       '<p class="help">전용 59㎡ 미만은 되팔 때 수요가 확 줄어듭니다.</p>'+ sub(APT_AREAS,'aptArea',state.aptArea)+
+       '<h5 style="margin-top:14px">연식</h5><p class="help">수리비와 낙찰가가 여기서 갈립니다.</p>'+ sub(AGES,'aptAge',state.aptAge)+
+       '<h5 style="margin-top:14px">단지 규모</h5><p class="help">세대가 많을수록 거래가 잦아 시세가 명확하고 되팔기 쉽습니다.</p>'+ sub(APT_SCALES,'aptScale',state.aptScale)+
+     '</div>' : '')+
+
+     (state.props.indexOf('villa')>=0 ? '<div class="sub-opts"><h5>🏘 빌라·다세대</h5>'+
+       '<p class="help">빌라는 면적보다 <b>방 개수·층·주차</b>가 환금성을 좌우합니다.</p>'+ sub(VILLA_ROOMS,'villaRooms',state.villaRooms)+
+       '<h5 style="margin-top:14px">연식</h5>'+ sub(AGES,'villaAge',state.villaAge)+
+       '<h5 style="margin-top:14px">층수</h5><p class="help">1층·반지하와 탑층은 되팔 때 값이 깎입니다.</p>'+ sub(VILLA_FLOORS,'villaFloor',state.villaFloor)+
+       '<h5 style="margin-top:14px">엘리베이터</h5>'+ sub(VILLA_EV,'villaEV',state.villaEV)+
+       '<h5 style="margin-top:14px">주차</h5>'+ sub(VILLA_PARK,'villaPark',state.villaPark)+
+     '</div>' : '')+
+
+     (state.props.indexOf('oft')>=0 ? '<div class="sub-opts"><h5>🏬 오피스텔</h5>'+
+       '<p class="help">오피스텔은 전용률이 낮아 공급면적 대비 실제가 작습니다.</p>'+ sub(OFT_AREAS,'oftArea',state.oftArea)+
+       '<h5 style="margin-top:14px">연식</h5><p class="help">오피스텔은 노후화가 임대료에 빠르게 반영됩니다.</p>'+ sub(AGES,'oftAge',state.oftAge)+
+     '</div>' : '')+
+
      (state.props.indexOf('apt')>=0 && state.aptArea==='a84' && state.subject!=='person'
        ? '<div class="tip"><b>주의 —</b> 매매사업자·법인이 전용 85㎡를 넘는 주택을 취득하면 <b>건물분 부가가치세</b>가 붙습니다. 입찰가 산정에 미리 반영하세요.</div>' : '')+
+     '<div class="tip"><b>연식·세대수·엘리베이터·주차는 검색창에 없는 항목입니다.</b> 법원경매정보는 지역·용도·가격·면적·특수조건까지만 거를 수 있습니다. 여기서 고른 조건은 결과 화면에 <b>검색 후 확인할 체크리스트</b>로 정리해 드립니다.</div>'+
    '</div>' : '')+
 
    '<div class="fact"><h3>3. 권리가 복잡한 물건도 볼까요? <span style="font-size:.8rem;color:var(--mute);font-weight:400">고르지 않으면 깨끗한 물건만</span></h3>'+
@@ -975,6 +1050,8 @@ function buildRecord(c, t, flags, strength){
       experience_label: EXPERIENCES.find(e=>e.v===state.experience).label,
       property_types: state.props,
       apt_area: state.aptArea, villa_rooms: state.villaRooms, oft_area: state.oftArea,
+      apt_age: state.aptAge, apt_scale: state.aptScale, oft_age: state.oftAge,
+      villa_age: state.villaAge, villa_floor: state.villaFloor, villa_ev: state.villaEV, villa_parking: state.villaPark,
       special_wish: state.special, specials: state.specials
     },
     answers: QUESTIONS.map(q=>({ id:q.id, axis:q.axis, pole:q.opts[state.answers[q.id]].pole, choice:q.opts[state.answers[q.id]].label })),
@@ -983,6 +1060,7 @@ function buildRecord(c, t, flags, strength){
       regions: c.regions, property_type: c.typeLabels, area: c.areaLines,
       price_min: c.priceMin, price_max: c.priceMax,
       fail_count_hint: c.failHint, rights: c.rights, specials: state.specials, special_labels: c.specialLabels, over_85: c.over85,
+      post_search_checks: c.checkItems.map(ci=>({item:ci.t, value:ci.v})),
       calc:{ basis:c.basis, ltv_mult:c.ltv, reserve_coef:c.coefWhy,
              formula:(c.basis==='direct' ? fmtWon(c.base)+' (직접 입력한 동원 총액)' : fmtWon(c.cashTop)+' × '+c.ltv+'배(추정)') +
                      (c.coefWhy.length?' × '+c.coefWhy.join(' × '):'') + ' = ' + fmtWon(c.priceMax) }
@@ -1071,6 +1149,7 @@ function renderResult(){
     '특수조건: ' + (c.rights==='safe' ? '체크 안 함' : c.specialLabels.join(', ')),
     '유찰 횟수(참고): ' + c.failHint,
     '',
+    (c.checkItems.length ? '[검색 후 확인 — 검색창에 없는 조건]\n' + c.checkItems.map(ci=>'· ' + ci.t + ': ' + ci.v).join('\n') + '\n' : ''),
     '※ 가격 상한은 검색 범위일 뿐 입찰가 상한이 아닙니다. 입찰가는 시세에서 역산하세요.'
   ].join('\n');
 
@@ -1146,6 +1225,14 @@ function renderResult(){
       '</div>'+
     '</div>'+
 
+    (c.checkItems.length ? '<div class="sec"><div class="sec-title">검색 후 걸러낼 조건 <span class="unverified" style="background:var(--blue)">검색창에 없음</span></div>'+
+      '<div class="sc-card"><p class="sc-intro">아래는 법원경매정보 <b>검색창에서 거를 수 없는</b> 항목입니다. 검색 결과가 나온 뒤 물건을 하나씩 열어 확인하세요. 어디서 확인하는지도 함께 적었습니다.</p>'+
+      '<table class="sctbl"><tbody>'+ c.checkItems.map(ci=>
+        '<tr><th>'+esc(ci.t)+'</th><td><b>'+esc(ci.v)+'</b><span class="why">'+esc(ci.why)+'</span></td></tr>').join('') +
+      '</tbody></table>'+
+      '<div class="tip" style="margin-top:14px"><b>확인 순서를 하나로 묶으면 빠릅니다.</b> ① 매각물건명세서(권리·임차인·층) → ② 건축물대장(사용승인일·주차대수·엘리베이터) → ③ 네이버 부동산·KB시세(세대수·시세) → ④ 현장(누수·주차·채광). 여기까지 통과한 물건만 입찰가를 계산하세요.</div>'+
+      '</div></div>' : '')+
+
     '<div class="sec"><div class="sec-title">경매만 되는 것 — 일반 매매와의 차이</div><div class="edge">'+
       '<div class="card"><h5>토지거래허가 불요</h5><p>토허구역 아파트도 경매는 허가 절차 없이 취득합니다.</p><span class="vs">일반 매매: 허가 필요</span></div>'+
       '<div class="card"><h5>2년 실거주 의무 면제</h5><p>토허구역이라도 경매 취득에는 실거주 의무가 부과되지 않습니다.</p><span class="vs">일반 매매: 2년 거주</span></div>'+
@@ -1186,6 +1273,7 @@ function renderResult(){
     '<div class="sec"><div class="sec-title">입찰 전 확인</div>'+
       '<div class="checklist">'+ t.checklist.map(ck=>'<label><input type="checkbox"><span>'+esc(ck)+'</span></label>').join('') +
       '<label><input type="checkbox"><span>공시가격을 확인해 취득세 중과 여부를 계산했는가</span></label>'+
+      (c.checkItems.length ? '<label><input type="checkbox"><span>'+esc(c.checkItems.map(ci=>ci.t).join(' · '))+' — 검색창에 없는 조건을 물건별로 확인했는가</span></label>' : '')+
       (state.subject!=='person' ? '<label><input type="checkbox"><span>전용 85㎡ 초과라면 건물분 부가세를 원가에 더했는가</span></label>' : '')+
       '</div>'+
       '<div class="first-step"><h4>지금 당장 할 일</h4><p>'+esc(t.first)+'</p></div>'+
