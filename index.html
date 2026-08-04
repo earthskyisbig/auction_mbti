@@ -522,30 +522,51 @@ const FLAG_DEFS = [
  {id:'novice_type_risk', level:'warn', title:'성향은 모험형인데 경험이 없습니다',
   msg:'성향(R)은 그대로 두었습니다. 다만 검색조건의 특수물건은 켜지 않았습니다. 특수물건을 보고 싶다면 2단계에서 직접 켤 수 있지만, 첫 3건은 안전한 물건으로 실행 경험을 쌓는 편이 훨씬 안전합니다.',
   test:s=>s.experience==='novice' && s.code[2]==='R' && !s.special},
- {id:'dealer_metro_loan', level:'danger', title:'수도권 + 매매사업자·법인 = 대출이 막힙니다',
-  msg:'수도권·규제지역에서 매매사업자·법인의 주택 취득 자금 대출은 사실상 나오지 않습니다(금융사별 상이, 확인 필요). 경락잔금대출도 같습니다. 동원 가능 자금이 곧 입찰 상한이라고 보고 계획하세요.',
-  test:s=>s.subject!=='person' && s.metro},
+ {id:'dealer_metro_loan', level:'danger', title:'매매사업자·법인은 주택구입 주담대가 막힙니다',
+  msg:'10·15 대책으로 주택 매매업·임대업 사업자는 주택 구입 목적 주담대를 받을 수 없습니다. 다만 경매는 일반 사업자대출을 쓸 여지가 있다고 알려져 있습니다(토허구역이 아닌 수도권·지방). 확정된 것이 아니니 실행 은행에 먼저 확인하고, 그 전까지는 동원 가능 자금이 곧 입찰 상한이라고 보세요.',
+  test:s=>s.subject!=='person'},
  {id:'vat_85', level:'warn', title:'전용 85㎡ 초과 — 건물분 부가세가 붙습니다',
   msg:'매매사업자·법인이 국민주택규모(전용 85㎡)를 넘는 주택을 취득하면 건물분 부가가치세가 과세됩니다. 입찰가를 정할 때 건물가액 기준 부가세를 원가에 미리 더해 계산하세요. 개인(비사업자)에게는 해당하지 않습니다.',
   test:s=>s.subject!=='person' && s.over85},
+ {id:'one_house_loan', level:'danger', title:'1주택자는 원칙적으로 추가 대출이 안 나옵니다',
+  msg:'기존 주택을 그대로 두고 한 채를 더 사면 주담대가 나오지 않습니다(원칙 LTV 0%). 6개월 내 처분을 약정하면 무주택자와 같은 한도(규제 40% / 비규제 70%)를 받을 수 있습니다. 아래 상한은 자기자본만으로 계산했으니, 처분 계획이 있다면 실제 한도는 더 큽니다.',
+  test:s=>s.subject==='person' && s.ownership==='one'},
+ {id:'first_time_buyer', level:'info', title:'생애최초라면 한도가 크게 올라갑니다',
+  msg:'생애최초 주택구입은 LTV 70%(지방 80%)가 적용됩니다. 규제지역 무주택 40%의 거의 두 배입니다. 다만 한도를 다 쓰려면 소득이 받쳐줘야 합니다 — 6억을 받으려면 연소득 1.1억 수준이 필요합니다. 8억 이하 주택이고 연소득 9,000만원 이하라면 서민 실수요자 60%도 확인해 보세요.',
+  test:s=>s.subject==='person' && s.ownership==='none'},
+ {id:'loan_cap', level:'info', title:'대출에는 금액 상한이 따로 있습니다',
+  msg:'LTV를 통과해도 절대 캡이 걸립니다 — 주택가격 15억 이하 6억, 15~25억 4억, 25억 초과 2억. 그리고 DSR(1금융 40% / 2금융 50%)이 소득으로 한 번 더 자릅니다. 금리 유형만 바꿔도 한도가 달라집니다(변동형 스트레스 3.0% vs 5년 주기형 1.2%).',
+  test:s=>s.subject==='person' && s.basisEstimate},
  {id:'reg_loan_zero', level:'danger', title:'이 지역에서는 대출이 나오지 않을 수 있습니다',
   msg:'규제지역에서 기존 주택을 처분하지 않은 1주택자·다주택자의 추가 주택구입 주담대는 금지(LTV 0%)입니다. 경락잔금대출도 같은 규제를 받습니다.',
   test:s=>s.regulated && s.subject==='person' && (s.ownership==='one'||s.ownership==='multi')},
  {id:'reg_none_ltv', level:'info', title:'규제지역 무주택자 — 기회와 함정이 함께 있습니다',
   msg:'(대출) LTV 40%, 생애최초면 70%, 주담대를 받으면 6개월 내 전입의무. (기회) 토지거래허가구역이라도 경매는 허가·2년 실거주의무가 면제됩니다. (함정) 바로 그 이유로 사람이 몰려 고가 낙찰이 잦습니다.',
   test:s=>s.regulated && s.subject==='person' && s.ownership==='none'},
- {id:'redev_succession', level:'info', title:'정비사업 구역이라면 — 경매만의 큰 기회',
-  msg:'투기과열지구에서는 재건축은 조합설립인가 후, 재개발은 관리처분인가 후 조합원 지위 양도가 제한되어 일반 매매로는 조합원이 될 수 없습니다. 그러나 경·공매 취득은 예외로 승계가 인정됩니다. 정비구역 물건을 눈여겨보되, 예외 해당 여부는 사건별로 갈리므로 입찰 전 조합·법무사에 반드시 확인하세요.',
+ {id:'redev_succession', level:'warn', title:'정비사업 구역이라면 — 진행 단계를 먼저 확인하세요',
+  msg:'투기과열지구에서는 재건축은 조합설립인가 후, 재개발은 관리처분인가 후 조합원 지위 양도가 막힙니다. 경·공매는 예외라고 널리 알려져 있으나 근거 조문을 확인하지 못했습니다 — 도시정비법 39조 2항의 예외 목록에 경매가 없습니다. 단정하지 말고 입찰 전 조합·법무사에 반드시 확인하세요. 확실한 것은 재개발이 관리처분인가 전까지는 자유롭게 양도된다는 점입니다. 그 전 단계 물건이면 문제가 없습니다.',
   test:s=>s.regulated},
- {id:'multi_acq_tax', level:'warn', title:'취득세 중과 — 공시가격부터 확인하세요',
-  msg:'조정대상지역 2주택 8%, 3주택 이상 12%입니다(비조정 3주택 8%·4주택 12%). 다만 공시가격이 일정액 이하인 저가주택은 중과에서 제외되는 규정이 있습니다(기준 금액·지역 구분은 시점에 따라 다르므로 반드시 확인). 같은 물건도 공시가격에 따라 취득세가 8~12% → 1%대로 바뀌므로, 입찰 전 공시가격을 먼저 확인하는 습관을 들이세요.',
+ {id:'multi_acq_tax', level:'warn', title:'취득세 중과 — 농특세·교육세까지 더한 실제 세율',
+  msg:'2주택 8.4%(85㎡ 초과 9.0%), 3주택 이상 12.4%(85㎡ 초과 13.4%)입니다. 조정대상지역이면 한 칸 밀려서 조정 2주택이 비조정 3주택 취급을 받습니다. 1억짜리를 받아도 취득세만 840~1,340만원입니다. 입찰가에 미리 더해 계산하세요. 취득세 주택 수에는 조합원입주권·주택분양권·오피스텔도 들어갑니다.',
   test:s=>s.ownership==='multi'},
+ {id:'acq_tax_85', level:'info', title:'전용 85㎡가 취득세의 첫 번째 분기점입니다',
+  msg:'85㎡를 넘으면 농어촌특별세가 붙어 세율이 0.2~1.0%p 올라갑니다. 기준은 공급면적이 아니라 전용면적입니다. 반대로 다세대·연립·도시형생활주택 중 전용 60㎡ 이하이고 취득가액 3억 이하(수도권 6억 이하)면 한시적으로 취득세 주택 수에서 빠지는 특례가 있습니다(2027-12-31까지 취득분, 아파트는 대상 아님).',
+  test:s=>s.over85 || s.props.indexOf('villa')>=0},
+ {id:'corp_acq_tax', level:'warn', title:'법인 취득세는 개인 3주택과 같습니다',
+  msg:'법인은 주택 수와 무관하게 12.4%(85㎡ 초과 13.4%)입니다. 법인의 이점은 취득 단계가 아니라 보유·양도 단계에 있습니다. 반대로 대출은 법인이 개인보다 유리한 편입니다(재무제표 심사). 세금과 조달이 반대 방향이니 물건과 보유기간을 놓고 세무사와 구조를 먼저 정하세요.',
+  test:s=>s.subject==='corp'},
  {id:'multi_flip_tax', level:'warn', title:'다주택 + 단기 매각 = 세금이 수익을 먹습니다',
   msg:'보유 1년 미만 매도는 양도세율 70%, 2년 미만은 60%입니다. 여기에 조정지역 다주택 중과(+20~30%p)가 더해질 수 있습니다. 세후 수익으로 다시 계산하세요.',
   test:s=>s.ownership==='multi' && s.code[4]==='P' && s.subject==='person'},
  {id:'dealer_income_tax', level:'info', title:'매매사업자·법인은 세금 계산법이 다릅니다',
   msg:'매매사업자의 매각 차익은 양도소득세가 아니라 사업소득(종합소득세), 법인은 법인세 + 추가과세 대상입니다. 단기 회전에는 유리할 수 있으나 건강보험료·부가세·장부 의무가 따라옵니다. 세무사와 구조를 먼저 정하고 입찰하세요.',
   test:s=>s.subject!=='person'},
+ {id:'jongbuse_2027', level:'warn', title:'조정대상지역 물건을 보유하면 종부세가 더 오릅니다',
+  msg:'2026년 세제개편안에 따르면 3주택 이상이거나 조정대상지역 주택을 보유한 경우(1세대1주택자 제외) 공정시장가액비율이 2027년 70%, 2028년 80%로 올라갑니다. 그 외는 70%에서 멈춥니다. 세부담 상한도 150%에서 200%로 늘어 작년 대비 최대 2배까지 오를 수 있습니다. 보유를 전제로 한 수익률은 이 증가분을 빼고 계산하세요.',
+  test:s=>s.regulated && (s.ownership==='multi' || s.code[4]==='K')},
+ {id:'transfer_relief_2027', level:'info', title:'2027년이 다주택 처분의 창(window)입니다',
+  msg:'다주택 양도세 중과가 2027년 2주택 +5%p / 3주택 이상 +10%p로 완화되고, 2028년에는 +10%p / +15%p로 다시 올라갑니다. 완화 폭이 2027년에 가장 큽니다. 2026년에 판 물건도 2027년 1월 1일 이후 신고하면 완화세율을 적용받습니다. 단 보유 2년 이상이어야 합니다.',
+  test:s=>s.ownership==='multi'},
  {id:'exit_p_short', level:'info', title:'매도 시점이 곧 수익률입니다',
   msg:'개인은 보유 1년 미만 매도 시 양도세 70%. 최소 1~2년 보유를 전제로 자금 계획을 세우면 세후 수익이 크게 달라집니다.',
   test:s=>s.code[4]==='P' && s.subject==='person'},
@@ -636,16 +657,22 @@ function computeCriteria(){
   const cash = CASHES.find(b=>b.v === state.cash);
 
   /* ── 가격 상한: 사용자가 적은 '동원 가능 총액'이 있으면 그것이 기준 ── */
-  let base, ltv = null, basis;
+  let base, ltv = null, basis, capApplied = null;
   if(state.totalFunds){
     base = state.totalFunds;
     basis = 'direct';
   } else {
-    if(state.subject !== 'person' && metro) ltv = 1.0;                       // 수도권 사업자·법인 대출 불가
-    else if(regulated) ltv = (state.ownership === 'none') ? 1.7 : 1.0;
-    else ltv = (state.ownership === 'multi') ? 2.31 : 3.3;
-    if(anyUnknownRegion() && !regulated) ltv = Math.min(ltv, 1.7);           // 판정 불가 → 보수적
+    // 00_regulations.md H-6 매트릭스. 1주택은 '원칙 0%'(처분조건부만 대출) → 보수적으로 자기자본만.
+    if(state.subject !== 'person') ltv = 1.0;                    // 매매사업자·법인: 주택구입 목적 주담대 불가
+    else if(state.ownership !== 'none') ltv = 1.0;               // 1주택·다주택: 원칙 0%
+    else if(regulated) ltv = 1.67;                               // 규제 무주택 LTV 40% → 1/(1-0.4)
+    else ltv = 3.33;                                             // 비규제 무주택 LTV 70% → 1/(1-0.7)
+    if(anyUnknownRegion() && !regulated) ltv = Math.min(ltv, 1.67);
     base = cash.top * ltv;
+    // 절대 캡: 15억 이하 6억 / 15~25억 4억 / 25억 초과 2억 (자기자본 + 대출한도)
+    const cap = base <= 1500000000 ? 600000000 : (base <= 2500000000 ? 400000000 : 200000000);
+    const capped = cash.top + cap;
+    if(base > capped){ base = capped; capApplied = cap; }
     basis = 'estimate';
   }
   let coef = 1.0; const coefWhy = [];
@@ -684,7 +711,7 @@ function computeCriteria(){
   const rights = state.special ? 'special_ok' : 'safe';
   const specialLabels = state.specials.map(v=>{ const sp = SPECIALS.find(x=>x.v===v); return sp ? sp.label : v; });
 
-  return { code, regulated, metro, ltv, basis, coef, coefWhy, priceMax, priceMin,
+  return { code, regulated, metro, ltv, basis, capApplied, coef, coefWhy, priceMax, priceMin,
            failHint, failWhy, rights, specialLabels, over85, typeLabels, areaLines,
            regions: state.regions.map(regionLabel),
            cashTop: cash.top, base };
@@ -996,6 +1023,7 @@ function renderResult(){
   const ctx = { code:c.code, subject:state.subject, cash:state.cash, ownership:state.ownership,
                 experience:state.experience, regulated:c.regulated, metro:c.metro,
                 special:state.special, over85:c.over85, props:state.props,
+                basisEstimate: c.basis === 'estimate',
                 hasUnknownRegion:anyUnknownRegion() };
   const flags = FLAG_DEFS.filter(f=>f.test(ctx));
   const order = { danger:0, warn:1, info:2 };
@@ -1019,7 +1047,9 @@ function renderResult(){
 
   const fundsLine = c.basis === 'direct'
     ? '직접 입력한 동원 총액 ' + fmtWon(c.base)
-    : '내 돈 ' + fmtWon(c.cashTop) + ' × 대출배수 ' + c.ltv + '배(추정)';
+    : (c.ltv === 1.0
+        ? '내 돈 ' + fmtWon(c.cashTop) + ' (대출이 나오지 않는 조건이라 자기자본만)'
+        : '내 돈 ' + fmtWon(c.cashTop) + ' × 대출배수 ' + c.ltv + '배(추정)');
 
   const criteriaRows = [
     ['지역', regionsHTML, state.regions.length + '곳 선택 — 한 곳씩 나눠 검색하세요'],
@@ -1105,7 +1135,11 @@ function renderResult(){
           '<code>'+esc(fundsLine)+(c.coefWhy.length? ' × '+c.coefWhy.join(' × ') : '')+' = '+fmtWon(c.priceMax)+'</code><br>'+
           (c.basis==='direct'
             ? '· 직접 적어주신 동원 가능 총액을 그대로 기준으로 삼았습니다.<br>'
-            : '· 대출배수 '+c.ltv+'배는 '+(c.regulated?'규제지역':'비규제지역')+' · '+esc(ownLabel)+(state.subject!=='person'?' · '+esc(subjLabel):'')+' 기준 추정치입니다(2026-07-01 규제).<br>')+
+            : '· '+(state.subject!=='person' ? '매매사업자·법인은 주택구입 목적 주담대를 받을 수 없어 <b>자기자본만</b>으로 계산했습니다'
+                 : (state.ownership!=='none' ? '기존 주택을 보유한 상태에서는 원칙적으로 추가 대출이 나오지 않아 <b>자기자본만</b>으로 계산했습니다 (6개월 내 처분조건을 걸면 한도가 생깁니다)'
+                 : (c.regulated ? '규제지역 무주택 <b>LTV 40%</b> 기준 (생애최초면 70%까지)' : '비규제 무주택 <b>LTV 70%</b> 기준')))+'<br>'+
+              (c.capApplied ? '· 대출 절대 캡 '+fmtWon(c.capApplied)+'이 걸려 상한을 낮췄습니다.<br>' : '')+
+              '· DSR(1금융 40% / 2금융 50%)이 소득으로 한 번 더 자릅니다. 실제 한도는 은행에 확인하세요.<br>')+
           (c.coefWhy.length ? '· 예비비 계수는 수리·명도·소송 비용을 미리 떼어 두기 위한 것입니다.<br>' : '')+
           '<b>이 금액은 검색 범위일 뿐 입찰가 상한이 아닙니다.</b> 입찰가는 반드시 시세에서 역산해 따로 정하세요.'+
         '</div></details>'+
@@ -1115,8 +1149,9 @@ function renderResult(){
     '<div class="sec"><div class="sec-title">경매만 되는 것 — 일반 매매와의 차이</div><div class="edge">'+
       '<div class="card"><h5>토지거래허가 불요</h5><p>토허구역 아파트도 경매는 허가 절차 없이 취득합니다.</p><span class="vs">일반 매매: 허가 필요</span></div>'+
       '<div class="card"><h5>2년 실거주 의무 면제</h5><p>토허구역이라도 경매 취득에는 실거주 의무가 부과되지 않습니다.</p><span class="vs">일반 매매: 2년 거주</span></div>'+
-      '<div class="card"><h5>조합원 지위 승계 가능</h5><p>투기과열지구의 재건축(조합설립 후)·재개발(관리처분 후) 물건도 경·공매는 예외로 승계됩니다. 사건별로 갈리므로 사전 확인 필수.</p><span class="vs">일반 매매: 양도 제한</span></div>'+
-    '</div></div>'+
+      '<div class="card" style="border-top-color:var(--orange)"><h5>조합원 지위 승계 <span class="unverified">확인 필요</span></h5><p>경·공매는 예외로 승계된다고 널리 알려져 있으나, <b>근거 조문을 확인하지 못했습니다.</b> 도시정비법 §39②의 예외 목록에 경매가 없습니다. 정비구역 물건은 입찰 전 <b>조합·법무사에 반드시 확인</b>하세요.</p><span class="vs" style="color:var(--orange)">확실한 것: 재개발은 관리처분인가 전까지 자유롭게 양도</span></div>'+
+    '</div>'+
+    '<div class="tip" style="margin-top:11px"><b>정비사업 단계를 먼저 보세요.</b> 재건축은 <b>조합설립인가</b>부터, 재개발은 <b>관리처분인가</b>부터 지위 양도가 막힙니다. 그 전 단계 물건은 경매든 일반매매든 문제가 없습니다. 재개발이 훨씬 늦게 잠기므로 투자 창구가 깁니다. (2018-01-24 이전 최초 사업시행인가를 신청한 재개발 조합은 전매금지 자체가 적용되지 않습니다.)</div></div>'+
 
     '<div class="sec"><div class="sec-title">유찰 횟수를 읽는 법</div>'+
       '<div class="panel read"><p style="margin-bottom:10px">유찰 1회당 최저가는 보통 <b>20~30% 내려갑니다.</b> 그래서 유찰 횟수와 가격 조건은 사실상 같은 말입니다 — 둘 다로 좁히면 볼 물건이 사라집니다.</p>'+
@@ -1126,12 +1161,26 @@ function renderResult(){
       '<p class="muted" style="margin-top:10px;font-size:.9rem">여러 번 유찰된 데는 반드시 이유가 있습니다. 그 이유를 찾아낼 수 있으면 기회이고, 못 찾으면 그게 바로 손실입니다.</p></div>'+
     '</div>'+
 
-    '<div class="sec"><div class="sec-title">시장 국면 브리핑 <span class="unverified">미검증</span></div>'+
-      '<div class="panel read"><p style="margin-bottom:10px"><b>2026-08-02 세제개편(사용자 제공 정보 — 원문 미확인)</b>: 보유세 강화 + 양도세 2년간 한시 완화.</p>'+
-      '<ul><li><b>보유 비용↑ · 처분 부담↓</b> → 오래 들고 가는 전략의 유지비가 커지고, 완화 기간 안에 정리하려는 매물이 늘 수 있습니다.</li>'+
-      '<li>월세형(K)이라면 보유세 증가분을 수익률에서 먼저 빼고 계산하세요. 차익형(P)이라면 완화 기간이 언제 끝나는지가 매도 시점을 좌우합니다.</li>'+
-      '<li>정비사업(재개발 입주권·신속통합기획 구역 빌라)은 경매로 조합원 지위를 승계할 수 있어 제도적 이점이 있습니다. 다만 이는 <b>전망이지 사실이 아닙니다.</b></li></ul>'+
-      '<p style="margin-top:10px;color:var(--red);font-size:.88rem"><b>반드시 원문을 확인하세요.</b> 이 항목은 검증되지 않은 정보이며, 세율·시행일·적용 대상이 다를 수 있습니다.</p></div>'+
+    '<div class="sec"><div class="sec-title">2026년 세제개편안 — 내 유형에 미치는 영향</div>'+
+      '<div class="panel read"><p style="margin-bottom:12px"><b>보유세는 올리고, 양도세 중과는 2년간 낮춥니다.</b> 개정이유에 <b>"다주택자 보유세 정상화에 따른 매도 기회 부여"</b>라고 적혀 있습니다 — 정책이 "이 기간에 팔라"고 말하는 셈입니다.</p>'+
+      '<div style="overflow-x:auto"><table class="sctbl" style="font-size:.88rem"><tbody>'+
+        '<tr><th>종부세 공정시장가액비율</th><td>60% → <b>70%</b>(’27년). 단 <b>3주택 이상 또는 조정대상지역 주택 보유자</b>는 ’28년 <b>80%</b><span class="why">1세대1주택자는 제외</span></td></tr>'+
+        '<tr><th>종부세 세율</th><td>’28년부터 <b>주택 수 차등 폐지 → 가액 단일세율</b>(0.5~5.0%)<span class="why">"몇 채"에서 "얼마어치"로 기준이 바뀝니다</span></td></tr>'+
+        '<tr><th>세부담 상한</th><td>150% → <b>200%</b><span class="why">작년 대비 최대 2배까지 오를 수 있습니다</span></td></tr>'+
+        '<tr><th>1세대1주택 세액공제</th><td>보유기간 공제 → <b>거주기간 공제로 전환</b>, 금액한도 ’27년 800만 → ’28년 600만<span class="why">임대 놓은 1주택은 공제가 절반으로, ’28년엔 0이 됩니다</span></td></tr>'+
+        '<tr class="ref"><th>양도세 중과 <small>(2년 이상 보유)</small></th><td>2주택 +20%p → <b>’27년 +5%p</b> → ’28년 +10%p<br>3주택↑ +30%p → <b>’27년 +10%p</b> → ’28년 +15%p'+
+          '<span class="why">’26년에 판 것도 ’27.1.1. 이후 신고하면 완화세율을 적용받습니다</span></td></tr>'+
+      '</tbody></table></div>'+
+      '<p style="margin:14px 0 8px"><b>그래서 '+esc(t.name)+'(' + c.code + ')에게는:</b></p><ul>'+
+      (c.code[4]==='K'
+        ? '<li><b>보유세 증가분을 수익률에서 먼저 빼세요.</b> 월세를 받는 동안 보유세가 오르면 실질 수익률이 그만큼 깎입니다. 특히 조정대상지역 물건을 갖고 있으면 ’28년 공정시장가액비율이 80%로 올라갑니다.</li>'+
+          '<li>물건 수를 늘릴수록 보유 비용이 가팔라집니다. <b>채수보다 수익률</b>로 관리하세요.</li>'
+        : '<li><b>’27년이 다주택 처분의 창(window)입니다.</b> 완화 폭이 ’27년에 가장 크고 ’28년에 절반으로 줄어듭니다. 매도 시점을 여기에 맞추면 세후 수익이 크게 달라집니다.</li>'+
+          '<li>⚠️ <b>단, 보유 2년 이상이어야 완화 대상입니다.</b> 1년 미만 70% · 2년 미만 60%는 그대로입니다. 짧게 회전하는 전략에는 이 완화가 적용되지 않습니다.</li>')+
+      (state.ownership==='multi' ? '<li>다주택이시라면 <b>보유세는 오르고 양도세는 한시적으로 내려가는</b> 구간에 정확히 들어와 있습니다. 보유·처분을 함께 놓고 계산하세요.</li>' : '')+
+      '<li>조정대상지역 <b>일시적 2주택</b>의 종전주택 양도기한이 3년 → <b>2년</b>으로 줄었습니다(’26.10.1. 이후 양도분, ’26.8.3. 이전 계약분은 종전 규정).</li>'+
+      '</ul>'+
+      '<p class="muted" style="margin-top:12px;font-size:.86rem">출처: 「2026년 세제개편안 상세본」 pp.56–96. <b>개정"안"이며 국회 통과 전입니다.</b> 시행 전 최종 조문을 확인하세요. 종부세 항목은 모두 ’27.1.1. 이후 납세의무 성립분부터 적용됩니다.</p></div>'+
     '</div>'+
 
     '<div class="sec"><div class="sec-title">입찰 전 확인</div>'+
@@ -1149,7 +1198,7 @@ function renderResult(){
       '<button class="btn btn-ghost" id="r-restart">↻ 다시하기</button>'+
     '</div>'+
     '<p class="disclaimer">'+esc(DISCLAIMER)+'</p>'+
-    '<footer>법원경매 투자성향 테스트 v3 · 규제 기준일 2026-07-01 (세제개편 항목은 미검증)</footer>';
+    '<footer>법원경매 투자성향 테스트 v4 · 규제 기준일 2026-07-01 · 2026년 세제개편안(국회 통과 전) 반영</footer>';
 
   $('#r-restart').onclick = ()=>{ state.answers = {}; qi = 0; show('screen-start'); };
   $('#r-copy').onclick = ()=>copyText(criteriaText, '검색조건을 복사했습니다');
