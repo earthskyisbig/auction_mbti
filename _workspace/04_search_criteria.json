@@ -1,156 +1,139 @@
 {
-  "version": "2.0",
+  "version": "3.0",
   "track": "auction",
-  "note": "진단 결과(유형 3축 + 사실 입력 4개) → 법원경매 검색조건. 같은 입력이면 항상 같은 결과(결정적).",
+  "note": "진단 결과(3축 유형 + 사실 입력) → 법원경매 검색조건. 같은 입력이면 항상 같은 결과(결정적).",
   "source_of_truth": {
     "typology": "_workspace/01_typology.md",
     "types_and_questions": "_workspace/02_diagnostic.json",
-    "regulations": "_workspace/00_regulations.md (기준일 2026-07-01, 규제 수치는 이 문서만 인용)"
+    "regulations": "_workspace/00_regulations.md (2026-07-01 기준 + 2026-08-03 보강)"
   },
   "disclaimer": "본 매핑은 성향에 맞는 물건을 찾는 출발점일 뿐 투자·세무·법률 자문이 아니다. 실제 입찰·대출·세금 적용 전 금융기관·세무사·법무사와 해당 시점 규정을 직접 확인하라.",
 
   "rules": {
     "price_max": {
-      "formula": "equity_top × ltv_mult × reserve_coef",
-      "equity_top": { "u50": 50000000, "u150": 150000000, "u300": 300000000, "o300": 400000000 },
+      "formula_direct": "total_funds × reserve_coef",
+      "formula_estimate": "cash_top × ltv_mult × reserve_coef",
+      "priority": "total_funds가 입력되면 ltv_mult를 무시하고 formula_direct를 쓴다. 본인이 아는 금액이 추정보다 정확하다.",
+      "cash_top": { "u50": 50000000, "u150": 150000000, "u300": 300000000, "o300": 400000000 },
       "ltv_mult": {
-        "normal": { "none": 3.3, "one": 3.3, "multi": 2.31 },
-        "regulated": { "none": 1.7, "one": 1.0, "multi": 1.0 },
-        "unknown": { "none": 1.7, "one": 1.0, "multi": 1.0 }
+        "_order": "위에서부터 먼저 걸리는 규칙을 적용한다",
+        "metro_business": { "when": "subject != person AND any_metro", "value": 1.0, "why": "수도권 매매사업자·법인 주택 대출 사실상 불가 (00_reg H-3)" },
+        "regulated_none":  { "when": "any_regulated AND ownership == none", "value": 1.7, "why": "규제지역 무주택 LTV 40%. 생애최초면 70%(3.3) (00_reg A-2)" },
+        "regulated_owner": { "when": "any_regulated AND ownership != none", "value": 1.0, "why": "규제지역 추가구입 주담대 금지 (00_reg A-1)" },
+        "normal_multi":    { "when": "!any_regulated AND ownership == multi", "value": 2.31, "why": "비규제 다주택 3.3×0.7, 한도·DSR 제약 (00_reg B-1)" },
+        "normal":          { "when": "!any_regulated", "value": 3.3, "why": "비규제 LTV 70% (00_reg C)" },
+        "unknown_cap":     { "when": "지역 중 규제 판정 불가가 있고 규제지역은 없음", "value": "min(계산값, 1.7)", "why": "보수적 계산" }
       },
-      "ltv_basis": {
-        "normal_70": "비규제 LTV 70% → 1/(1-0.7) ≈ 3.3배 (00_reg C)",
-        "normal_multi": "비규제라도 다주택 추가구입은 한도·DSR 제약 → 3.3 × 0.7 = 2.31 (00_reg B-1)",
-        "regulated_none_40": "규제지역 무주택 LTV 40% → 1/(1-0.4) ≈ 1.7배. 생애최초면 70%(3.3배)로 상향 가능 (00_reg A-2)",
-        "regulated_one_multi_0": "규제지역 미처분 1주택·다주택 추가구입 주담대 금지 → 자기자본만 1.0배 (00_reg A-1)",
-        "unknown": "판정 불가 시 규제지역 기준으로 보수적 계산"
-      },
+      "multi_region_rule": "지역을 여러 곳 고르면 한 곳이라도 규제지역이면 규제 기준으로 계산한다(보수적).",
       "reserve_coef": {
         "base": 1.0,
         "WORK_H": 0.85,
-        "RIGHTS_R": 0.9,
-        "note": "해당하는 계수를 모두 곱한다. 수리·명도·소송 예비비를 미리 떼어놓기 위한 성향 계수이며 규제 수치가 아니다."
+        "special_selected": 0.9,
+        "RIGHTS_R_without_special": 0.95,
+        "note": "해당하는 계수를 곱한다. 특수물건을 실제로 선택했으면 0.9, 성향만 모험이면 0.95. 성향 계수이며 규제 수치가 아니다."
       },
       "rounding": "만 원 단위 내림"
     },
 
     "price_min": {
-      "u50": 30000000,
-      "u150": 0,
-      "u300": 0,
-      "o300": 0,
-      "basis": "소액 구간의 3천만 원 미만 물건은 환금성·권리 문제 비중이 높아 하한을 둔다"
-    },
-
-    "min_fail_count": {
-      "base": 1,
-      "modifiers": [
-        { "when": { "axis": { "RIGHTS": "R" } }, "delta": 1, "why": "특수물건은 유찰 누적이 정상" },
-        { "when": { "axis": { "EXIT": "P" } }, "delta": 1, "why": "차익형은 낙찰가 자체가 싸야 성립" },
-        { "when": { "regulated": true }, "delta": 1, "why": "규제지역은 경매 수요 쏠림으로 고가 낙찰 빈발 → 더 내려온 회차 대기" },
-        { "when": { "axis": { "RIGHTS": "S", "WORK": "E" }, "budget": ["u300", "o300"] }, "delta": -1, "why": "우량·안전물건은 유찰이 적어 무리한 대기가 비현실적" }
-      ],
-      "floor": 0,
-      "note": "1회 유찰 시 최저매각가격은 통상 20~30% 하락(법원별 상이)"
-    },
-
-    "rights_difficulty": {
-      "S": { "value": "safe", "site": "특수조건 체크 안 함", "detail": "말소기준권리 이하 전부 소멸 · 인수 권리 0 · 인도명령 가능" },
-      "R": { "value": "special_ok", "site": "특수조건 체크", "detail": "유치권 · 법정지상권 · 분묘기지권 · 지분매각 · 대지권미등기 · 선순위(대항력) 임차인" },
-      "override": {
-        "when": { "experience": "novice", "axis": { "RIGHTS": "R" } },
-        "to": "safe",
-        "flag": "novice_risk",
-        "why": "초보 안전장치. 유형 코드는 바꾸지 않고 검색조건만 하향한다"
-      }
+      "rule": "cash == u50 AND total_funds 미입력 → 30000000, 그 외 0",
+      "basis": "소액 구간의 3천만 원 미만 물건은 환금성·권리 문제 비중이 높다"
     },
 
     "property_type": {
-      "by_exit": {
-        "K": ["오피스텔", "다세대/연립", "아파트(소형)"],
-        "P": ["아파트", "다세대/연립"]
-      },
-      "by_budget": {
-        "u50": { "remove": ["아파트", "아파트(소형)"], "why": "예산 대비 검색 결과가 거의 없음" },
-        "u150": { "remove": [] },
-        "u300": { "remove": [] },
-        "o300": { "remove": ["다세대/연립"], "why": "큰 자본을 환금성 낮은 물건에 묶지 않는다" }
-      }
+      "source": "사용자가 2단계에서 직접 복수 선택",
+      "options": ["apt(아파트)", "villa(다세대·연립)", "oft(오피스텔)"],
+      "note": "v2처럼 출구 축에서 자동 결정하지 않는다"
     },
 
     "area": {
-      "K": "전용 59㎡ 이하 (소형 임대형)",
-      "P": "전용 59~84㎡ (국민평형, 환금성 우선)",
-      "override_u50": "전용 59㎡ 이하"
+      "source": "종류별로 따로 질문 — 전용률이 달라 하나의 기준으로 물으면 오답",
+      "apt":   { "a59": "전용 59㎡ 이상(기본)", "a5984": "전용 59~84㎡", "a84": "전용 84㎡ 초과 포함" },
+      "villa": { "r3": "방 3개 이상(기본)", "r2": "방 2개 이상" },
+      "oft":   { "o_s": "전용 30㎡ 이상(기본)", "o_m": "전용 45㎡ 이상" },
+      "always_note": "모든 면적은 전용면적 기준. 공급면적으로 비교하면 종류 간 오답이 된다.",
+      "vat_trigger": "apt.a84 AND subject != person → 건물분 부가세 경고 (00_reg H-3)"
     },
 
-    "site_filterable": ["지역", "물건종류", "최저매각가격", "유찰횟수", "특수조건", "전용면적"],
-    "notes_only": ["규제지역 여부", "대출 가용액·DSR", "취득세·양도세", "명도 난이도", "수리 상태"]
+    "rights_difficulty": {
+      "source": "사용자가 2단계에서 직접 선택 (special_wish)",
+      "safe": "특수조건 체크 안 함",
+      "special_ok": "유치권·법정지상권·분묘기지권·지분매각·대지권미등기·선순위 임차인",
+      "no_auto_override": "v2의 초보 자동 하향을 제거했다. 사용자 선택을 시스템이 되돌리지 않는다. 대신 경고로 알린다.",
+      "novice_flags": {
+        "novice_and_special": "danger — 첫 3건은 입찰하지 말고 추적만",
+        "novice_and_R_without_special": "warn — 성향은 모험형이나 조건은 안전. 원하면 켤 수 있다"
+      }
+    },
+
+    "min_fail_count": {
+      "status": "필터 아님 — 참고 지표",
+      "why": "유찰 1회당 최저가 20~30% 하락 → 가격 조건과 사실상 같은 정보. 둘 다로 좁히면 물건이 사라진다",
+      "hint": { "EXIT_P_or_RIGHTS_R": "2~3회", "default": "1~3회" },
+      "reading": {
+        "1_3": "아파트에서 흔한 정상 구간",
+        "over_3": "아파트에서 드묾 — 권리 하자·물건 하자·과다 감정가를 의심",
+        "hug": "HUG 대위변제 포기 물건은 유찰 누적 경향. 전세사기·깡통전세 연관이 많아 임차인 관계 확인 필수 (00_reg H-4)"
+      }
+    },
+
+    "auction_edge": {
+      "always_show": true,
+      "source": "00_reg H-1",
+      "items": [
+        { "title": "토지거래허가 불요", "vs": "일반 매매: 허가 필요" },
+        { "title": "2년 실거주 의무 면제", "vs": "일반 매매: 2년 거주" },
+        { "title": "조합원 지위 승계 가능", "vs": "일반 매매: 재건축 조합설립 후·재개발 관리처분 후 양도 제한", "caveat": "사건별로 갈리므로 입찰 전 조합·법무사 확인 필수" }
+      ]
+    },
+
+    "site_filterable": ["지역", "물건종류", "최저매각가격", "특수조건", "전용면적"],
+    "notes_only": ["규제지역 여부", "대출 가용액·DSR", "취득세·양도세·부가세", "명도 난이도", "수리 상태", "유찰 횟수 해석", "공시가격"]
   },
 
   "golden_cases": [
     {
-      "id": "G1",
-      "input": { "type": "A-SHP", "budget": "u50", "region": "경기 평택시", "regulated": false, "ownership": "none", "experience": "novice" },
-      "expect": {
-        "price_max": 140250000,
-        "price_min": 30000000,
-        "min_fail_count": 2,
-        "rights": "safe",
-        "property_type": ["다세대/연립"],
-        "area": "전용 59㎡ 이하",
-        "flags": ["work_h_reserve", "exit_p_short", "budget_small"]
-      },
-      "calc": "5,000만 × 3.3(비규제 무주택) × 0.85(H) = 1억 4,025만 / 유찰 1(base) + 1(P) = 2"
+      "id": "C1", "desc": "개인·비규제·무주택 — 추정 3.3배",
+      "input": { "subject": "person", "cash": "u150", "total_funds": null, "regions": [["경기도","평택시"]], "ownership": "none", "experience": "inter", "props": ["apt"], "special": false, "type": "A-SEK" },
+      "expect": { "ltv_mult": 3.3, "price_max": 495000000, "rights": "safe" },
+      "calc": "1.5억 × 3.3 × 1.0 = 4억 9,500만"
     },
     {
-      "id": "G2",
-      "input": { "type": "A-SEK", "budget": "u150", "region": "서울 노원구", "regulated": true, "ownership": "none", "experience": "inter" },
-      "expect": {
-        "price_max": 255000000,
-        "price_min": 0,
-        "min_fail_count": 2,
-        "rights": "safe",
-        "property_type": ["오피스텔", "다세대/연립", "아파트(소형)"],
-        "area": "전용 59㎡ 이하",
-        "flags": ["reg_none_ltv", "work_e_command", "exit_k_yield"]
-      },
-      "calc": "1.5억 × 1.7(규제 무주택 LTV40) × 1.0 = 2억 5,500만 / 유찰 1(base) + 1(규제) = 2"
+      "id": "C2", "desc": "개인·규제·다주택 → 대출 0",
+      "input": { "subject": "person", "cash": "u150", "regions": [["서울특별시","강북구"]], "ownership": "multi", "experience": "inter", "props": ["apt"], "special": false, "type": "A-SEK" },
+      "expect": { "ltv_mult": 1.0, "price_max": 150000000, "flags_include": ["reg_loan_zero", "multi_acq_tax"] },
+      "calc": "1.5억 × 1.0 × 1.0 = 1.5억"
     },
     {
-      "id": "G3",
-      "input": { "type": "A-RHP", "budget": "u300", "region": "경기 평택시", "regulated": false, "ownership": "multi", "experience": "expert" },
-      "expect": {
-        "price_max": 530145000,
-        "price_min": 0,
-        "min_fail_count": 3,
-        "rights": "special_ok",
-        "property_type": ["아파트", "다세대/연립"],
-        "area": "전용 59~84㎡",
-        "flags": ["multi_acq_tax", "multi_flip_tax", "work_h_reserve", "rights_r_worst", "exit_p_short"]
-      },
-      "calc": "3억 × 2.31(비규제 다주택) × 0.85(H) × 0.9(R) = 5억 3,014만 / 유찰 1 + 1(R) + 1(P) = 3"
+      "id": "C3", "desc": "매매사업자 + 수도권 → 대출 불가 강제",
+      "input": { "subject": "dealer", "cash": "u300", "regions": [["경기도","평택시"]], "ownership": "none", "experience": "inter", "props": ["apt"], "special": false, "type": "A-SEK" },
+      "expect": { "ltv_mult": 1.0, "price_max": 300000000, "flags_include": ["dealer_metro_loan", "dealer_income_tax"] },
+      "calc": "3억 × 1.0 × 1.0 = 3억 (비규제여도 사업자·수도권이면 1.0)"
     },
     {
-      "id": "G4",
-      "input": { "type": "A-RHP", "budget": "u50", "region": "서울 강북구", "regulated": true, "ownership": "none", "experience": "novice" },
-      "expect": {
-        "price_max": 65025000,
-        "price_min": 30000000,
-        "min_fail_count": 4,
-        "rights": "safe",
-        "rights_overridden": true,
-        "property_type": ["다세대/연립"],
-        "area": "전용 59㎡ 이하",
-        "flags": ["novice_risk", "reg_none_ltv", "work_h_reserve", "rights_r_worst", "exit_p_short", "budget_small"]
-      },
-      "calc": "5,000만 × 1.7 × 0.85 × 0.9 = 6,502만 / 유찰 1 + 1(R) + 1(P) + 1(규제) = 4 / 초보+R → rights를 safe로 하향"
+      "id": "C4", "desc": "동원 총액 직접 입력 + 직접형 + 특수물건",
+      "input": { "subject": "person", "cash": "u50", "total_funds": 420000000, "regions": [["경기도","평택시"]], "ownership": "none", "experience": "expert", "props": ["apt"], "special": true, "type": "A-SHP" },
+      "expect": { "basis": "direct", "price_max": 321300000, "reserve_coef": ["직접형 ×0.85", "특수물건 ×0.9"], "rights": "special_ok" },
+      "calc": "4.2억 × 0.85 × 0.9 = 3억 2,130만 (대출배수 무시)"
+    },
+    {
+      "id": "C5", "desc": "특수물건 미선택 + 모험 성향 → 0.95, safe 유지",
+      "input": { "subject": "person", "cash": "u150", "regions": [["경기도","평택시"]], "ownership": "none", "experience": "inter", "props": ["apt"], "special": false, "type": "A-REP" },
+      "expect": { "rights": "safe", "reserve_coef": ["모험 성향 ×0.95"] },
+      "calc": "성향만 모험이면 완만한 계수. 특수조건은 켜지 않는다"
+    },
+    {
+      "id": "C6", "desc": "특수물건 선택 → special_ok",
+      "input": { "subject": "person", "cash": "u150", "regions": [["경기도","평택시"]], "ownership": "none", "experience": "inter", "props": ["villa"], "special": true, "type": "A-SEK" },
+      "expect": { "rights": "special_ok", "fail_hint": "1~3회", "flags_include": ["rights_r_worst", "villa_rooms"] },
+      "calc": "성향이 안전형이어도 사용자가 고르면 특수조건이 켜진다"
     }
   ],
 
   "regulated_regions": {
-    "note": "00_regulations.md §E 기준(2026-07-01). 서울은 전역, 경기는 아래 시군구.",
+    "note": "00_regulations.md §E 기준. 서울은 전역, 경기는 아래 시군구. 2025-10-15 지정 + 2026-06-30 추가(구리·화성 동탄구·용인 기흥구).",
     "seoul_all": true,
-    "gyeonggi": ["과천시", "광명시", "성남시 분당구", "성남시 수정구", "성남시 중원구", "수원시 영통구", "수원시 장안구", "수원시 팔달구", "안양시 동안구", "용인시 수지구", "의왕시", "하남시", "구리시", "화성시 동탄구", "용인시 기흥구"]
+    "gyeonggi": ["과천시", "광명시", "성남시 분당구", "성남시 수정구", "성남시 중원구", "수원시 영통구", "수원시 장안구", "수원시 팔달구", "안양시 동안구", "용인시 수지구", "의왕시", "하남시", "구리시", "화성시 동탄구", "용인시 기흥구"],
+    "metro_sido": ["서울특별시", "경기도", "인천광역시"]
   }
 }

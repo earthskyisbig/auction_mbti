@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>법원경매 투자성향 테스트 — 내 성향에 맞는 검색조건 찾기</title>
-<meta name="description" content="질문 9개로 법원경매 투자성향 8유형을 진단하고, 법원경매정보 사이트에 그대로 넣을 검색조건을 만들어 줍니다.">
+<title>법원경매 투자성향 테스트 — 내 조건에 맞는 검색조건 찾기</title>
+<meta name="description" content="내 조건과 질문 9개로 경매 투자성향 8유형을 진단하고, 법원경매정보에 그대로 넣을 검색조건과 규제·세금 체크포인트를 정리해 줍니다.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
@@ -38,14 +38,14 @@ a{ color:var(--orange); }
 .hero .inner{ position:relative; z-index:1; }
 .hero h1{ font-size:clamp(2rem,5.2vw,3rem); line-height:1.15; margin:18px 0 14px; }
 .hero h1 em{ font-style:italic; color:var(--orange); font-family:var(--body); font-weight:600; }
-.lead{ font-size:1.06rem; color:var(--mute); max-width:540px; margin:0 auto 26px; font-style:italic; }
-.howto{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin:34px 0 30px; text-align:left; }
-@media (max-width:640px){ .howto{ grid-template-columns:1fr; } }
-.howto .card{ background:#fff; border:1px solid var(--line); border-radius:16px; padding:18px 18px; }
-.howto .n{ font-family:var(--label); font-weight:700; font-size:.72rem; letter-spacing:.08em; color:var(--orange); }
-.howto h4{ font-size:1rem; margin:8px 0 5px; }
-.howto p{ margin:0; font-size:.9rem; color:var(--mute); }
-.assure{ background:var(--light-gray); border-radius:14px; padding:14px 18px; font-size:.94rem; margin:0 auto 26px; max-width:560px; }
+.lead{ font-size:1.06rem; color:var(--mute); max-width:560px; margin:0 auto 26px; font-style:italic; }
+.howto{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:34px 0 30px; text-align:left; }
+@media (max-width:700px){ .howto{ grid-template-columns:1fr 1fr; } }
+.howto .card{ background:#fff; border:1px solid var(--line); border-radius:16px; padding:16px; }
+.howto .n{ font-family:var(--label); font-weight:700; font-size:.7rem; letter-spacing:.08em; color:var(--orange); }
+.howto h4{ font-size:.96rem; margin:7px 0 5px; }
+.howto p{ margin:0; font-size:.86rem; color:var(--mute); }
+.assure{ background:var(--light-gray); border-radius:14px; padding:14px 18px; font-size:.94rem; margin:0 auto 26px; max-width:580px; }
 
 /* buttons */
 .btn{ font-family:var(--label); font-weight:600; font-size:.95rem; border:none; border-radius:999px; padding:14px 30px; cursor:pointer; transition:all .25s var(--ease); }
@@ -54,6 +54,7 @@ a{ color:var(--orange); }
 .btn-primary:disabled{ background:var(--mid-gray); cursor:not-allowed; transform:none; opacity:.6; }
 .btn-ghost{ background:transparent; color:var(--dark); border:1.5px solid var(--line); }
 .btn-ghost:hover{ border-color:var(--orange); color:var(--orange); }
+.btn-sm{ padding:9px 16px; font-size:.84rem; }
 .btn-row{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
 .note{ font-size:.84rem; color:var(--mute); margin-top:16px; }
 
@@ -65,18 +66,27 @@ a{ color:var(--orange); }
 .qcount{ font-family:var(--label); font-size:.8rem; color:var(--mute); }
 
 /* facts */
-.fact{ margin-bottom:30px; }
-.fact h3{ font-size:1.12rem; margin-bottom:4px; }
-.fact .help{ font-size:.88rem; color:var(--mute); margin-bottom:12px; }
-.chipset{ display:flex; flex-wrap:wrap; gap:9px; }
-.chip{ font-family:var(--body); font-size:.98rem; background:#fff; border:1.5px solid var(--line); border-radius:12px; padding:12px 16px; cursor:pointer; transition:all .2s var(--ease); }
+.fact{ margin-bottom:28px; }
+.fact h3{ font-size:1.1rem; margin-bottom:4px; }
+.fact .help{ font-size:.88rem; color:var(--mute); margin-bottom:11px; }
+.chipset{ display:flex; flex-wrap:wrap; gap:9px; align-items:center; }
+.chip{ font-family:var(--body); font-size:.97rem; background:#fff; border:1.5px solid var(--line); border-radius:12px; padding:11px 15px; cursor:pointer; transition:all .2s var(--ease); color:var(--dark); }
 .chip:hover{ border-color:rgba(217,119,87,.5); }
 .chip.sel{ border-color:var(--orange); background:#fdf3ee; font-weight:600; }
-select,input[type=text]{ font-family:var(--body); font-size:1rem; padding:12px 14px; border:1.5px solid var(--line); border-radius:12px; background:#fff; color:var(--dark); min-width:160px; }
-.regbadge{ display:inline-block; margin-top:10px; font-family:var(--label); font-size:.74rem; font-weight:600; padding:6px 12px; border-radius:999px; }
-.regbadge.on{ background:#fbecec; color:var(--red); }
-.regbadge.off{ background:#e7f1ea; color:#3f7d55; }
-.regbadge.unk{ background:var(--light-gray); color:var(--mute); }
+.chip .sub{ display:block; font-size:.78rem; color:var(--mute); font-weight:400; margin-top:2px; }
+select,input[type=text]{ font-family:var(--body); font-size:1rem; padding:11px 13px; border:1.5px solid var(--line); border-radius:12px; background:#fff; color:var(--dark); min-width:150px; }
+.money{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.money input{ width:150px; text-align:right; font-variant-numeric:tabular-nums; }
+.money .unit{ font-size:.92rem; color:var(--mute); }
+.picked{ display:flex; flex-wrap:wrap; gap:7px; margin-bottom:10px; }
+.rchip{ display:inline-flex; align-items:center; gap:7px; font-family:var(--label); font-size:.82rem; font-weight:600; background:var(--light-gray); padding:7px 8px 7px 13px; border-radius:999px; }
+.rchip.reg{ background:#fbecec; color:var(--red); }
+.rchip button{ border:none; background:rgba(0,0,0,.09); color:inherit; width:19px; height:19px; border-radius:50%; cursor:pointer; font-size:.8rem; line-height:1; }
+.sub-opts{ margin-top:9px; padding:13px 15px; background:var(--light-gray); border-radius:13px; }
+.sub-opts h5{ font-size:.85rem; margin-bottom:3px; }
+.sub-opts .help{ font-size:.82rem; margin-bottom:9px; }
+.tip{ font-size:.85rem; color:var(--mute); background:#eef3f8; border:1px solid rgba(106,155,204,.4); border-radius:11px; padding:10px 13px; margin-top:9px; line-height:1.55; }
+.tip b{ color:var(--dark); }
 
 /* quiz */
 .qtext{ font-family:var(--heading); font-weight:600; font-size:1.4rem; line-height:1.4; margin-bottom:22px; }
@@ -118,15 +128,25 @@ select,input[type=text]{ font-family:var(--body); font-size:1rem; padding:12px 1
 .panel li{ margin-bottom:6px; }
 .panel p{ margin:0; }
 
+/* 제도 우위 카드 */
+.edge{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+@media (max-width:700px){ .edge{ grid-template-columns:1fr; } }
+.edge .card{ background:#fff; border:1px solid var(--line); border-top:3px solid var(--green); border-radius:15px; padding:16px 17px; }
+.edge h5{ font-size:.94rem; margin-bottom:6px; }
+.edge p{ margin:0; font-size:.88rem; color:var(--mute); line-height:1.55; }
+.edge .vs{ display:block; font-family:var(--label); font-size:.7rem; font-weight:600; color:var(--green); margin-top:8px; }
+
 /* criteria table */
 .sc-card{ border:1px solid var(--line); border-radius:18px; background:#fff; padding:22px 20px; }
 .sc-card h4{ font-size:1.1rem; margin-bottom:4px; }
 .sc-intro{ color:var(--mute); font-size:.9rem; margin:0 0 16px; }
 .sctbl{ width:100%; border-collapse:collapse; font-size:.95rem; }
 .sctbl th,.sctbl td{ border-bottom:1px solid var(--line); padding:11px 8px; text-align:left; vertical-align:top; }
-.sctbl th{ font-family:var(--label); font-weight:600; font-size:.8rem; color:var(--mute); white-space:nowrap; width:34%; }
+.sctbl th{ font-family:var(--label); font-weight:600; font-size:.8rem; color:var(--mute); white-space:nowrap; width:32%; }
 .sctbl td b{ font-family:var(--label); font-weight:600; }
 .sctbl .why{ display:block; font-size:.8rem; color:var(--mute); margin-top:3px; }
+.sctbl tr.ref th{ color:var(--blue); }
+.sctbl tr.ref td{ background:#f4f8fb; }
 .steps{ counter-reset:s; margin:16px 0 0; padding:0; list-style:none; }
 .steps li{ counter-increment:s; position:relative; padding-left:34px; margin-bottom:10px; font-size:.95rem; }
 .steps li::before{ content:counter(s); position:absolute; left:0; top:1px; width:23px; height:23px; border-radius:50%; background:var(--dark); color:var(--light); font-family:var(--label); font-size:.75rem; font-weight:600; display:flex; align-items:center; justify-content:center; }
@@ -149,6 +169,7 @@ details.calc[open]>summary::after{ content:'▾'; }
 .flag.warn .ft{ background:var(--orange); color:#fff; }
 .flag.info{ background:#eef3f8; border-color:rgba(106,155,204,.5); }
 .flag.info .ft{ background:var(--blue); color:#fff; }
+.unverified{ display:inline-block; font-family:var(--label); font-size:.62rem; font-weight:700; letter-spacing:.05em; background:var(--mid-gray); color:#fff; padding:2px 8px; border-radius:999px; margin-left:6px; vertical-align:middle; }
 
 .checklist{ background:#fff; border:1px solid var(--line); border-radius:16px; padding:19px 20px; }
 .checklist label{ display:flex; gap:11px; align-items:flex-start; margin-bottom:11px; cursor:pointer; font-size:.97rem; }
@@ -158,9 +179,10 @@ details.calc[open]>summary::after{ content:'▾'; }
 .first-step p{ margin:0; font-style:italic; }
 .cond-line{ background:var(--light-gray); border-radius:12px; padding:12px 16px; font-size:.9rem; color:var(--mute); margin:18px 0 6px; text-align:center; }
 .cond-line b{ color:var(--dark); font-family:var(--label); font-weight:600; }
-.disclaimer{ max-width:620px; margin:34px auto 0; font-size:.84rem; color:var(--mute); text-align:center; line-height:1.6; border-top:1px solid var(--line); padding-top:20px; }
+.disclaimer{ max-width:640px; margin:34px auto 0; font-size:.84rem; color:var(--mute); text-align:center; line-height:1.6; border-top:1px solid var(--line); padding-top:20px; }
 footer{ text-align:center; color:var(--mute); font-size:.8rem; padding:26px 0 46px; }
-/* 텍스트 대체창 (클립보드·인쇄가 막힌 환경용) */
+
+/* 텍스트 대체창 */
 .modal{ position:fixed; inset:0; background:rgba(20,20,19,.55); display:none; align-items:center; justify-content:center; padding:20px; z-index:300; }
 .modal.show{ display:flex; }
 .modal-box{ background:var(--light); border-radius:18px; padding:22px; max-width:560px; width:100%; box-shadow:0 30px 60px -20px rgba(0,0,0,.45); }
@@ -168,7 +190,7 @@ footer{ text-align:center; color:var(--mute); font-size:.8rem; padding:26px 0 46
 .modal-box .mnote{ font-size:.9rem; color:var(--mute); margin:0 0 12px; line-height:1.55; }
 .modal-box textarea{ width:100%; height:210px; font-family:ui-monospace,Menlo,Consolas,monospace; font-size:.86rem; line-height:1.6; padding:13px; border:1.5px solid var(--line); border-radius:12px; background:#fff; color:var(--dark); resize:vertical; }
 .modal-box .btn-row{ margin-top:14px; justify-content:flex-end; }
-.toast{ position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--dark); color:var(--light); padding:12px 22px; border-radius:999px; font-family:var(--label); font-size:.85rem; opacity:0; pointer-events:none; transition:all .3s var(--ease); z-index:200; }
+.toast{ position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--dark); color:var(--light); padding:12px 22px; border-radius:999px; font-family:var(--label); font-size:.85rem; opacity:0; pointer-events:none; transition:all .3s var(--ease); z-index:400; max-width:90vw; text-align:center; }
 .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
 @media print{ .btn-row,.toast{ display:none; } .screen{ min-height:auto; } }
 </style>
@@ -180,15 +202,16 @@ footer{ text-align:center; color:var(--mute); font-size:.8rem; padding:26px 0 46
   <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
   <div class="wrap inner">
     <span class="eyebrow">법원경매 투자성향</span>
-    <h1>내 성향에 맞는<br><em>경매 물건</em>은 어떤 것일까?</h1>
-    <p class="lead">질문 9개에 답하면 8가지 유형 중 하나가 나오고,<br>법원경매 사이트에 그대로 넣을 <b>검색조건</b>을 만들어 드립니다.</p>
+    <h1>내 조건에 맞는<br><em>경매 물건</em>은 어떤 것일까?</h1>
+    <p class="lead">내 조건을 넣고 질문 9개에 답하면 8가지 유형 중 하나가 나오고,<br>법원경매 사이트에 그대로 넣을 <b>검색조건</b>과 <b>규제·세금 체크포인트</b>를 정리해 드립니다.</p>
 
     <div class="assure">정답이 없는 질문들입니다. 어느 쪽을 골라도 틀리지 않습니다. <b>지금의 나</b>에 가까운 쪽을 고르세요.</div>
 
     <div class="howto">
-      <div class="card"><div class="n">STEP 1</div><h4>내 조건 4가지</h4><p>예산·지역·집 보유 수·경매 경험. 30초면 끝납니다.</p></div>
-      <div class="card"><div class="n">STEP 2</div><h4>성향 질문 9개</h4><p>둘 중 하나만 고르면 됩니다. 1분 정도 걸립니다.</p></div>
-      <div class="card"><div class="n">STEP 3</div><h4>검색조건 받기</h4><p>가격 상한·유찰 횟수·물건 종류까지 계산해 드립니다.</p></div>
+      <div class="card"><div class="n">STEP 1</div><h4>내 조건</h4><p>취득 주체·자금·지역(여러 곳 가능)·보유 수·경험</p></div>
+      <div class="card"><div class="n">STEP 2</div><h4>물건 조건</h4><p>어떤 종류를, 어느 크기로 볼지</p></div>
+      <div class="card"><div class="n">STEP 3</div><h4>성향 질문 9개</h4><p>둘 중 하나만 고르면 됩니다</p></div>
+      <div class="card"><div class="n">STEP 4</div><h4>검색조건 받기</h4><p>가격 상한·면적·규제·세금까지</p></div>
     </div>
 
     <button class="btn btn-primary" id="start-btn">시작하기 →</button>
@@ -196,23 +219,36 @@ footer{ text-align:center; color:var(--mute); font-size:.8rem; padding:26px 0 46
   </div>
 </section>
 
-<!-- ══════════ 1단계: 사실 입력 ══════════ -->
+<!-- ══════════ 1단계: 내 조건 ══════════ -->
 <section class="screen" id="screen-facts">
   <div class="wrap">
-    <div class="qtop"><span class="qstep">Step 1 / 3 · 내 조건</span><span class="qcount">4가지</span></div>
-    <div class="bar"><span style="width:12%"></span></div>
+    <div class="qtop"><span class="qstep">Step 1 / 4 · 내 조건</span><span class="qcount">5가지</span></div>
+    <div class="bar"><span style="width:10%"></span></div>
     <div id="facts-body"></div>
     <div class="nav-row">
       <button class="btn btn-ghost" id="facts-prev">← 처음으로</button>
-      <button class="btn btn-primary" id="facts-next" disabled>성향 질문으로 →</button>
+      <button class="btn btn-primary" id="facts-next" disabled>물건 조건으로 →</button>
     </div>
   </div>
 </section>
 
-<!-- ══════════ 2단계: 성향 질문 ══════════ -->
+<!-- ══════════ 2단계: 물건 조건 ══════════ -->
+<section class="screen" id="screen-prop">
+  <div class="wrap">
+    <div class="qtop"><span class="qstep">Step 2 / 4 · 물건 조건</span><span class="qcount">3가지</span></div>
+    <div class="bar"><span style="width:28%"></span></div>
+    <div id="prop-body"></div>
+    <div class="nav-row">
+      <button class="btn btn-ghost" id="prop-prev">← 이전</button>
+      <button class="btn btn-primary" id="prop-next" disabled>성향 질문으로 →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ 3단계: 성향 질문 ══════════ -->
 <section class="screen" id="screen-quiz">
   <div class="wrap">
-    <div class="qtop"><span class="qstep" id="q-axis">Step 2 / 3</span><span class="qcount" id="q-count">1 / 9</span></div>
+    <div class="qtop"><span class="qstep" id="q-axis">Step 3 / 4</span><span class="qcount" id="q-count">1 / 9</span></div>
     <div class="bar"><span id="q-bar"></span></div>
     <h2 class="qtext" id="q-text"></h2>
     <div class="opts" id="q-opts"></div>
@@ -223,7 +259,7 @@ footer{ text-align:center; color:var(--mute); font-size:.8rem; padding:26px 0 46
   </div>
 </section>
 
-<!-- ══════════ 3단계: 결과 ══════════ -->
+<!-- ══════════ 4단계: 결과 ══════════ -->
 <section class="screen" id="screen-result">
   <div class="wrap" id="result-body"></div>
 </section>
@@ -244,18 +280,15 @@ footer{ text-align:center; color:var(--mute); font-size:.8rem; padding:26px 0 46
 <script>
 /* ══════════════════════════════════════════════════════
    데이터 — _workspace/02_diagnostic.json + 04_search_criteria.json 과 동일
-   수정 시 두 JSON을 먼저 고치고 여기에 반영할 것
+   규제 문구 근거: _workspace/00_regulations.md (2026-08-03 보강본)
    ══════════════════════════════════════════════════════ */
 const AXES = [
-  { id:'RIGHTS', label:'권리 리스크', q:'서류가 복잡한 물건, 들어갈래요?',
-    a:{code:'S', name:'안전형', desc:'권리가 깨끗한 물건만 본다'},
-    b:{code:'R', name:'모험형', desc:'복잡해도 싸면 들어간다'} },
-  { id:'WORK', label:'손품', q:'사람 내보내고 고치는 일, 직접 할래요?',
-    a:{code:'E', name:'간편형', desc:'손 안 대도 되는 물건이 좋다'},
-    b:{code:'H', name:'직접형', desc:'명도·수리는 내가 한다'} },
-  { id:'EXIT', label:'출구', q:'매달 조금 vs 한 번에 크게?',
-    a:{code:'K', name:'월세형', desc:'갖고 있으며 월세를 받는다'},
-    b:{code:'P', name:'차익형', desc:'정리한 뒤 팔아서 차익을 남긴다'} }
+  { id:'RIGHTS', label:'권리 리스크',
+    a:{code:'S', name:'안전형'}, b:{code:'R', name:'모험형'} },
+  { id:'WORK', label:'손품',
+    a:{code:'E', name:'간편형'}, b:{code:'H', name:'직접형'} },
+  { id:'EXIT', label:'출구',
+    a:{code:'K', name:'월세형'}, b:{code:'P', name:'차익형'} }
 ];
 
 const QUESTIONS = [
@@ -327,7 +360,7 @@ const TYPES = {
 'A-REP':{name:'권리 틈새 차익러',
   summary:'남들이 무서워서 안 들어가는 물건을 싸게 받아, 쟁점을 정리한 뒤 되팝니다. 경쟁 회피 자체가 수익원입니다.',
   keywords:['특수물건','경쟁 회피','쟁점 해소 후 매각','저가 진입'],
-  fit:['유찰 3회 이상 누적 물건','지분매각·유치권 주장 물건','협의로 정리 가능한 공유자 구조'],
+  fit:['유찰이 누적된 물건(이유를 확인한 뒤)','지분매각·유치권 주장 물건','협의로 정리 가능한 공유자 구조'],
   trap:'정리 기간이 예상의 2~3배로 늘어납니다. 소송이 걸리면 1~2년이 기본이고, 그동안 자금은 통째로 묶입니다. "싸게 샀다"는 사실만으로는 수익이 되지 않습니다.',
   checklist:['최악의 시나리오(소송 2년·전부 패소)를 가정해도 감당 가능한 금액인가','소송비·변호사비를 별도 예산으로 잡았는가','출구(누구에게 팔 것인가)를 입찰 전에 정했는가 — 공유자? 일반 매수인?'],
   first:'지분매각 물건 3건의 등기부를 떼어 공유자 구성을 그려 보세요. 출구가 보이는 물건과 안 보이는 물건이 갈립니다.'},
@@ -335,23 +368,29 @@ const TYPES = {
   summary:'권리도 명도도 직접 해결하고, 그렇게 싸게 산 물건을 오래 보유하며 월세를 받습니다. 시간과 노동을 자산으로 바꾸는 유형입니다.',
   keywords:['저가 매입','직접 명도','장기 보유','다물건'],
   fit:['저가 다세대·연립','점유자가 있는 물건','수리 후 월세 수요가 있는 지역'],
-  trap:'물건 수가 늘어날수록 관리가 본업이 됩니다. 5채가 넘어가면 공실·수리·세입자 응대에 쓰는 시간이 수익을 앞지르는 시점이 옵니다.',
+  trap:'물건 수가 늘어날수록 관리가 본업이 됩니다. 5채가 넘어가면 공실·수리·세입자 응대에 쓰는 시간이 수익을 앞지르는 시점이 옵니다. 보유세 강화 국면에서는 보유 자체의 비용도 커집니다.',
   checklist:['물건 하나당 월평균 몇 시간이 드는지 실측했는가','명도 예비비(이사비·강제집행)를 낙찰가의 3~5%로 잡았는가','다주택이 되면서 늘어나는 취득세·보유세를 수익률에서 뺐는가'],
   first:'먼저 1채를 끝까지(낙찰→명도→수리→임대) 완주해 보세요. 걸린 시간을 기록하면 몇 채까지 감당 가능한지 나옵니다.'},
 'A-RHP':{name:'경매 풀코스 플레이어',
   summary:'권리분석·명도·수리를 전부 직접 하고 되팝니다. 경매에서 가장 높은 수익을 낼 수 있는 자리이자, 가장 많이 다치는 자리입니다.',
   keywords:['특수물건','직접 명도','수리 후 매각','최고 난도'],
-  fit:['유치권·법정지상권·지분 등 특수물건 전반','유찰 3회 이상','정리 후 가치가 크게 오르는 물건'],
+  fit:['유치권·법정지상권·지분 등 특수물건 전반','정비사업 구역 물건(경매는 조합원 지위 승계 가능)','정리 후 가치가 크게 오르는 물건'],
   trap:'모든 위험을 한 물건에 쌓아 올립니다. 권리 판단이 틀리고 + 명도가 길어지고 + 수리비가 초과되면, 세 개가 동시에 터집니다. 경험이 없다면 이 조합부터 시작하면 안 됩니다.',
   checklist:['권리 판단이 틀렸을 때 잃는 금액을 숫자로 적었는가','명도·소송·수리 예비비를 낙찰가의 15% 이상 확보했는가','한 건에 자금의 몇 %를 넣는지 — 50%를 넘으면 재고할 것'],
   first:'경험이 4건 이상이 아니라면, 같은 물건을 입찰하지 말고 끝까지 추적만 해 보세요. 낙찰자가 얼마에 받아 언제 팔았는지가 최고의 교재입니다.'}
 };
 
-const BUDGETS = [
+/* ── 사실 입력 선택지 ── */
+const SUBJECTS = [
+  {v:'person', label:'개인',       sub:'일반적인 경우'},
+  {v:'dealer', label:'매매사업자', sub:'사업자등록 후 매매업'},
+  {v:'corp',   label:'법인',       sub:'법인 명의 취득'}
+];
+const CASHES = [
   {v:'u50',  label:'5,000만 원 이하', top:50000000},
-  {v:'u150', label:'5,000만 ~ 1억 5,000만 원', top:150000000},
-  {v:'u300', label:'1억 5,000만 ~ 3억 원', top:300000000},
-  {v:'o300', label:'3억 원 초과', top:400000000}
+  {v:'u150', label:'5,000만 ~ 1.5억', top:150000000},
+  {v:'u300', label:'1.5억 ~ 3억',     top:300000000},
+  {v:'o300', label:'3억 초과',        top:400000000}
 ];
 const OWNERSHIPS = [{v:'none',label:'무주택'},{v:'one',label:'1주택'},{v:'multi',label:'2주택 이상'}];
 const EXPERIENCES = [
@@ -359,71 +398,112 @@ const EXPERIENCES = [
   {v:'inter', label:'낙찰 1~3건'},
   {v:'expert',label:'낙찰 4건 이상'}
 ];
+const PROP_TYPES = [
+  {v:'apt',   label:'아파트',        sub:'환금성 최고, 시세 명확'},
+  {v:'villa', label:'빌라·다세대',   sub:'저가 진입, 방 개수가 관건'},
+  {v:'oft',   label:'오피스텔',      sub:'소형 임대, 관리 편함'}
+];
+const APT_AREAS = [
+  {v:'a59',   label:'전용 59㎡ 이상', sub:'기본 권장 — 이보다 작으면 환금성이 떨어짐'},
+  {v:'a5984', label:'전용 59~84㎡',   sub:'국민평형. 가장 잘 팔리는 구간'},
+  {v:'a84',   label:'전용 84㎡ 초과도 포함', sub:'매매사업자·법인은 건물분 부가세 주의'}
+];
+const VILLA_ROOMS = [
+  {v:'r3', label:'방 3개 이상', sub:'기본 권장 — 가족 수요가 있어 환금성이 좋음'},
+  {v:'r2', label:'방 2개 이상', sub:'저가 진입 가능하나 매도가 느림'}
+];
+const OFT_AREAS = [
+  {v:'o_s', label:'전용 30㎡ 이상(원룸·1.5룸)', sub:'월세 수요 두터움'},
+  {v:'o_m', label:'전용 45㎡ 이상(투룸급)',     sub:'주거용 수요, 공실 위험 낮음'}
+];
 
-/* 규제지역 — 00_regulations.md §E (2026-07-01) */
+/* ── 지역 · 규제지역 (00_regulations.md §E, H-1) ── */
 const SIDO = ['서울특별시','경기도','인천광역시','부산광역시','대구광역시','광주광역시','대전광역시','울산광역시','세종특별자치시','강원특별자치도','충청북도','충청남도','전북특별자치도','전라남도','경상북도','경상남도','제주특별자치도'];
 const SIGUNGU = {
   '서울특별시':['강남구','강동구','강북구','강서구','관악구','광진구','구로구','금천구','노원구','도봉구','동대문구','동작구','마포구','서대문구','서초구','성동구','성북구','송파구','양천구','영등포구','용산구','은평구','종로구','중구','중랑구'],
   '경기도':['가평군','고양시 덕양구','고양시 일산동구','고양시 일산서구','과천시','광명시','광주시','구리시','군포시','김포시','남양주시','동두천시','부천시','성남시 분당구','성남시 수정구','성남시 중원구','수원시 권선구','수원시 영통구','수원시 장안구','수원시 팔달구','시흥시','안산시 단원구','안산시 상록구','안성시','안양시 동안구','안양시 만안구','양주시','양평군','여주시','연천군','오산시','용인시 기흥구','용인시 수지구','용인시 처인구','의왕시','의정부시','이천시','파주시','평택시','포천시','하남시','화성시 동탄구','화성시(동탄구 외)'],
   '인천광역시':['강화군','계양구','남동구','동구','미추홀구','부평구','서구','연수구','옹진군','중구']
 };
+/* 2025-10-15 서울 전역 + 경기 12곳 / 2026-06-30 구리·화성 동탄구·용인 기흥구 추가 */
 const REGULATED_GG = ['과천시','광명시','성남시 분당구','성남시 수정구','성남시 중원구','수원시 영통구','수원시 장안구','수원시 팔달구','안양시 동안구','용인시 수지구','의왕시','하남시','구리시','화성시 동탄구','용인시 기흥구'];
+const METRO_SIDO = ['서울특별시','경기도','인천광역시'];
 
 const FLAG_DEFS = [
- {id:'novice_risk', level:'danger', title:'초보 안전장치가 켜졌습니다',
-  msg:'성향은 모험형(R)이지만 아직 낙찰 경험이 없습니다. 처음 3건은 권리가 단순한 물건으로 시작하세요. 아래 검색조건은 "특수조건 체크 해제" 상태로 조정해 두었습니다. 유형이 바뀐 것은 아닙니다.',
-  test:s=>s.experience==='novice' && s.code[2]==='R'},
+ {id:'novice_risk', level:'danger', title:'초보인데 특수물건을 선택했습니다',
+  msg:'아직 낙찰 경험이 없습니다. 특수물건(유치권·지분·선순위 임차인 등)은 인수 금액을 숫자로 확정하지 못하면 손실이 확정됩니다. 처음 3건은 권리가 단순한 물건으로 시작하고, 특수물건은 입찰하지 말고 추적만 해 보세요.',
+  test:s=>s.experience==='novice' && s.special},
+ {id:'novice_type_risk', level:'warn', title:'성향은 모험형인데 경험이 없습니다',
+  msg:'성향(R)은 그대로 두었습니다. 다만 검색조건의 특수물건은 켜지 않았습니다. 특수물건을 보고 싶다면 2단계에서 직접 켤 수 있지만, 첫 3건은 안전한 물건으로 실행 경험을 쌓는 편이 훨씬 안전합니다.',
+  test:s=>s.experience==='novice' && s.code[2]==='R' && !s.special},
+ {id:'dealer_metro_loan', level:'danger', title:'수도권 + 매매사업자·법인 = 대출이 막힙니다',
+  msg:'수도권·규제지역에서 매매사업자·법인의 주택 취득 자금 대출은 사실상 나오지 않습니다(금융사별 상이, 확인 필요). 경락잔금대출도 같습니다. 동원 가능 자금이 곧 입찰 상한이라고 보고 계획하세요.',
+  test:s=>s.subject!=='person' && s.metro},
+ {id:'vat_85', level:'warn', title:'전용 85㎡ 초과 — 건물분 부가세가 붙습니다',
+  msg:'매매사업자·법인이 국민주택규모(전용 85㎡)를 넘는 주택을 취득하면 건물분 부가가치세가 과세됩니다. 입찰가를 정할 때 건물가액 기준 부가세를 원가에 미리 더해 계산하세요. 개인(비사업자)에게는 해당하지 않습니다.',
+  test:s=>s.subject!=='person' && s.over85},
  {id:'reg_loan_zero', level:'danger', title:'이 지역에서는 대출이 나오지 않을 수 있습니다',
-  msg:'규제지역에서 기존 주택을 처분하지 않은 1주택자·다주택자의 추가 주택구입 주담대는 금지(LTV 0%)입니다. 경락잔금대출도 같은 규제를 받습니다. 아래 가격 상한은 자기자본만으로 계산했습니다.',
-  test:s=>s.regulated===true && (s.ownership==='one'||s.ownership==='multi')},
+  msg:'규제지역에서 기존 주택을 처분하지 않은 1주택자·다주택자의 추가 주택구입 주담대는 금지(LTV 0%)입니다. 경락잔금대출도 같은 규제를 받습니다.',
+  test:s=>s.regulated && s.subject==='person' && (s.ownership==='one'||s.ownership==='multi')},
  {id:'reg_none_ltv', level:'info', title:'규제지역 무주택자 — 기회와 함정이 함께 있습니다',
-  msg:'(대출) LTV 40%, 생애최초면 70%, 주담대를 받으면 6개월 내 전입의무. (기회) 토지거래허가구역이라도 경매는 허가·2년 실거주의무가 면제됩니다. (함정) 바로 그 이유로 사람이 몰려 고가 낙찰이 잦습니다. 시세에서 역산한 상한선을 반드시 지키세요.',
-  test:s=>s.regulated===true && s.ownership==='none'},
- {id:'multi_acq_tax', level:'warn', title:'취득세 중과를 낙찰가에 미리 더하세요',
-  msg:'조정대상지역 2주택 8%, 3주택 이상 12%입니다(비조정 3주택 8%·4주택 12%). 1억 원짜리를 낙찰받아도 취득세만 800~1,200만 원이 나올 수 있습니다.',
+  msg:'(대출) LTV 40%, 생애최초면 70%, 주담대를 받으면 6개월 내 전입의무. (기회) 토지거래허가구역이라도 경매는 허가·2년 실거주의무가 면제됩니다. (함정) 바로 그 이유로 사람이 몰려 고가 낙찰이 잦습니다.',
+  test:s=>s.regulated && s.subject==='person' && s.ownership==='none'},
+ {id:'redev_succession', level:'info', title:'정비사업 구역이라면 — 경매만의 큰 기회',
+  msg:'투기과열지구에서는 재건축은 조합설립인가 후, 재개발은 관리처분인가 후 조합원 지위 양도가 제한되어 일반 매매로는 조합원이 될 수 없습니다. 그러나 경·공매 취득은 예외로 승계가 인정됩니다. 정비구역 물건을 눈여겨보되, 예외 해당 여부는 사건별로 갈리므로 입찰 전 조합·법무사에 반드시 확인하세요.',
+  test:s=>s.regulated},
+ {id:'multi_acq_tax', level:'warn', title:'취득세 중과 — 공시가격부터 확인하세요',
+  msg:'조정대상지역 2주택 8%, 3주택 이상 12%입니다(비조정 3주택 8%·4주택 12%). 다만 공시가격이 일정액 이하인 저가주택은 중과에서 제외되는 규정이 있습니다(기준 금액·지역 구분은 시점에 따라 다르므로 반드시 확인). 같은 물건도 공시가격에 따라 취득세가 8~12% → 1%대로 바뀌므로, 입찰 전 공시가격을 먼저 확인하는 습관을 들이세요.',
   test:s=>s.ownership==='multi'},
  {id:'multi_flip_tax', level:'warn', title:'다주택 + 단기 매각 = 세금이 수익을 먹습니다',
   msg:'보유 1년 미만 매도는 양도세율 70%, 2년 미만은 60%입니다. 여기에 조정지역 다주택 중과(+20~30%p)가 더해질 수 있습니다. 세후 수익으로 다시 계산하세요.',
-  test:s=>s.ownership==='multi' && s.code[4]==='P'},
- {id:'rights_r_worst', level:'warn', title:'인수 금액을 확정하지 못하면 입찰하지 마세요',
-  msg:'특수물건의 손실은 대부분 "얼마를 물어줘야 하는지 모른 채" 들어가서 발생합니다. 최악의 시나리오 금액을 적고, 그것을 뺀 값을 입찰 상한으로 쓰세요.',
-  test:s=>s.code[2]==='R'},
+  test:s=>s.ownership==='multi' && s.code[4]==='P' && s.subject==='person'},
+ {id:'dealer_income_tax', level:'info', title:'매매사업자·법인은 세금 계산법이 다릅니다',
+  msg:'매매사업자의 매각 차익은 양도소득세가 아니라 사업소득(종합소득세), 법인은 법인세 + 추가과세 대상입니다. 단기 회전에는 유리할 수 있으나 건강보험료·부가세·장부 의무가 따라옵니다. 세무사와 구조를 먼저 정하고 입찰하세요.',
+  test:s=>s.subject!=='person'},
+ {id:'exit_p_short', level:'info', title:'매도 시점이 곧 수익률입니다',
+  msg:'개인은 보유 1년 미만 매도 시 양도세 70%. 최소 1~2년 보유를 전제로 자금 계획을 세우면 세후 수익이 크게 달라집니다.',
+  test:s=>s.code[4]==='P' && s.subject==='person'},
  {id:'work_h_reserve', level:'info', title:'수리·명도 예비비를 미리 빼두세요',
   msg:'낙찰가의 5~10%를 수리비로, 별도로 이사비·강제집행비를 잡아 두세요. 아래 가격 상한은 이미 예비비를 감안해 낮춰 계산했습니다.',
   test:s=>s.code[3]==='H'},
  {id:'work_e_command', level:'info', title:'"인도명령이 가능한 물건"인지 확인하세요',
   msg:'손대지 않고 넘어가려면 점유자가 대항력이 없어야 합니다. 매각물건명세서에서 임차인의 전입일이 말소기준권리보다 늦은지 확인하세요. 대항력이 있으면 명도가 길어집니다.',
   test:s=>s.code[3]==='E'},
- {id:'exit_p_short', level:'info', title:'매도 시점이 곧 수익률입니다',
-  msg:'1년 미만 매도 시 양도세 70%. 최소 1~2년 보유를 전제로 자금 계획을 세우면 세후 수익이 크게 달라집니다.',
-  test:s=>s.code[4]==='P'},
+ {id:'rights_r_worst', level:'warn', title:'인수 금액을 확정하지 못하면 입찰하지 마세요',
+  msg:'특수물건의 손실은 대부분 "얼마를 물어줘야 하는지 모른 채" 들어가서 발생합니다. 최악의 시나리오 금액을 적고, 그것을 뺀 값을 입찰 상한으로 쓰세요.',
+  test:s=>s.special},
  {id:'exit_k_yield', level:'info', title:'수익률은 "총 취득가" 기준으로 계산하세요',
   msg:'낙찰가만이 아니라 취득세·법무비·명도비·수리비를 모두 더한 금액이 분모입니다. 낙찰가 기준 수익률은 실제보다 1~2%p 높게 보입니다.',
   test:s=>s.code[4]==='K'},
- {id:'budget_small', level:'info', title:'이 예산에서는 아파트를 검색에서 뺐습니다',
-  msg:'예산 대비 아파트는 검색 결과가 거의 없거나, 있어도 권리·입지에 문제가 있는 경우가 많습니다. 다세대·연립·오피스텔로 시작해 실행 경험을 쌓는 편이 안전합니다.',
-  test:s=>s.budget==='u50'},
- {id:'region_unknown', level:'info', title:'규제지역 여부를 확인하지 못했습니다',
+ {id:'villa_rooms', level:'info', title:'빌라는 방 개수가 곧 환금성입니다',
+  msg:'원룸·1.5룸은 싸게 살 수 있지만 팔 때 사갈 사람이 적습니다. 최소 2룸, 기본은 3룸 이상을 보세요. 그리고 빌라는 전용면적과 공급면적 차이가 아파트보다 크므로, 광고 면적이 아니라 등기부·건축물대장의 전용면적으로 판단하세요.',
+  test:s=>s.props.indexOf('villa')>=0},
+ {id:'region_unknown', level:'info', title:'규제지역 여부를 확인하지 못한 지역이 있습니다',
   msg:'보수적으로(대출이 적게 나오는 쪽으로) 계산했습니다. 국토교통부 규제지역 현황 페이지에서 해당 시군구를 확인하면 가격 상한이 올라갈 수 있습니다.',
-  test:s=>s.regulated===null}
+  test:s=>s.hasUnknownRegion}
 ];
 
-const DISCLAIMER = '이 결과는 투자 성향에 맞는 물건을 찾는 출발점일 뿐, 투자·세무·법률 자문이 아닙니다. 부동산 정책과 세율은 수시로 바뀝니다. 실제 입찰·대출·세금 적용 전에 금융기관·세무사·법무사와 해당 시점 규정을 직접 확인하세요. 규제 수치 기준일: 2026-07-01.';
+const DISCLAIMER = '이 결과는 투자 성향에 맞는 물건을 찾는 출발점일 뿐, 투자·세무·법률 자문이 아닙니다. 부동산 정책과 세율은 수시로 바뀌며, 일부 항목은 원문 확인이 끝나지 않은 상태로 표기돼 있습니다. 실제 입찰·대출·세금 적용 전에 금융기관·세무사·법무사와 해당 시점 규정을 직접 확인하세요.';
 
 /* ══════════════════════════════════════════════════════
-   계산 로직 — 04_search_criteria.json 규칙 그대로
+   상태 & 계산
    ══════════════════════════════════════════════════════ */
-const state = { budget:null, sido:null, sigungu:null, ownership:null, experience:null, answers:{} };
+const state = {
+  subject:null, cash:null, totalFunds:null,
+  regions:[], ownership:null, experience:null,
+  props:[], aptArea:'a59', villaRooms:'r3', oftArea:'o_s',
+  special:false, answers:{}
+};
 
 function isRegulated(sido, sigungu){
   if(!sido) return null;
   if(sido === '서울특별시') return true;
-  if(sido === '경기도'){
-    if(!sigungu) return null;
-    return REGULATED_GG.indexOf(sigungu) >= 0;
-  }
+  if(sido === '경기도'){ if(!sigungu) return null; return REGULATED_GG.indexOf(sigungu) >= 0; }
   return false;
 }
+function regionLabel(r){ return r.sigungu ? r.sido.replace(/(특별시|광역시|특별자치도|특별자치시|도)$/,'') + ' ' + r.sigungu : r.sido; }
+function anyRegulated(){ return state.regions.some(r=>r.regulated === true); }
+function anyUnknownRegion(){ return state.regions.some(r=>r.regulated === null); }
+function anyMetro(){ return state.regions.some(r=>METRO_SIDO.indexOf(r.sido) >= 0); }
 
 function computeCode(){
   const s = {RIGHTS:{}, WORK:{}, EXIT:{}};
@@ -436,17 +516,16 @@ function computeCode(){
   let code = 'A-', strength = {};
   AXES.forEach(ax=>{
     const na = s[ax.id][ax.a.code]||0, nb = s[ax.id][ax.b.code]||0;
-    const win = na >= nb ? ax.a : ax.b;
-    code += win.code;
-    strength[ax.id] = Math.max(na, nb);   // 3 = 뚜렷함, 2 = 약간 기울어짐
+    code += (na >= nb ? ax.a : ax.b).code;
+    strength[ax.id] = Math.max(na, nb);
   });
   return { code, strength };
 }
 
 function fmtWon(v){
+  if(v === null || v === undefined) return '-';
   if(v <= 0) return '제한 없음';
-  const eok = Math.floor(v/100000000);
-  const man = Math.floor((v%100000000)/10000);
+  const eok = Math.floor(v/100000000), man = Math.floor((v%100000000)/10000);
   let out = '';
   if(eok) out += eok + '억 ';
   if(man) out += man.toLocaleString() + '만 ';
@@ -456,60 +535,77 @@ function fmtWon(v){
 function computeCriteria(){
   const { code } = computeCode();
   const R = code[2], W = code[3], X = code[4];
-  const regulated = isRegulated(state.sido, state.sigungu);
-  const budget = BUDGETS.find(b=>b.v === state.budget);
-  const own = state.ownership;
+  const regulated = anyRegulated(), metro = anyMetro();
+  const cash = CASHES.find(b=>b.v === state.cash);
 
-  /* 가격 상한 */
-  const regKey = regulated === true ? 'regulated' : (regulated === false ? 'normal' : 'unknown');
-  const MULT = { normal:{none:3.3, one:3.3, multi:2.31}, regulated:{none:1.7, one:1.0, multi:1.0}, unknown:{none:1.7, one:1.0, multi:1.0} };
-  const ltv = MULT[regKey][own];
+  /* ── 가격 상한: 사용자가 적은 '동원 가능 총액'이 있으면 그것이 기준 ── */
+  let base, ltv = null, basis;
+  if(state.totalFunds){
+    base = state.totalFunds;
+    basis = 'direct';
+  } else {
+    if(state.subject !== 'person' && metro) ltv = 1.0;                       // 수도권 사업자·법인 대출 불가
+    else if(regulated) ltv = (state.ownership === 'none') ? 1.7 : 1.0;
+    else ltv = (state.ownership === 'multi') ? 2.31 : 3.3;
+    if(anyUnknownRegion() && !regulated) ltv = Math.min(ltv, 1.7);           // 판정 불가 → 보수적
+    base = cash.top * ltv;
+    basis = 'estimate';
+  }
   let coef = 1.0; const coefWhy = [];
   if(W === 'H'){ coef *= 0.85; coefWhy.push('직접형 ×0.85'); }
-  if(R === 'R'){ coef *= 0.9;  coefWhy.push('모험형 ×0.9'); }
-  const priceMax = Math.floor(budget.top * ltv * coef / 10000) * 10000;
-  const priceMin = state.budget === 'u50' ? 30000000 : 0;
+  if(state.special){ coef *= 0.9; coefWhy.push('특수물건 ×0.9'); }        // 소송·정리 예비비
+  else if(R === 'R'){ coef *= 0.95; coefWhy.push('모험 성향 ×0.95'); }    // 성향만 모험이면 완만하게
+  const priceMax = Math.floor(base * coef / 10000) * 10000;
+  const priceMin = (state.cash === 'u50' && !state.totalFunds) ? 30000000 : 0;
 
-  /* 유찰 횟수 */
-  let fail = 1; const failWhy = ['기본 1회'];
-  if(R === 'R'){ fail += 1; failWhy.push('모험형 +1'); }
-  if(X === 'P'){ fail += 1; failWhy.push('차익형 +1'); }
-  if(regulated === true){ fail += 1; failWhy.push('규제지역 +1'); }
-  if(R === 'S' && W === 'E' && (state.budget === 'u300' || state.budget === 'o300')){ fail -= 1; failWhy.push('우량·안전 −1'); }
-  if(fail < 0) fail = 0;
+  /* ── 물건 종류 & 면적 (사용자 선택 우선) ── */
+  const typeLabels = [], areaLines = [];
+  if(state.props.indexOf('apt') >= 0){
+    typeLabels.push('아파트');
+    areaLines.push('아파트 · ' + APT_AREAS.find(a=>a.v===state.aptArea).label);
+  }
+  if(state.props.indexOf('villa') >= 0){
+    typeLabels.push('다세대·연립(빌라)');
+    areaLines.push('빌라 · ' + VILLA_ROOMS.find(a=>a.v===state.villaRooms).label + ' (전용면적 기준으로 확인)');
+  }
+  if(state.props.indexOf('oft') >= 0){
+    typeLabels.push('오피스텔');
+    areaLines.push('오피스텔 · ' + OFT_AREAS.find(a=>a.v===state.oftArea).label);
+  }
+  const over85 = state.props.indexOf('apt') >= 0 && state.aptArea === 'a84';
 
-  /* 권리 (초보 안전장치) */
-  const overridden = state.experience === 'novice' && R === 'R';
-  const rights = (R === 'R' && !overridden) ? 'special_ok' : 'safe';
+  /* ── 유찰 횟수: 필터가 아니라 참고 지표 ── */
+  let failHint = '1~3회', failWhy;
+  if(X === 'P' || R === 'R'){
+    failHint = '2~3회';
+    failWhy = '싸게 받아야 하는 전략이라 1회보다는 내려온 회차가 유리합니다.';
+  } else {
+    failWhy = '아파트는 3회를 넘기는 경우가 드뭅니다. 많이 유찰됐다면 가격이 아니라 다른 이유를 의심하세요.';
+  }
 
-  /* 물건 종류 */
-  let types = X === 'K' ? ['오피스텔','다세대/연립','아파트(소형)'] : ['아파트','다세대/연립'];
-  if(state.budget === 'u50') types = types.filter(t=>t.indexOf('아파트') < 0);
-  if(state.budget === 'o300') types = types.filter(t=>t !== '다세대/연립');
+  /* ── 특수조건: 사용자가 희망할 때만 ── */
+  const rights = state.special ? 'special_ok' : 'safe';
 
-  /* 면적 */
-  const area = (state.budget === 'u50' || X === 'K') ? '전용 59㎡ 이하' : '전용 59~84㎡';
-
-  return { code, regulated, regKey, ltv, coef, coefWhy, priceMax, priceMin, fail, failWhy, rights, overridden, types, area,
-           region:(state.sido||'') + (state.sigungu ? ' ' + state.sigungu : ''), budgetTop:budget.top };
+  return { code, regulated, metro, ltv, basis, coef, coefWhy, priceMax, priceMin,
+           failHint, failWhy, rights, over85, typeLabels, areaLines,
+           regions: state.regions.map(regionLabel),
+           cashTop: cash.top, base };
 }
 
 /* ══════════════════════════════════════════════════════
-   화면
+   공통 UI
    ══════════════════════════════════════════════════════ */
 const $ = s=>document.querySelector(s);
 function show(id){ document.querySelectorAll('.screen').forEach(el=>el.classList.remove('active')); $('#'+id).classList.add('active'); window.scrollTo(0,0); }
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function toast(m){ const t = $('#toast'); t.textContent = m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'), 1900); }
+function toast(m){ const t = $('#toast'); t.textContent = m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'), 2400); }
 
-/* 이 페이지가 다른 사이트 안에 삽입돼 있는가 (아티팩트·미리보기 등) */
 const EMBEDDED = (function(){ try { return window.self !== window.top; } catch(e){ return true; } })();
 
 function showTextModal(title, note, text){
   $('#modal-title').textContent = title;
   $('#modal-note').textContent = note;
-  const ta = $('#modal-text');
-  ta.value = text;
+  const ta = $('#modal-text'); ta.value = text;
   $('#modal').classList.add('show');
   setTimeout(()=>{ ta.focus(); ta.select(); }, 60);
 }
@@ -518,87 +614,165 @@ $('#modal-select').onclick = ()=>{ const ta = $('#modal-text'); ta.focus(); ta.s
 $('#modal').onclick = e=>{ if(e.target.id === 'modal') $('#modal').classList.remove('show'); };
 document.addEventListener('keydown', e=>{ if(e.key === 'Escape') $('#modal').classList.remove('show'); });
 
-/* 복사 — 3단계 폴백: 클립보드 API → execCommand → 텍스트 창 */
 function copyText(text, okMsg){
   const fallback = ()=>{
     const ta = document.createElement('textarea');
-    ta.value = text;
-    ta.style.cssText = 'position:fixed;top:-1000px;left:-1000px;opacity:0';
-    document.body.appendChild(ta);
-    ta.focus(); ta.select();
+    ta.value = text; ta.style.cssText = 'position:fixed;top:-1000px;left:-1000px;opacity:0';
+    document.body.appendChild(ta); ta.focus(); ta.select();
     let done = false;
     try { done = document.execCommand('copy'); } catch(e){ done = false; }
     document.body.removeChild(ta);
     if(done) toast(okMsg);
     else showTextModal('검색조건 복사', '이 화면에서는 자동 복사가 막혀 있습니다. 아래 내용을 Ctrl+C(맥은 ⌘+C)로 복사하세요.', text);
   };
-  if(navigator.clipboard && navigator.clipboard.writeText){
-    navigator.clipboard.writeText(text).then(()=>toast(okMsg), fallback);
-  } else fallback();
+  if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(()=>toast(okMsg), fallback);
+  else fallback();
 }
 
-/* --- 1단계: 사실 입력 --- */
+/* ══════════════════════════════════════════════════════
+   1단계 — 내 조건
+   ══════════════════════════════════════════════════════ */
 function renderFacts(){
-  const reg = isRegulated(state.sido, state.sigungu);
-  const regBadge = state.sido
-    ? (reg === true  ? '<span class="regbadge on">규제지역입니다 — 대출 한도가 줄고 세금이 늘어납니다</span>'
-    : (reg === false ? '<span class="regbadge off">비규제지역입니다</span>'
-    :                  '<span class="regbadge unk">시군구까지 고르면 규제 여부를 알려드립니다</span>'))
-    : '';
-
-  const sigunguList = SIGUNGU[state.sido];
-  let regionInput = '';
+  const sigunguList = SIGUNGU[state.sidoSel];
+  let regionPicker = '';
   if(sigunguList){
-    regionInput = '<select id="f-sigungu"><option value="">시·군·구 선택</option>' +
-      sigunguList.map(g=>'<option value="'+esc(g)+'"'+(state.sigungu===g?' selected':'')+'>'+esc(g)+'</option>').join('') + '</select>';
-  } else if(state.sido){
-    regionInput = '<input type="text" id="f-sigungu-text" placeholder="시·군·구 (예: 청주시)" value="'+esc(state.sigungu||'')+'">';
+    regionPicker = '<select id="f-sigungu"><option value="">시·군·구 선택 (여러 번 고를 수 있습니다)</option>' +
+      sigunguList.map(g=>'<option value="'+esc(g)+'">'+esc(g)+(isRegulated(state.sidoSel,g)?' — 규제지역':'')+'</option>').join('') + '</select>';
+  } else if(state.sidoSel){
+    regionPicker = '<input type="text" id="f-sigungu-text" placeholder="시·군·구 입력 (예: 청주시)">' +
+                   '<button class="btn btn-ghost btn-sm" id="f-sigungu-add">추가</button>';
   }
 
+  const picked = state.regions.length
+    ? '<div class="picked">' + state.regions.map((r,i)=>
+        '<span class="rchip'+(r.regulated===true?' reg':'')+'">'+esc(regionLabel(r))+
+        (r.regulated===true?' · 규제':(r.regulated===null?' · 확인필요':''))+
+        '<button data-i="'+i+'" class="rm-region" title="빼기">×</button></span>').join('') + '</div>'
+    : '<p class="help" style="margin-bottom:9px">아직 고른 지역이 없습니다. 임장을 갈 수 있는 곳부터 고르세요.</p>';
+
   $('#facts-body').innerHTML =
-   '<div class="fact"><h3>1. 경매에 넣을 수 있는 내 돈은 얼마인가요?</h3>'+
-   '<p class="help">대출은 아래에서 자동으로 더해 계산합니다. 지금 당장 쓸 수 있는 현금만 고르세요.</p>'+
-   '<div class="chipset" id="f-budget">'+ BUDGETS.map(b=>'<button class="chip'+(state.budget===b.v?' sel':'')+'" data-v="'+b.v+'">'+b.label+'</button>').join('') +'</div></div>'+
+   '<div class="fact"><h3>1. 누구 이름으로 낙찰받나요?</h3>'+
+   '<p class="help">대출 가능 여부와 세금 계산법이 완전히 달라집니다.</p>'+
+   '<div class="chipset" id="f-subject">'+ SUBJECTS.map(s=>'<button class="chip'+(state.subject===s.v?' sel':'')+'" data-v="'+s.v+'">'+s.label+'<span class="sub">'+s.sub+'</span></button>').join('') +'</div></div>'+
 
-   '<div class="fact"><h3>2. 주로 어느 지역 물건에 입찰하려고 하나요?</h3>'+
-   '<p class="help">현장을 보러 갈 수 있는 범위로 고르세요. 규제지역인지는 자동으로 판정합니다.</p>'+
+   '<div class="fact"><h3>2. 동원할 수 있는 자금은 얼마인가요?</h3>'+
+   '<p class="help">두 번째 칸에 <b>대출까지 포함해 실제로 낼 수 있는 총액</b>을 적으면, 그 금액을 그대로 검색 상한으로 씁니다. 비워두면 내 돈에 대출 한도를 추정해 계산합니다.</p>'+
+   '<div class="chipset" id="f-cash">'+ CASHES.map(b=>'<button class="chip'+(state.cash===b.v?' sel':'')+'" data-v="'+b.v+'">내 돈 '+b.label+'</button>').join('') +'</div>'+
+   '<div class="sub-opts"><h5>동원 가능 총액 (대출 포함)</h5>'+
+     '<p class="help">모르면 비워두세요.</p>'+
+     '<div class="money"><input type="text" id="f-total" inputmode="numeric" placeholder="예: 2.5" value="'+(state.totalFunds?(state.totalFunds/100000000):'')+'"><span class="unit">억 원</span>'+
+     '<span class="unit" id="f-total-echo">'+(state.totalFunds?('→ '+fmtWon(state.totalFunds)):'')+'</span></div></div></div>'+
+
+   '<div class="fact"><h3>3. 어느 지역을 볼까요? <span style="font-size:.8rem;color:var(--orange)">여러 곳 선택 가능</span></h3>'+
+   '<p class="help">규제지역인지는 자동으로 판정해 표시합니다.</p>'+
+   picked +
    '<div class="chipset"><select id="f-sido"><option value="">시·도 선택</option>'+
-     SIDO.map(s=>'<option value="'+esc(s)+'"'+(state.sido===s?' selected':'')+'>'+esc(s)+'</option>').join('')+
-   '</select>'+ regionInput +'</div>'+ regBadge +'</div>'+
+     SIDO.map(s=>'<option value="'+esc(s)+'"'+(state.sidoSel===s?' selected':'')+'>'+esc(s)+'</option>').join('')+
+   '</select>'+ regionPicker +'</div>'+
+   (anyRegulated() ? '<div class="tip"><b>규제지역이 포함돼 있습니다.</b> 대출 한도가 줄고 세금이 늘지만, 경매는 토지거래허가·2년 실거주 의무가 면제되고 정비사업 조합원 지위도 승계됩니다. 결과 화면에서 자세히 설명합니다.</div>' : '')+
+   '</div>'+
 
-   '<div class="fact"><h3>3. 지금 집을 몇 채 갖고 있나요?</h3>'+
-   '<p class="help">대출 한도와 세금이 완전히 달라집니다. 세대 기준으로 세어 주세요.</p>'+
+   '<div class="fact"><h3>4. 지금 집을 몇 채 갖고 있나요?</h3>'+
+   '<p class="help">세대 기준으로 세어 주세요. 대출 한도와 취득세가 달라집니다.</p>'+
    '<div class="chipset" id="f-own">'+ OWNERSHIPS.map(o=>'<button class="chip'+(state.ownership===o.v?' sel':'')+'" data-v="'+o.v+'">'+o.label+'</button>').join('') +'</div></div>'+
 
-   '<div class="fact"><h3>4. 지금까지 입찰해 본 적이 있나요?</h3>'+
-   '<p class="help">성향 점수에는 영향을 주지 않습니다. 안전장치를 켤지 판단하는 데만 씁니다.</p>'+
+   '<div class="fact"><h3>5. 지금까지 입찰해 본 적이 있나요?</h3>'+
+   '<p class="help">성향 점수에는 영향을 주지 않습니다. 경고 강도를 정하는 데만 씁니다.</p>'+
    '<div class="chipset" id="f-exp">'+ EXPERIENCES.map(e=>'<button class="chip'+(state.experience===e.v?' sel':'')+'" data-v="'+e.v+'">'+e.label+'</button>').join('') +'</div></div>';
 
-  bindChips('#f-budget','budget'); bindChips('#f-own','ownership'); bindChips('#f-exp','experience');
-  const sd = $('#f-sido');
-  if(sd) sd.onchange = e=>{ state.sido = e.target.value || null; state.sigungu = null; renderFacts(); };
-  const sg = $('#f-sigungu');
-  if(sg) sg.onchange = e=>{ state.sigungu = e.target.value || null; renderFacts(); };
-  const sgt = $('#f-sigungu-text');
-  if(sgt) sgt.oninput = e=>{ state.sigungu = e.target.value.trim() || null; };
+  bindChips('#f-subject','subject'); bindChips('#f-cash','cash');
+  bindChips('#f-own','ownership'); bindChips('#f-exp','experience');
 
-  $('#facts-next').disabled = !(state.budget && state.sido && state.ownership && state.experience);
+  const sd = $('#f-sido');
+  if(sd) sd.onchange = e=>{ state.sidoSel = e.target.value || null; renderFacts(); };
+  const sg = $('#f-sigungu');
+  if(sg) sg.onchange = e=>{ if(e.target.value){ addRegion(state.sidoSel, e.target.value); renderFacts(); } };
+  const sgt = $('#f-sigungu-add');
+  if(sgt) sgt.onclick = ()=>{ const v = $('#f-sigungu-text').value.trim(); if(v){ addRegion(state.sidoSel, v); renderFacts(); } };
+  document.querySelectorAll('.rm-region').forEach(b=>{
+    b.onclick = ()=>{ state.regions.splice(+b.dataset.i, 1); renderFacts(); };
+  });
+  const tf = $('#f-total');
+  if(tf) tf.oninput = e=>{
+    const n = parseFloat(String(e.target.value).replace(/[^0-9.]/g,''));
+    state.totalFunds = (isFinite(n) && n > 0) ? Math.round(n * 100000000) : null;
+    $('#f-total-echo').textContent = state.totalFunds ? ('→ ' + fmtWon(state.totalFunds)) : '';
+    updateFactsNext();
+  };
+  updateFactsNext();
+}
+function updateFactsNext(){
+  $('#facts-next').disabled = !(state.subject && state.cash && state.regions.length && state.ownership && state.experience);
+}
+function addRegion(sido, sigungu){
+  if(!sido) return;
+  if(state.regions.some(r=>r.sido===sido && r.sigungu===sigungu)) return;
+  state.regions.push({ sido, sigungu, regulated: isRegulated(sido, sigungu) });
 }
 function bindChips(sel, key){
   const box = $(sel); if(!box) return;
-  box.querySelectorAll('.chip').forEach(btn=>{
-    btn.onclick = ()=>{ state[key] = btn.dataset.v; renderFacts(); };
-  });
+  box.querySelectorAll('.chip').forEach(btn=>{ btn.onclick = ()=>{ state[key] = btn.dataset.v; renderFacts(); }; });
 }
 
-/* --- 2단계: 질문 --- */
+/* ══════════════════════════════════════════════════════
+   2단계 — 물건 조건
+   ══════════════════════════════════════════════════════ */
+function renderProp(){
+  const sub = (list, key, cur)=> '<div class="chipset">' + list.map(o=>
+    '<button class="chip'+(cur===o.v?' sel':'')+'" data-k="'+key+'" data-v="'+o.v+'">'+o.label+'<span class="sub">'+o.sub+'</span></button>').join('') + '</div>';
+
+  $('#prop-body').innerHTML =
+   '<div class="fact"><h3>1. 어떤 종류의 물건을 볼까요? <span style="font-size:.8rem;color:var(--orange)">여러 개 선택 가능</span></h3>'+
+   '<p class="help">예산이 작으면 아파트는 검색 결과가 거의 없을 수 있습니다.</p>'+
+   '<div class="chipset" id="p-types">'+ PROP_TYPES.map(t=>
+     '<button class="chip'+(state.props.indexOf(t.v)>=0?' sel':'')+'" data-v="'+t.v+'">'+t.label+'<span class="sub">'+t.sub+'</span></button>').join('') +'</div></div>'+
+
+   (state.props.length ? '<div class="fact"><h3>2. 크기는 어느 정도로 볼까요?</h3>'+
+     '<p class="help">광고에 나오는 <b>공급면적</b>이 아니라 등기부·건축물대장의 <b>전용면적</b> 기준입니다. 같은 "24평"이라도 아파트·빌라·오피스텔의 실제 크기는 크게 다릅니다.</p>'+
+     (state.props.indexOf('apt')>=0 ? '<div class="sub-opts"><h5>아파트</h5><p class="help">전용 59㎡ 미만은 되팔 때 수요가 확 줄어듭니다.</p>'+sub(APT_AREAS,'aptArea',state.aptArea)+'</div>' : '')+
+     (state.props.indexOf('villa')>=0 ? '<div class="sub-opts"><h5>빌라·다세대</h5><p class="help">빌라는 면적보다 <b>방 개수</b>가 환금성을 좌우합니다.</p>'+sub(VILLA_ROOMS,'villaRooms',state.villaRooms)+'</div>' : '')+
+     (state.props.indexOf('oft')>=0 ? '<div class="sub-opts"><h5>오피스텔</h5><p class="help">오피스텔은 전용률이 낮아 공급면적 대비 실제가 작습니다.</p>'+sub(OFT_AREAS,'oftArea',state.oftArea)+'</div>' : '')+
+     (state.props.indexOf('apt')>=0 && state.aptArea==='a84' && state.subject!=='person'
+       ? '<div class="tip"><b>주의 —</b> 매매사업자·법인이 전용 85㎡를 넘는 주택을 취득하면 <b>건물분 부가가치세</b>가 붙습니다. 입찰가 산정에 미리 반영하세요.</div>' : '')+
+   '</div>' : '')+
+
+   '<div class="fact"><h3>3. 권리가 복잡한 물건(특수물건)도 볼까요?</h3>'+
+   '<p class="help">유치권·법정지상권·지분매각·선순위 임차인처럼 <b>내가 떠안을 수 있는 권리</b>가 있는 물건입니다. 경쟁이 적어 싸지만, 인수 금액을 계산하지 못하면 손실이 확정됩니다.</p>'+
+   '<div class="chipset" id="p-special">'+
+     '<button class="chip'+(!state.special?' sel':'')+'" data-v="no">아니요, 깨끗한 물건만<span class="sub">권장 — 특히 처음이라면</span></button>'+
+     '<button class="chip'+(state.special?' sel':'')+'" data-v="yes">네, 특수물건도 보겠습니다<span class="sub">인수 금액을 계산할 수 있을 때만</span></button>'+
+   '</div>'+
+   (state.special && state.experience==='novice'
+     ? '<div class="tip" style="background:#fbecec;border-color:#d98a8a"><b>경험이 없다고 답하셨습니다.</b> 특수물건은 첫 3건에서는 <b>입찰하지 말고 추적만</b> 하시길 권합니다. 그래도 켜두겠습니다 — 결과에 경고를 함께 표시합니다.</div>' : '')+
+   '<div class="tip"><b>유찰 횟수는 왜 안 묻나요?</b> 유찰이 많이 된 물건은 최저가가 내려간 물건이라 가격 조건과 사실상 같은 말입니다. 이중으로 좁히면 볼 물건이 사라집니다. 대신 결과 화면에서 <b>유찰 횟수를 어떻게 읽어야 하는지</b> 알려드립니다.</div>'+
+   '</div>';
+
+  document.querySelectorAll('#p-types .chip').forEach(b=>{
+    b.onclick = ()=>{
+      const v = b.dataset.v, i = state.props.indexOf(v);
+      if(i >= 0) state.props.splice(i,1); else state.props.push(v);
+      renderProp();
+    };
+  });
+  document.querySelectorAll('.sub-opts .chip').forEach(b=>{
+    b.onclick = ()=>{ state[b.dataset.k] = b.dataset.v; renderProp(); };
+  });
+  document.querySelectorAll('#p-special .chip').forEach(b=>{
+    b.onclick = ()=>{ state.special = (b.dataset.v === 'yes'); renderProp(); };
+  });
+  $('#prop-next').disabled = state.props.length === 0;
+}
+
+/* ══════════════════════════════════════════════════════
+   3단계 — 성향 질문
+   ══════════════════════════════════════════════════════ */
 let qi = 0;
 function renderQuiz(){
   const q = QUESTIONS[qi];
   const ax = AXES.find(a=>a.id === q.axis);
-  $('#q-axis').textContent = 'Step 2 / 3 · ' + ax.label;
+  $('#q-axis').textContent = 'Step 3 / 4 · ' + ax.label;
   $('#q-count').textContent = (qi+1) + ' / ' + QUESTIONS.length;
-  $('#q-bar').style.width = (12 + (qi/QUESTIONS.length)*76) + '%';
+  $('#q-bar').style.width = (28 + (qi/QUESTIONS.length)*62) + '%';
   $('#q-text').textContent = q.text;
   $('#q-opts').innerHTML = q.opts.map((o,i)=>
     '<button class="opt'+(state.answers[q.id]===i?' sel':'')+'" data-i="'+i+'"><span class="mark"></span><span>'+esc(o.label)+'</span></button>').join('');
@@ -615,134 +789,138 @@ function nextQ(){
 }
 
 /* ══════════════════════════════════════════════════════
-   결과 저장 — 서버 → 저장위치 선택 → 다운로드 → 텍스트 창 순으로 시도
+   결과 저장
    ══════════════════════════════════════════════════════ */
 function stamp(){
   const d = new Date(), p = n=>String(n).padStart(2,'0');
   return { iso: d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'T'+p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds()),
            file: ''+d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+'-'+p(d.getHours())+p(d.getMinutes())+p(d.getSeconds()) };
 }
-
 function buildRecord(c, t, flags, strength){
   const s = stamp();
-  const answers = QUESTIONS.map(q=>({
-    id: q.id, axis: q.axis,
-    pole: q.opts[state.answers[q.id]].pole,
-    choice: q.opts[state.answers[q.id]].label
-  }));
   return {
-    schema: 'auction-mbti-response',
-    version: '2.0',
-    saved_at: s.iso,
-    _file_hint: s.file + '-' + c.code,
-    facts: {
-      budget: state.budget,
-      budget_label: BUDGETS.find(b=>b.v===state.budget).label,
-      equity_top: c.budgetTop,
-      sido: state.sido, sigungu: state.sigungu,
-      region: c.region,
-      regulated: c.regulated,                 // true / false / null(미확인)
+    schema:'auction-mbti-response', version:'3.0', saved_at:s.iso, _file_hint:s.file+'-'+c.code,
+    facts:{
+      subject: state.subject,
+      subject_label: SUBJECTS.find(x=>x.v===state.subject).label,
+      cash: state.cash, cash_top: c.cashTop,
+      total_funds: state.totalFunds,
+      funds_basis: c.basis,
+      regions: state.regions,
+      any_regulated: c.regulated, any_metro: c.metro,
       ownership: state.ownership,
       ownership_label: OWNERSHIPS.find(o=>o.v===state.ownership).label,
       experience: state.experience,
-      experience_label: EXPERIENCES.find(e=>e.v===state.experience).label
+      experience_label: EXPERIENCES.find(e=>e.v===state.experience).label,
+      property_types: state.props,
+      apt_area: state.aptArea, villa_rooms: state.villaRooms, oft_area: state.oftArea,
+      special_wish: state.special
     },
-    answers: answers,
-    type: {
-      code: c.code, name: t.name,
-      axes: { RIGHTS: c.code[2], WORK: c.code[3], EXIT: c.code[4] },
-      strength: strength                      // 3=뚜렷함 / 2=약간 기울어짐
-    },
-    criteria: {
-      region: c.region,
-      property_type: c.types,
+    answers: QUESTIONS.map(q=>({ id:q.id, axis:q.axis, pole:q.opts[state.answers[q.id]].pole, choice:q.opts[state.answers[q.id]].label })),
+    type:{ code:c.code, name:t.name, axes:{RIGHTS:c.code[2], WORK:c.code[3], EXIT:c.code[4]}, strength:strength },
+    criteria:{
+      regions: c.regions, property_type: c.typeLabels, area: c.areaLines,
       price_min: c.priceMin, price_max: c.priceMax,
-      min_fail_count: c.fail, min_fail_reason: c.failWhy,
-      rights: c.rights, rights_overridden: c.overridden,
-      area: c.area,
-      calc: { ltv_mult: c.ltv, reserve_coef: c.coefWhy, formula: fmtWon(c.budgetTop)+' × '+c.ltv+(c.coefWhy.length?' × '+c.coefWhy.join(' × '):'')+' = '+fmtWon(c.priceMax) }
+      fail_count_hint: c.failHint, rights: c.rights, over_85: c.over85,
+      calc:{ basis:c.basis, ltv_mult:c.ltv, reserve_coef:c.coefWhy,
+             formula:(c.basis==='direct' ? fmtWon(c.base)+' (직접 입력한 동원 총액)' : fmtWon(c.cashTop)+' × '+c.ltv+'배(추정)') +
+                     (c.coefWhy.length?' × '+c.coefWhy.join(' × '):'') + ' = ' + fmtWon(c.priceMax) }
     },
-    flags: flags.map(f=>({ id: f.id, level: f.level, title: f.title }))
+    flags: flags.map(f=>({ id:f.id, level:f.level, title:f.title }))
   };
 }
-
 async function saveRecord(rec){
-  const text = JSON.stringify(rec, null, 2);
-  const name = rec._file_hint + '.json';
-
-  // 1) 로컬 저장 서버(save_server.py)가 떠 있으면 프로젝트 폴더에 바로 저장
+  const text = JSON.stringify(rec, null, 2), name = rec._file_hint + '.json';
   try {
     const r = await fetch('save', { method:'POST', headers:{'Content-Type':'application/json'}, body:text });
-    if(r.ok){
-      const j = await r.json();
-      toast('저장했습니다 → ' + (j.file || name));
-      return;
-    }
-  } catch(e) { /* 서버 없음 — 다음 방법으로 */ }
-
-  // 2) 저장 위치 직접 선택 (Chrome 계열)
+    if(r.ok){ const j = await r.json(); toast('저장했습니다 → ' + (j.file || name)); return; }
+  } catch(e) {}
   if(window.showSaveFilePicker){
     try {
-      const h = await window.showSaveFilePicker({ suggestedName:name,
-        types:[{ description:'JSON 파일', accept:{'application/json':['.json']} }] });
-      const w = await h.createWritable();
-      await w.write(text); await w.close();
-      toast('저장했습니다: ' + name);
-      return;
+      const h = await window.showSaveFilePicker({ suggestedName:name, types:[{ description:'JSON 파일', accept:{'application/json':['.json']} }] });
+      const w = await h.createWritable(); await w.write(text); await w.close();
+      toast('저장했습니다: ' + name); return;
     } catch(e) { if(e && e.name === 'AbortError') return; }
   }
-
-  // 3) 다운로드 폴더로
   try {
     const url = URL.createObjectURL(new Blob([text], {type:'application/json'}));
-    const a = document.createElement('a');
-    a.href = url; a.download = name;
+    const a = document.createElement('a'); a.href = url; a.download = name;
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(()=>URL.revokeObjectURL(url), 1000);
-    toast('다운로드 폴더에 저장했습니다: ' + name);
-    return;
-  } catch(e) { /* 마지막 방법으로 */ }
-
-  // 4) 텍스트 창 (아티팩트 등 저장이 막힌 환경)
+    toast('다운로드 폴더에 저장했습니다: ' + name); return;
+  } catch(e) {}
   showTextModal('결과 JSON', '이 화면에서는 파일 저장이 막혀 있습니다. 아래 내용을 복사해 ' + name + ' 으로 저장하세요.', text);
 }
 
-/* --- 3단계: 결과 --- */
+/* ══════════════════════════════════════════════════════
+   4단계 — 결과
+   ══════════════════════════════════════════════════════ */
 function renderResult(){
   const c = computeCriteria();
   const { strength } = computeCode();
   const t = TYPES[c.code];
-  const ctx = { code:c.code, budget:state.budget, ownership:state.ownership, experience:state.experience, regulated:c.regulated };
+  const ctx = { code:c.code, subject:state.subject, cash:state.cash, ownership:state.ownership,
+                experience:state.experience, regulated:c.regulated, metro:c.metro,
+                special:state.special, over85:c.over85, props:state.props,
+                hasUnknownRegion:anyUnknownRegion() };
   const flags = FLAG_DEFS.filter(f=>f.test(ctx));
   const order = { danger:0, warn:1, info:2 };
   flags.sort((a,b)=>order[a.level] - order[b.level]);
 
-  const axisHTML = AXES.map(ax=>{
-    const poleCode = c.code[ AXES.indexOf(ax)+2 ];
+  const axisHTML = AXES.map((ax,idx)=>{
+    const poleCode = c.code[idx+2];
     const pole = ax.a.code === poleCode ? ax.a : ax.b;
     const soft = strength[ax.id] === 2;
-    return '<div class="axisbox'+(soft?' soft':'')+'">'+
-      '<div class="al">'+esc(ax.label)+'</div>'+
+    return '<div class="axisbox'+(soft?' soft':'')+'"><div class="al">'+esc(ax.label)+'</div>'+
       '<div class="av"><span class="ac">'+pole.code+'</span>'+esc(pole.name)+'</div>'+
-      (soft ? '<div class="softnote">약간 기울어짐 · 상황에 따라 바뀔 수 있음</div>' : '')+
-    '</div>';
+      (soft ? '<div class="softnote">약간 기울어짐 · 상황에 따라 바뀔 수 있음</div>' : '')+'</div>';
   }).join('');
 
-  const ownLabel = OWNERSHIPS.find(o=>o.v===state.ownership).label;
-  const expLabel = EXPERIENCES.find(e=>e.v===state.experience).label;
-  const budLabel = BUDGETS.find(b=>b.v===state.budget).label;
-  const regLabel = c.regulated === true ? '규제지역' : (c.regulated === false ? '비규제지역' : '규제 여부 미확인');
-  const failLabel = c.fail === 0 ? '제한 없음 (신건도 포함)' : c.fail + '회 이상';
+  const subjLabel = SUBJECTS.find(x=>x.v===state.subject).label;
+  const ownLabel  = OWNERSHIPS.find(o=>o.v===state.ownership).label;
+  const expLabel  = EXPERIENCES.find(e=>e.v===state.experience).label;
+  const regionsHTML = state.regions.map(r=>
+    '<span class="rchip'+(r.regulated===true?' reg':'')+'">'+esc(regionLabel(r))+
+    (r.regulated===true?' · 규제지역':(r.regulated===null?' · 확인필요':' · 비규제'))+'</span>').join(' ');
+
+  const fundsLine = c.basis === 'direct'
+    ? '직접 입력한 동원 총액 ' + fmtWon(c.base)
+    : '내 돈 ' + fmtWon(c.cashTop) + ' × 대출배수 ' + c.ltv + '배(추정)';
 
   const criteriaRows = [
-    ['지역', esc(c.region) + ' <b>('+regLabel+')</b>', '입력하신 지역 그대로입니다'],
-    ['물건 종류', '<b>'+c.types.join(' · ')+'</b>', c.code[4]==='K' ? '월세형 → 소형 임대 수요가 있는 종류' : '차익형 → 되팔기 쉬운 종류'],
-    ['최저매각가격', '<b>'+(c.priceMin?fmtWon(c.priceMin):'0원')+' ~ '+fmtWon(c.priceMax)+'</b>', '내 돈 '+budLabel+' × 대출배수 '+c.ltv+'배'+(c.coefWhy.length?' × 예비비 '+c.coefWhy.join(' × '):'')],
-    ['유찰 횟수', '<b>'+failLabel+'</b>', c.failWhy.join(' · ')],
+    ['지역', regionsHTML, state.regions.length + '곳 선택 — 한 곳씩 나눠 검색하세요'],
+    ['물건 종류', '<b>'+c.typeLabels.join(' · ')+'</b>', '2단계에서 고른 종류'],
+    ['전용면적 · 방', c.areaLines.map(a=>'<b>'+esc(a)+'</b>').join('<br>'), '공급면적이 아니라 전용면적 기준'],
+    ['최저매각가격', '<b>'+(c.priceMin?fmtWon(c.priceMin):'0원')+' ~ '+fmtWon(c.priceMax)+'</b>', fundsLine + (c.coefWhy.length?' × 예비비 '+c.coefWhy.join(' × '):'')],
     ['특수조건', c.rights==='safe' ? '<b>체크하지 않음</b> (권리 단순한 물건만)' : '<b>체크</b> (유치권·법정지상권·지분·선순위 임차인 등)',
-      c.overridden ? '초보 안전장치로 안전형으로 낮췄습니다' : (c.rights==='safe' ? '말소기준권리 이하 전부 소멸, 인수 권리 0' : '경쟁이 적은 대신 인수 금액 확인이 필수')],
-    ['전용면적', '<b>'+c.area+'</b>', c.code[4]==='K' ? '소형 임대 수요' : '국민평형이 되팔기 쉬움']
-  ].map(r=>'<tr><th>'+r[0]+'</th><td>'+r[1]+'<span class="why">'+esc(r[2])+'</span></td></tr>').join('');
+      c.rights==='safe' ? '2단계에서 "깨끗한 물건만"을 선택했습니다' : '2단계에서 직접 선택했습니다 — 인수 금액 확정이 전제입니다']
+  ].map(r=>'<tr><th>'+r[0]+'</th><td>'+r[1]+'<span class="why">'+esc(r[2])+'</span></td></tr>').join('')
+  + '<tr class="ref"><th>유찰 횟수 <small>(참고)</small></th><td><b>'+c.failHint+' 정도가 무난</b>'+
+    '<span class="why">'+esc(c.failWhy)+' 필터로 걸지 말고, 물건을 열었을 때 확인하는 용도로 쓰세요.</span></td></tr>';
+
+  const criteriaText = [
+    '[법원경매 검색조건] ' + c.code + ' ' + t.name,
+    '지역: ' + c.regions.join(', '),
+    '물건 종류: ' + c.typeLabels.join(', '),
+    '면적: ' + c.areaLines.join(' / '),
+    '최저매각가격: ' + (c.priceMin?fmtWon(c.priceMin):'0원') + ' ~ ' + fmtWon(c.priceMax),
+    '특수조건: ' + (c.rights==='safe' ? '체크 안 함' : '체크'),
+    '유찰 횟수(참고): ' + c.failHint,
+    '',
+    '※ 가격 상한은 검색 범위일 뿐 입찰가 상한이 아닙니다. 입찰가는 시세에서 역산하세요.'
+  ].join('\n');
+
+  const fullText = [
+    '━━ ' + c.code + ' · ' + t.name + ' ━━', t.summary, '',
+    '내 조건: ' + subjLabel + ' / ' + fundsLine + ' / ' + ownLabel + ' / 경매경험 ' + expLabel,
+    '지역: ' + c.regions.join(', '), '',
+    criteriaText, '',
+    '[가장 큰 함정]', t.trap, '',
+    '[입찰 전 확인]', t.checklist.map((x,i)=>(i+1)+'. '+x).join('\n'), '',
+    '[지금 당장 할 일]', t.first, '',
+    flags.length ? '[주의사항]\n' + flags.map(f=>'· ' + f.title + ' — ' + f.msg).join('\n') + '\n' : '',
+    DISCLAIMER
+  ].join('\n');
 
   $('#result-body').innerHTML =
     '<div class="rhead">'+
@@ -754,7 +932,8 @@ function renderResult(){
 
     '<div class="axisrow">'+ axisHTML +'</div>'+
 
-    '<div class="cond-line">내 조건 · <b>'+esc(budLabel)+'</b> · <b>'+esc(c.region||'-')+'</b> · <b>'+esc(ownLabel)+'</b> · 경매경험 <b>'+esc(expLabel)+'</b></div>'+
+    '<div class="cond-line">내 조건 · <b>'+esc(subjLabel)+'</b> · '+esc(fundsLine)+' · <b>'+esc(ownLabel)+'</b> · 경매경험 <b>'+esc(expLabel)+'</b></div>'+
+    '<div class="picked" style="justify-content:center">'+ regionsHTML +'</div>'+
 
     (flags.length ? '<div class="sec"><div class="sec-title">먼저 읽어야 할 것</div>'+
       flags.map(f=>'<div class="flag '+f.level+'"><span class="ft">'+(f.level==='danger'?'위험':(f.level==='warn'?'주의':'참고'))+'</span>'+
@@ -768,27 +947,54 @@ function renderResult(){
     '<div class="sec"><div class="sec-title">★ 법원경매 검색조건</div>'+
       '<div class="sc-card">'+
         '<h4>이 조건 그대로 검색하세요</h4>'+
-        '<p class="sc-intro">법원경매정보(courtauction.go.kr) → <b>경매물건 → 물건상세검색</b>에서 아래 값을 넣으면 됩니다.</p>'+
+        '<p class="sc-intro">법원경매정보(courtauction.go.kr) → <b>경매물건 → 물건상세검색</b>. 지역은 한 곳씩 나눠서 검색하면 결과를 비교하기 좋습니다.</p>'+
         '<table class="sctbl">'+ criteriaRows +'</table>'+
         '<ol class="steps">'+
           '<li>courtauction.go.kr 접속 → 상단 <b>경매물건</b> → <b>물건상세검색</b></li>'+
-          '<li><b>소재지</b>에 '+esc(c.region)+' 선택</li>'+
-          '<li><b>용도</b>에서 '+esc(c.types.join(', '))+' 체크</li>'+
+          '<li><b>소재지</b>에 '+esc(c.regions[0])+(c.regions.length>1?' (나머지 '+(c.regions.length-1)+'곳은 따로 검색)':'')+'</li>'+
+          '<li><b>용도</b>에서 '+esc(c.typeLabels.join(', '))+' 체크</li>'+
           '<li><b>최저매각가격</b>에 '+(c.priceMin?fmtWon(c.priceMin):'0')+' ~ '+fmtWon(c.priceMax)+' 입력</li>'+
-          '<li><b>유찰횟수</b> '+failLabel+' 선택'+(c.rights==='safe'?', <b>특수조건은 비워 둡니다</b>':', <b>특수조건</b>에서 관심 항목 체크')+'</li>'+
-          '<li>결과가 너무 많으면 면적('+esc(c.area)+')으로 좁히세요</li>'+
+          '<li><b>특수조건</b>은 '+(c.rights==='safe'?'비워 둡니다':'원하는 항목을 체크합니다')+'</li>'+
+          '<li>결과가 많으면 면적으로 좁히고, 유찰이 3회를 넘는 물건은 <b>이유부터 확인</b>하세요</li>'+
         '</ol>'+
         '<details class="calc"><summary>가격 상한은 이렇게 계산했습니다</summary><div class="calc-body">'+
-          '<code>'+fmtWon(c.budgetTop)+' (내 돈) × '+c.ltv+' (대출배수) '+(c.coefWhy.length? '× '+c.coefWhy.join(' × ') : '')+' = '+fmtWon(c.priceMax)+'</code><br>'+
-          '· 대출배수 '+c.ltv+'배 = '+esc(regLabel)+' · '+esc(ownLabel)+' 기준 (2026-07-01 규제)<br>'+
-          (c.coefWhy.length ? '· 예비비 계수는 수리·명도·소송 비용을 미리 떼어 두기 위한 것입니다<br>' : '')+
+          '<code>'+esc(fundsLine)+(c.coefWhy.length? ' × '+c.coefWhy.join(' × ') : '')+' = '+fmtWon(c.priceMax)+'</code><br>'+
+          (c.basis==='direct'
+            ? '· 직접 적어주신 동원 가능 총액을 그대로 기준으로 삼았습니다.<br>'
+            : '· 대출배수 '+c.ltv+'배는 '+(c.regulated?'규제지역':'비규제지역')+' · '+esc(ownLabel)+(state.subject!=='person'?' · '+esc(subjLabel):'')+' 기준 추정치입니다(2026-07-01 규제).<br>')+
+          (c.coefWhy.length ? '· 예비비 계수는 수리·명도·소송 비용을 미리 떼어 두기 위한 것입니다.<br>' : '')+
           '<b>이 금액은 검색 범위일 뿐 입찰가 상한이 아닙니다.</b> 입찰가는 반드시 시세에서 역산해 따로 정하세요.'+
         '</div></details>'+
       '</div>'+
     '</div>'+
 
+    '<div class="sec"><div class="sec-title">경매만 되는 것 — 일반 매매와의 차이</div><div class="edge">'+
+      '<div class="card"><h5>토지거래허가 불요</h5><p>토허구역 아파트도 경매는 허가 절차 없이 취득합니다.</p><span class="vs">일반 매매: 허가 필요</span></div>'+
+      '<div class="card"><h5>2년 실거주 의무 면제</h5><p>토허구역이라도 경매 취득에는 실거주 의무가 부과되지 않습니다.</p><span class="vs">일반 매매: 2년 거주</span></div>'+
+      '<div class="card"><h5>조합원 지위 승계 가능</h5><p>투기과열지구의 재건축(조합설립 후)·재개발(관리처분 후) 물건도 경·공매는 예외로 승계됩니다. 사건별로 갈리므로 사전 확인 필수.</p><span class="vs">일반 매매: 양도 제한</span></div>'+
+    '</div></div>'+
+
+    '<div class="sec"><div class="sec-title">유찰 횟수를 읽는 법</div>'+
+      '<div class="panel"><p style="margin-bottom:10px">유찰 1회당 최저가는 보통 <b>20~30% 내려갑니다.</b> 그래서 유찰 횟수와 가격 조건은 사실상 같은 말입니다 — 둘 다로 좁히면 볼 물건이 사라집니다.</p>'+
+      '<ul><li><b>1~3회</b>: 아파트에서 흔한 정상 구간. 가격만 맞으면 검토할 만합니다.</li>'+
+      '<li><b>3회 초과</b>: 아파트에서는 드뭅니다. 가격이 아니라 <b>다른 이유</b>를 의심하세요 — 권리 하자(선순위 임차인·유치권·지분), 물건 하자(누수·불법 증축), 감정가가 시세보다 높은 경우.</li>'+
+      '<li><b>HUG(주택도시보증공사) 관련 물건</b>: 보증기관이 대위변제 후 넘어온 물건은 유찰이 누적되는 경향이 있습니다. 전세사기·깡통전세와 얽힌 경우가 많아 임차인 관계를 특히 꼼꼼히 보세요.</li></ul>'+
+      '<p style="margin-top:10px;color:var(--mute);font-size:.9rem">여러 번 유찰된 데는 반드시 이유가 있습니다. 그 이유를 찾아낼 수 있으면 기회이고, 못 찾으면 그게 바로 손실입니다.</p></div>'+
+    '</div>'+
+
+    '<div class="sec"><div class="sec-title">시장 국면 브리핑 <span class="unverified">미검증</span></div>'+
+      '<div class="panel"><p style="margin-bottom:10px"><b>2026-08-02 세제개편(사용자 제공 정보 — 원문 미확인)</b>: 보유세 강화 + 양도세 2년간 한시 완화.</p>'+
+      '<ul><li><b>보유 비용↑ · 처분 부담↓</b> → 오래 들고 가는 전략의 유지비가 커지고, 완화 기간 안에 정리하려는 매물이 늘 수 있습니다.</li>'+
+      '<li>월세형(K)이라면 보유세 증가분을 수익률에서 먼저 빼고 계산하세요. 차익형(P)이라면 완화 기간이 언제 끝나는지가 매도 시점을 좌우합니다.</li>'+
+      '<li>정비사업(재개발 입주권·신속통합기획 구역 빌라)은 경매로 조합원 지위를 승계할 수 있어 제도적 이점이 있습니다. 다만 이는 <b>전망이지 사실이 아닙니다.</b></li></ul>'+
+      '<p style="margin-top:10px;color:var(--red);font-size:.88rem"><b>반드시 원문을 확인하세요.</b> 이 항목은 검증되지 않은 정보이며, 세율·시행일·적용 대상이 다를 수 있습니다.</p></div>'+
+    '</div>'+
+
     '<div class="sec"><div class="sec-title">입찰 전 확인</div>'+
-      '<div class="checklist">'+ t.checklist.map((ck,i)=>'<label><input type="checkbox"><span>'+esc(ck)+'</span></label>').join('') +'</div>'+
+      '<div class="checklist">'+ t.checklist.map(ck=>'<label><input type="checkbox"><span>'+esc(ck)+'</span></label>').join('') +
+      '<label><input type="checkbox"><span>공시가격을 확인해 취득세 중과 여부를 계산했는가</span></label>'+
+      (state.subject!=='person' ? '<label><input type="checkbox"><span>전용 85㎡ 초과라면 건물분 부가세를 원가에 더했는가</span></label>' : '')+
+      '</div>'+
       '<div class="first-step"><h4>지금 당장 할 일</h4><p>'+esc(t.first)+'</p></div>'+
     '</div>'+
 
@@ -799,33 +1005,7 @@ function renderResult(){
       '<button class="btn btn-ghost" id="r-restart">↻ 다시하기</button>'+
     '</div>'+
     '<p class="disclaimer">'+esc(DISCLAIMER)+'</p>'+
-    '<footer>법원경매 투자성향 테스트 · 규제 기준일 2026-07-01</footer>';
-
-  const criteriaText = [
-    '[법원경매 검색조건] ' + c.code + ' ' + t.name,
-    '지역: ' + c.region + ' (' + regLabel + ')',
-    '물건 종류: ' + c.types.join(', '),
-    '최저매각가격: ' + (c.priceMin?fmtWon(c.priceMin):'0원') + ' ~ ' + fmtWon(c.priceMax),
-    '유찰 횟수: ' + failLabel,
-    '특수조건: ' + (c.rights==='safe' ? '체크 안 함' : '체크'),
-    '전용면적: ' + c.area,
-    '',
-    '※ 가격 상한은 검색 범위일 뿐 입찰가 상한이 아닙니다.'
-  ].join('\n');
-
-  const fullText = [
-    '━━ ' + c.code + ' · ' + t.name + ' ━━',
-    t.summary, '',
-    '내 조건: ' + budLabel + ' / ' + (c.region||'-') + ' / ' + ownLabel + ' / 경매경험 ' + expLabel, '',
-    criteriaText, '',
-    '[가격 상한 계산]',
-    fmtWon(c.budgetTop) + ' × ' + c.ltv + '배' + (c.coefWhy.length ? ' × ' + c.coefWhy.join(' × ') : '') + ' = ' + fmtWon(c.priceMax), '',
-    '[가장 큰 함정]', t.trap, '',
-    '[입찰 전 확인]', t.checklist.map((x,i)=>(i+1)+'. '+x).join('\n'), '',
-    '[지금 당장 할 일]', t.first, '',
-    flags.length ? '[주의사항]\n' + flags.map(f=>'· ' + f.title + ' — ' + f.msg).join('\n') + '\n' : '',
-    DISCLAIMER
-  ].join('\n');
+    '<footer>법원경매 투자성향 테스트 v3 · 규제 기준일 2026-07-01 (세제개편 항목은 미검증)</footer>';
 
   $('#r-restart').onclick = ()=>{ state.answers = {}; qi = 0; show('screen-start'); };
   $('#r-copy').onclick = ()=>copyText(criteriaText, '검색조건을 복사했습니다');
@@ -836,20 +1016,21 @@ function renderResult(){
   printBtn.onclick = ()=>{
     if(EMBEDDED){
       showTextModal('결과 전체 텍스트',
-        '이 화면은 다른 페이지 안에 들어가 있어 인쇄가 막혀 있습니다. 아래 내용을 복사해 쓰거나, 원본 HTML 파일을 브라우저에서 직접 열어 인쇄하세요.',
-        fullText);
+        '이 화면은 다른 페이지 안에 들어가 있어 인쇄가 막혀 있습니다. 아래 내용을 복사해 쓰거나, 원본 HTML 파일을 브라우저에서 직접 열어 인쇄하세요.', fullText);
       return;
     }
     try { window.print(); }
-    catch(e){ showTextModal('결과 전체 텍스트', '인쇄를 열 수 없어 텍스트로 보여드립니다. Ctrl+C로 복사하세요.', fullText); }
+    catch(e){ showTextModal('결과 전체 텍스트', '인쇄를 열 수 없어 텍스트로 보여드립니다.', fullText); }
   };
 }
 
-/* --- 네비게이션 --- */
+/* ── 네비게이션 ── */
 $('#start-btn').onclick = ()=>{ renderFacts(); show('screen-facts'); };
 $('#facts-prev').onclick = ()=>show('screen-start');
-$('#facts-next').onclick = ()=>{ qi = 0; renderQuiz(); show('screen-quiz'); };
-$('#q-prev').onclick = ()=>{ if(qi > 0){ qi--; renderQuiz(); } else { renderFacts(); show('screen-facts'); } };
+$('#facts-next').onclick = ()=>{ renderProp(); show('screen-prop'); };
+$('#prop-prev').onclick = ()=>{ renderFacts(); show('screen-facts'); };
+$('#prop-next').onclick = ()=>{ qi = 0; renderQuiz(); show('screen-quiz'); };
+$('#q-prev').onclick = ()=>{ if(qi > 0){ qi--; renderQuiz(); } else { renderProp(); show('screen-prop'); } };
 $('#q-next').onclick = nextQ;
 </script>
 </body>
